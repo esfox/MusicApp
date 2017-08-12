@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:ignore="HardcodedText">
+
+    <!--TODO: Update items or change order-->
+    <group>
+        <item
+            android:title="Library">
+            <menu>
+                <item
+                    android:id="@+id/navigation_drawer_songs"
+                    android:icon="@drawable/tempicon"
+                    android:title="Songs"
+                    android:checkable="true"/>
+
+                <item
+                    android:id="@+id/navigation_drawer_playlists"
+                    android:icon="@drawable/tempicon"
+                    android:title="Playlists"
+                    android:checkable="true"/>
+
+                <item
+                    android:id="@+id/navigation_drawer_favorites"
+                    android:icon="@drawable/tempicon"
+                    android:title="Favorites"
+                    android:checkable="true"/>
+            </menu>
+        </item>
+
+        <item
+            android:id="@+id/navigation_drawer_play_queue"
+            android:icon="@drawable/tempicon"
+            android:title="Play Queue"
+            android:checkable="true"/>
+
+        <item android:title="Options">
+            <menu>
+                <item
+                    android:id="@+id/navigation_drawer_settings"
+                    android:icon="@drawable/tempicon"
+                    android:title="Settings"
+                    android:checkable="true"/>
+
+                <item
+                    android:id="@+id/navigation_drawer_help"
+                    android:icon="@drawable/tempicon"
+                    android:title="Help"
+                    android:checkable="true"/>
+                <item
+                    android:id="@+id/navigation_drawer_about"
+                    android:icon="@drawable/tempicon"
+                    android:title="About"
+                    android:checkable="true"/>
+            </menu>
+        </item>
+    </group>
+</menu>

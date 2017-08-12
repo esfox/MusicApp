@@ -1,0 +1,47 @@
+TODO Update
+
+Music App Plan
+~~~~~~~~~~~~~~
+
+APP NAME:
+
+- Potential
+	* Musicer
+	* Musichist
+	* PlayMe
+
+MIN API SUPPORTED: 14
+
+App Features
+
+* Pull-up or pull-down bar
+* Sorting Options
+* Multi-Queue
+* EQ
+* Favorites List
+
+- Main song list is a Swipeable ListView
+(to show options)
+
+Individual song options include:
+	 
+- Add to
+	- Playlist
+	- New Playlist
+	- Favorites
+- Queue
+- More
+	- Song Details
+		- Title
+		- Artist
+		- Album
+		- Year
+		- Genre
+		- Duration
+		- Cover
+	- Edit Tags
+	- Delete
+	- (Add More)
+
+Additional Notes
+- Show play button on current song playing in every RecyclerView

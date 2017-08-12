@@ -1,0 +1,455 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:ignore="ContentDescription">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#DD000000"
+        android:paddingEnd="15dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingStart="15dp"
+        android:scrollbars="none"
+        tools:ignore="UselessParent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp">
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/details_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="77.5dp"
+                    app:cardBackgroundColor="@color/background_secondary"
+                    app:cardElevation="5dp"
+                    app:cardPreventCornerOverlap="false"
+                    app:cardUseCompatPadding="true">
+
+                    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                    xmlns:tools="http://schemas.android.com/tools"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:paddingBottom="16dp"
+                                    android:paddingLeft="16dp"
+                                    android:paddingRight="16dp"
+                                    android:paddingTop="98.5dp">
+
+                        <!-- TITLE-->
+
+                        <TextView
+                            android:id="@+id/title_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:text="@string/song_details_title"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/text_secondary"/>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/title_label"
+                            android:layout_alignTop="@id/title_label"
+                            android:layout_toEndOf="@+id/title_label"
+                            android:layout_toRightOf="@+id/title_label">
+
+                            <View
+                                android:id="@+id/title_divider"
+                                android:layout_width="wrap_content"
+                                android:layout_height="1dp"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginLeft="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginRight="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginStart="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginTop="@dimen/song_detail_label_spacing"
+                                android:background="@color/divider"/>
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/queue_item_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/title_label"
+                            android:layout_marginLeft="@dimen/song_detail_label_indent"
+                            android:layout_marginStart="@dimen/song_detail_label_indent"
+                            android:layout_marginTop="@dimen/song_detail_label_spacing"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_primary"
+                            tools:text="Le epic title desc"/>
+
+
+                        <!-- ARTIST-->
+
+                        <TextView
+                            android:id="@+id/artist_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/title_label"
+                            android:layout_alignStart="@+id/title_label"
+                            android:layout_below="@+id/queue_item_title"
+                            android:layout_marginTop="@dimen/song_detail_vert_space"
+                            android:text="@string/song_details_artist"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/text_secondary"/>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/artist_label"
+                            android:layout_alignTop="@id/artist_label"
+                            android:layout_toEndOf="@+id/artist_label"
+                            android:layout_toRightOf="@+id/artist_label">
+
+                            <View
+                                android:id="@+id/artist_divider"
+                                android:layout_width="wrap_content"
+                                android:layout_height="1dp"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginLeft="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginRight="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginStart="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginTop="@dimen/song_detail_label_spacing"
+                                android:background="@color/divider"/>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/queue_item_artist"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/artist_label"
+                            android:layout_marginLeft="@dimen/song_detail_label_indent"
+                            android:layout_marginStart="@dimen/song_detail_label_indent"
+                            android:layout_marginTop="@dimen/song_detail_label_spacing"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_primary"
+                            tools:text="Le epic artist desc"/>
+
+
+                        <!-- ALBUM ARTIST-->
+
+                        <TextView
+                            android:id="@+id/album_artist_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/artist_label"
+                            android:layout_alignStart="@+id/artist_label"
+                            android:layout_below="@+id/queue_item_artist"
+                            android:layout_marginTop="@dimen/song_detail_vert_space"
+                            android:text="@string/song_details_album_artist"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/text_secondary"/>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/album_artist_label"
+                            android:layout_alignTop="@+id/album_artist_label"
+                            android:layout_toEndOf="@+id/album_artist_label"
+                            android:layout_toRightOf="@+id/album_artist_label">
+
+                            <View
+                                android:id="@+id/album_artist_divider"
+                                android:layout_width="wrap_content"
+                                android:layout_height="1dp"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginLeft="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginRight="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginStart="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginTop="@dimen/song_detail_label_spacing"
+                                android:background="@color/divider"/>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/album_artist"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/album_artist_label"
+                            android:layout_marginLeft="@dimen/song_detail_label_indent"
+                            android:layout_marginStart="@dimen/song_detail_label_indent"
+                            android:layout_marginTop="@dimen/song_detail_label_spacing"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_primary"
+                            tools:text="Le epic album artist desc"/>
+
+
+                        <!-- ALBUM-->
+
+                        <TextView
+                            android:id="@+id/album_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/album_artist_label"
+                            android:layout_alignStart="@+id/album_artist_label"
+                            android:layout_below="@+id/album_artist"
+                            android:layout_marginTop="@dimen/song_detail_vert_space"
+                            android:text="@string/song_details_album"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/text_secondary"/>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/album_label"
+                            android:layout_alignTop="@id/album_label"
+                            android:layout_toEndOf="@+id/album_label"
+                            android:layout_toRightOf="@+id/album_label">
+
+                            <View
+                                android:id="@+id/album_divider"
+                                android:layout_width="wrap_content"
+                                android:layout_height="1dp"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginLeft="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginRight="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginStart="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginTop="@dimen/song_detail_label_spacing"
+                                android:background="@color/divider"/>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/album"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/album_label"
+                            android:layout_marginLeft="@dimen/song_detail_label_indent"
+                            android:layout_marginStart="@dimen/song_detail_label_indent"
+                            android:layout_marginTop="@dimen/song_detail_label_spacing"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_primary"
+                            tools:text="Le epic album desc"/>
+
+
+                        <!-- YEAR-->
+
+                        <TextView
+                            android:id="@+id/year_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/album_label"
+                            android:layout_alignStart="@+id/album_label"
+                            android:layout_below="@+id/album"
+                            android:layout_marginTop="@dimen/song_detail_vert_space"
+                            android:text="@string/song_details_year"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/text_secondary"/>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/year_label"
+                            android:layout_alignTop="@+id/year_label"
+                            android:layout_toEndOf="@+id/year_label"
+                            android:layout_toRightOf="@+id/year_label">
+
+                            <View
+                                android:id="@+id/year_divider"
+                                android:layout_width="wrap_content"
+                                android:layout_height="1dp"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginLeft="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginRight="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginStart="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginTop="@dimen/song_detail_label_spacing"
+                                android:background="@color/divider"/>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/year"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/year_label"
+                            android:layout_marginLeft="@dimen/song_detail_label_indent"
+                            android:layout_marginStart="@dimen/song_detail_label_indent"
+                            android:layout_marginTop="@dimen/song_detail_label_spacing"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_primary"
+                            tools:text="Le epic year desc"/>
+
+
+                        <!--GENRE-->
+
+                        <TextView
+                            android:id="@+id/genre_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/year_label"
+                            android:layout_alignStart="@+id/year_label"
+                            android:layout_below="@+id/year"
+                            android:layout_marginTop="@dimen/song_detail_vert_space"
+                            android:text="@string/song_details_genre"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/text_secondary"/>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/genre_label"
+                            android:layout_alignTop="@+id/genre_label"
+                            android:layout_toEndOf="@+id/genre_label"
+                            android:layout_toRightOf="@+id/genre_label">
+
+                            <View
+                                android:id="@+id/genre_divider"
+                                android:layout_width="wrap_content"
+                                android:layout_height="1dp"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginLeft="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginRight="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginStart="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginTop="@dimen/song_detail_label_spacing"
+                                android:background="@color/divider"/>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/genre"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/genre_label"
+                            android:layout_marginLeft="@dimen/song_detail_label_indent"
+                            android:layout_marginStart="@dimen/song_detail_label_indent"
+                            android:layout_marginTop="@dimen/song_detail_label_spacing"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_primary"
+                            tools:text="Le genre wow"/>
+
+
+                        <!--DURATION-->
+
+                        <TextView
+                            android:id="@+id/duration_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/year_label"
+                            android:layout_alignStart="@+id/year_label"
+                            android:layout_below="@+id/genre"
+                            android:layout_marginTop="@dimen/song_detail_vert_space"
+                            android:text="@string/song_details_duration"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/text_secondary"/>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/duration_label"
+                            android:layout_alignTop="@+id/duration_label"
+                            android:layout_toEndOf="@+id/duration_label"
+                            android:layout_toRightOf="@+id/duration_label">
+
+                            <View
+                                android:id="@+id/duration_divider"
+                                android:layout_width="wrap_content"
+                                android:layout_height="1dp"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginLeft="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginRight="@dimen/song_detail_divider_margin_right"
+                                android:layout_marginStart="@dimen/song_detail_divider_margin_left"
+                                android:layout_marginTop="@dimen/song_detail_label_spacing"
+                                android:background="@color/divider"/>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/duration_label"
+                            android:layout_marginLeft="@dimen/song_detail_label_indent"
+                            android:layout_marginStart="@dimen/song_detail_label_indent"
+                            android:layout_marginTop="@dimen/song_detail_label_spacing"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/text_primary"
+                            tools:text="Le longest song ever"/>
+
+
+                    </RelativeLayout>
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    app:cardCornerRadius="0dp"
+                    app:cardElevation="6dp"
+                    app:cardPreventCornerOverlap="false"
+                    app:cardUseCompatPadding="true">
+
+                    <ImageView
+                        android:id="@+id/album_cover"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:scaleType="centerCrop"
+                        tools:src="@drawable/temp_square"/>
+
+                </android.support.v7.widget.CardView>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="10dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/control_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            app:useCompatPadding="true"
+            app:srcCompat="@drawable/play_36dp"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/previous_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/play_button"
+            android:layout_toStartOf="@+id/play_button"
+            app:fabSize="mini"
+            app:useCompatPadding="true"
+            app:srcCompat="@drawable/fast_rewind_24dp"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/next_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/play_button"
+            android:layout_toRightOf="@+id/play_button"
+            app:fabSize="mini"
+            app:useCompatPadding="true"
+            app:srcCompat="@drawable/fast_forward_24dp"/>
+
+    </RelativeLayout>
+</RelativeLayout>

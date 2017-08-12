@@ -1,0 +1,211 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/background_primary"
+                tools:context=".fragments.NowPlayingFragment"
+                tools:ignore="ContentDescription,Deprecated">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"/>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/background_secondary"
+        app:navigationIcon="@drawable/expand_less_36dp"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:theme="@style/ToolbarStyle"
+        app:title="Now Playing"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@id/header"
+        android:background="@drawable/toolbar_shadow"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/header"
+        android:layout_marginTop="20dp">
+
+        <!--TODO: Scrolling Text-->
+
+        <TextView
+            android:id="@+id/now_playing_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginStart="20dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="20sp"
+            android:singleLine="true"
+            tools:text="Title of the Song is so very long, it's so unrealistically not awesome to do everything is so nice."/>
+
+        <!--TODO Long App Marquee-->
+
+        <TextView
+            android:id="@+id/now_playing_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/now_playing_title"
+            android:layout_alignLeft="@+id/now_playing_title"
+            android:layout_alignRight="@+id/now_playing_title"
+            android:layout_alignStart="@+id/now_playing_title"
+            android:layout_below="@+id/now_playing_title"
+            android:layout_marginTop="5dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:gravity="center"
+            android:singleLine="true"
+            tools:text="Artist of the Song"/>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/now_playing_cover_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/now_playing_artist"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="6dp"
+            app:cardPreventCornerOverlap="false"
+            app:cardUseCompatPadding="true">
+
+            <ImageView
+                android:id="@+id/now_playing_cover"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/temp_square"/>
+
+        </android.support.v7.widget.CardView>
+
+        <TextView
+            android:id="@+id/now_playing_album"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/now_playing_cover_card"
+            android:layout_centerHorizontal="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="10dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="17sp"
+            android:singleLine="true"
+            tools:text="The title of this album is so long, it doesn't make any sense"/>
+
+        <!--TODO: Seekbar Thumb-->
+
+        <SeekBar
+            android:id="@+id/now_playing_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/now_playing_album"
+            android:layout_marginEnd="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginStart="30dp"
+            android:thumb="@null"/>
+
+        <TextView
+            android:id="@+id/now_playing_start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/now_playing_progress_bar"
+            android:layout_alignStart="@+id/now_playing_progress_bar"
+            android:layout_below="@+id/now_playing_progress_bar"
+            android:text="0:00"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:id="@+id/now_playing_end_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_alignEnd="@+id/now_playing_progress_bar"
+            android:layout_alignRight="@+id/now_playing_progress_bar"
+            android:layout_below="@+id/now_playing_progress_bar"
+            tools:text="0:00:00"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/control_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:id="@+id/now_playing_shuffle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/now_playing_previous"
+            android:layout_toStartOf="@+id/now_playing_previous"
+            android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/shuffle_36dp"/>
+
+        <ImageView
+            android:id="@+id/now_playing_repeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/now_playing_next"
+            android:layout_toEndOf="@+id/now_playing_next"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/repeat_36dp"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/now_playing_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            app:useCompatPadding="true"
+            app:srcCompat="@drawable/play_36dp"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/now_playing_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/now_playing_play"
+            android:layout_toStartOf="@+id/now_playing_play"
+            app:fabSize="mini"
+            app:useCompatPadding="true"
+            app:srcCompat="@drawable/fast_rewind_24dp"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/now_playing_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/now_playing_play"
+            android:layout_toRightOf="@+id/now_playing_play"
+            app:fabSize="mini"
+            app:useCompatPadding="true"
+            app:srcCompat="@drawable/fast_forward_24dp"/>
+
+    </RelativeLayout>
+</RelativeLayout>

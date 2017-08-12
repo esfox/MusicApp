@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      tools:ignore="HardcodedText">
+
+    <item
+        android:id="@+id/multi_select"
+        android:title="Multi-select"/>
+
+    <item
+        android:id="@+id/multi_queue"
+        android:title="Multi Queue"/>
+
+</menu>

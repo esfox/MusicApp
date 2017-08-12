@@ -1,0 +1,11 @@
+TODO Update
+
+Music App Dev Notes
+
+Dev
+* Should utilize Fragments
+* Should implement Toolbar
+* Changeable color theme
+* Create a Player class
+	- receives a Song object
+	- has methods that return Song details

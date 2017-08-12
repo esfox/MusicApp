@@ -1,0 +1,12 @@
+TODO
+
+
+* DB
+    GET SONGS (with cover)
+    UPDATE
+    DELETE
+    CLEAR (for debugging only)
+
+* rename resources
+* fix drawable resources (especially for below api 21)
+* add item swipe listener to song list

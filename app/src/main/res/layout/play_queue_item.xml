@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/queue_item_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="ContentDescription">
+
+    <RelativeLayout
+        android:id="@+id/queue_item_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background_primary">
+
+        <RelativeLayout
+            android:id="@+id/queue_item_container"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/queue_item_drag_handle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:focusable="true"
+                android:paddingEnd="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingStart="5dp"
+                android:src="@drawable/drag_vertical_24dp"
+                android:tint="@color/button_tint_secondary"/>
+
+            <TextView
+                android:id="@+id/queue_item_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_toEndOf="@+id/queue_item_drag_handle"
+                android:layout_toLeftOf="@+id/queue_item_cover"
+                android:layout_toRightOf="@+id/queue_item_drag_handle"
+                android:layout_toStartOf="@+id/queue_item_cover"
+                android:ellipsize="marquee"
+                android:maxLines="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                tools:text="Title"/>
+
+            <TextView
+                android:id="@+id/queue_item_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@+id/queue_item_title"
+                android:layout_alignLeft="@+id/queue_item_title"
+                android:layout_alignRight="@+id/queue_item_title"
+                android:layout_alignStart="@+id/queue_item_title"
+                android:layout_below="@+id/queue_item_title"
+                android:layout_toLeftOf="@+id/queue_item_cover"
+                android:layout_toStartOf="@+id/queue_item_cover"
+                android:ellipsize="marquee"
+                android:maxLines="1"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="13sp"
+                tools:text="Artist"/>
+
+            <ImageView
+                android:id="@+id/queue_item_cover"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/queue_item_options"
+                android:layout_toStartOf="@id/queue_item_options"
+                tools:src="@drawable/temp_square"/>
+
+            <ImageView
+                android:id="@+id/queue_item_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingEnd="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingStart="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/more_vertical_24dp"
+                android:tint="@color/button_tint"/>
+        </RelativeLayout>
+    </RelativeLayout>
+</RelativeLayout>

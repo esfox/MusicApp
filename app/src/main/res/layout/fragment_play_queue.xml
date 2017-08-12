@@ -1,0 +1,121 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/background_secondary"
+                tools:context=".fragments.PlayQueueFragment">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/play_queue_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/background_secondary"
+        app:navigationIcon="@drawable/back_arrow_24dp"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:theme="@style/ToolbarStyle"
+        app:title="Play Queue"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/play_queue"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/play_queue_toolbar"
+        android:layout_above="@+id/play_queue_now_playing"
+        tools:listitem="@layout/play_queue_item"/>
+
+    <com.music.app.views.RecyclerViewFastScroller
+        android:id="@+id/play_queue_fast_scroller"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/play_queue"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/play_queue"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"/>
+
+    <RelativeLayout
+        android:id="@+id/play_queue_now_playing"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:background="@color/background_secondary"
+        android:clickable="true">
+
+        <ImageView
+            android:id="@+id/play_queue_cover"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            tools:src="@drawable/temp_square"/>
+
+        <View
+            android:id="@+id/space"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_toEndOf="@+id/play_queue_cover"
+            android:layout_toLeftOf="@+id/space"
+            android:layout_toRightOf="@+id/play_queue_cover"
+            android:layout_toStartOf="@+id/space">
+
+            <TextView
+                android:id="@+id/play_queue_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@color/colorPrimaryLight"
+                tools:text="Sample Title That is So Very Long"/>
+
+            <TextView
+                android:id="@+id/play_queue_artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/play_queue_title"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textColor="@color/text_primary"
+                tools:text="Sample Title"/>
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="7dp"
+        android:layout_above="@+id/play_queue_now_playing"
+        android:background="@drawable/toolbar_shadow_upside_down"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@+id/play_queue_toolbar"
+        android:background="@drawable/toolbar_shadow"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/queue_list_play_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        app:srcCompat="@drawable/play_36dp"
+        app:useCompatPadding="true"
+        tools:ignore="RelativeOverlap"/>
+
+</RelativeLayout>

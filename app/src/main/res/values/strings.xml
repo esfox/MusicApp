@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Music App</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="options_add_to">Play Next</string>
+    <string name="options_queue">Queue</string>
+    <string name="options_more">More</string>
+    <string name="song_details_title">Title</string>
+    <string name="song_details_artist">Artist</string>
+    <string name="song_details_album_artist">Album Artist</string>
+    <string name="song_details_album">Album</string>
+    <string name="song_details_year">Release Year</string>
+    <string name="song_details_genre">Genre</string>
+    <string name="song_details_duration">Duration</string>
+
+    <!-- Titles-->
+    <string name="title_all_songs">All Songs</string>
+
+    <string-array name="options_more_texts">
+        <item name="options_more_add_to">Add to...</item>
+        <item name="options_more_text_song_details">Song Details</item>
+        <item name="options_more_text_edit_tags">Edit Tags</item>
+        <item name="options_more_text_delete">Delete</item>
+    </string-array>
+
+    <string-array name="options_add_to_texts">
+        <item name="options_add_to_text_playlist">Playlist</item>
+        <item name="options_add_to_text_new_playlist">New Playlist</item>
+        <item name="options_add_to_favorites">Favorites</item>
+    </string-array>
+
+    <string-array name="sort_by">
+        <item name="sort_by_title">Title</item>
+        <item name="sort_by_artist">Artist</item>
+        <item name="sort_by_album">Album</item>
+        <item name="sort_by_none">None (TEMP)</item>
+    </string-array>
+
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
+</resources>

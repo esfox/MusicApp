@@ -1,0 +1,15 @@
+TODO Update
+
+Music App Dev Progress
+
+* created audio player functionality (Player class)
+* Song object created
+* audio file scanning made (as AsyncTask)
+* added playRandom function
+* used song object
+* added temp song list
+* added temp song list selection (song will play)
+* Player class can return current song
+* mp3 scanning complete (with tags)
+* created song list item options (SwipeLayout)
+* created song list item option more menu (Dialog that is
