@@ -5,7 +5,6 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -21,7 +20,7 @@ public class UIManager
     private FragmentManager fragmentManager;
 
     public Toolbar toolbar;
-    public ImageButton playButton;
+    ImageButton playButton;
     private NavigationView navigationDrawer;
 
     public UIManager(Context context, FragmentManager fragmentManager)
@@ -102,6 +101,7 @@ public class UIManager
             ((DrawerLayout) navigationDrawer.getTag()).openDrawer(GravityCompat.START);
         else
         {
+            ((DrawerLayout) navigationDrawer.getTag()).closeDrawer(GravityCompat.START);
             updateNavigationDrawer();
         }
     }
@@ -132,8 +132,6 @@ public class UIManager
 
     public void togglePlayButtonIcon(boolean isPlaying)
     {
-        Log.d("isPlaying", String.valueOf(isPlaying));
-
         if(fragmentManager.nowPlayingFragment.isVisible())
             fragmentManager.nowPlayingFragment.togglePlayButtonIcon(isPlaying);
 

@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         {
             case R.id.play_button:
                 player.play();
-                uiManager.togglePlayButtonIcon(Data.isPlaying);
+                uiManager.togglePlayButtonIcon(data.isPlaying());
                 break;
 
             case R.id.previous_button:
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
     public boolean onLongClick(View v)
     {
         player.stop();
-        uiManager.togglePlayButtonIcon(Data.isPlaying);
+        uiManager.togglePlayButtonIcon(false);
         return true;
     }
 

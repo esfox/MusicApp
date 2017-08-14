@@ -223,6 +223,8 @@ public class AudioFileScanner
             if(cursor != null)
                 cursor.close();
         }
+
+        store();
     }
 
     private void store()

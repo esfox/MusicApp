@@ -120,7 +120,7 @@ public class Player extends Service
                 PlayQueueFragment.update();
             }
 
-            if(Data.currentSongQueueIndex != -1)
+            if(data.currentSongQueueIndex() != -1)
                 PlayQueue.updateCurrentSongIndex(!song.equals(Data.currentSong), true);
             else
                 PlayQueue.newCurrentSongIndex(song);
@@ -155,7 +155,7 @@ public class Player extends Service
     {
         if(player.getCurrentPosition() > 3000)
         {
-            updateCurrentSong(Data.currentSong, false);
+            serviceCommunicator.onStartAudio(Data.currentSong, false);
             return false;
         }
         else
@@ -179,18 +179,18 @@ public class Player extends Service
                 song = PlayQueue.getNextSong();
             else
             {
-                if(Data.repeatState == Data.RepeatState.ONE)
+                if(data.repeatState() == Data.RepeatState.ONE)
                     song = Data.currentSong;
                 else
                 {
-                    if(Data.repeatState == Data.RepeatState.OFF)
+                    if(data.repeatState() == Data.RepeatState.OFF)
                     {
                         if(PlayQueue.queue.indexOf(Data.currentSong) < PlayQueue.queue.size() - 1)
                             song = PlayQueue.getNextSong();
                         else
                             stop();
                     }
-                    else if(Data.repeatState == Data.RepeatState.ALL)
+                    else if(data.repeatState() == Data.RepeatState.ALL)
                         song = PlayQueue.getNextSong();
                 }
             }
@@ -202,7 +202,6 @@ public class Player extends Service
         PlayQueue.updateQueueStack(next);
 //        PlayQueue.resetQueueStack();
 
-        updateCurrentSong(song, false);
         serviceCommunicator.onStartAudio(song, false);
     }
 

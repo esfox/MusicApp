@@ -68,6 +68,8 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
             }
         }
 
+        cursor.close();
+
         return songs;
     }
 

@@ -61,8 +61,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         getView().findViewById(R.id.now_playing_artist).setSelected(true);
         getView().findViewById(R.id.now_playing_album).setSelected(true);
 
-        //TODO: Load shuffle and repeat states
-
         shuffle(false);
         repeat(false);
 
@@ -109,7 +107,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     public void onResume()
     {
         super.onResume();
-        togglePlayButtonIcon(Data.isPlaying);
+        togglePlayButtonIcon(data.isPlaying());
     }
 
     private void initProgress()
@@ -202,7 +200,8 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         {
             case R.id.now_playing_play:
                 player.play();
-                togglePlayButtonIcon(Data.isPlaying);
+                togglePlayButtonIcon(data.isPlaying());
+                ((MainActivity) getContext()).uiManager.togglePlayButtonIcon(data.isPlaying());
                 break;
 
             case R.id.now_playing_next:
@@ -225,14 +224,13 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
     public void shuffle(boolean toggle)
     {
-        //TODO: Save shuffle state
         if(toggle)
         {
             data.updateIsShuffled(!data.isShuffled());
             PlayQueue.shuffle();
         }
 
-        if(!data.isShuffled())
+        if(data.isShuffled())
             shuffle.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
         else
             shuffle.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
@@ -240,11 +238,10 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
     public void repeat(boolean toggle)
     {
-        //TODO: Save repeat state
         if(toggle)
-            Data.repeat();
+            data.updateRepeatState();
 
-        switch(Data.repeatState)
+        switch(data.repeatState())
         {
             case OFF:
                 repeat.setImageResource(R.drawable.repeat_36dp);

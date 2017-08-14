@@ -8,7 +8,7 @@ public class DB implements BaseColumns
 
     public static final String DATABASE_NAME = "MAIN_APP_DB";
 
-    public static final String SONG_TABLE           = "queue";
+    public static final String SONG_TABLE           = "tracks";
     public static final String SONG_DB_ID           = "_id";
     public static final String SONG_UUID            = "uuid";
     public static final String SONG_ID              = "song_id";

@@ -18,32 +18,43 @@ public class Data
 
     public static ArrayList<Song> songs;
     public static Song currentSong;
-    public static int currentSongQueueIndex = -1;
-    public static boolean isShuffled = false;
-    public static boolean isPlaying = false;
 
     public enum RepeatState
     {
-        OFF,
-        ALL,
-        ONE
+        OFF, //0
+        ALL, //1
+        ONE  //2
     }
 
-    public static RepeatState repeatState = RepeatState.OFF;
-
-    public static void repeat()
+    public void updateRepeatState()
     {
+        if(repeatState() == RepeatState.OFF)
+            saveRepeatState(RepeatState.ALL);
+        else if(repeatState() == RepeatState.ALL)
+            saveRepeatState(RepeatState.ONE);
+        else if(repeatState() == RepeatState.ONE)
+            saveRepeatState(RepeatState.OFF);
+    }
+
+    private void saveRepeatState(RepeatState repeatState)
+    {
+        int repeatStateNumber = 0;
         if(repeatState == RepeatState.OFF)
-            repeatState = RepeatState.ALL;
+            repeatStateNumber = 0;
         else if(repeatState == RepeatState.ALL)
-            repeatState = RepeatState.ONE;
+            repeatStateNumber = 1;
         else if(repeatState == RepeatState.ONE)
-            repeatState = RepeatState.OFF;
+            repeatStateNumber = 2;
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(repeatStateKey, repeatStateNumber);
+        editor.apply();
     }
 
     //Convert to XML
     private final String currentSongQueueIndexKey = "CurrentSongQueueIndex";
     private final String isShuffledKey = "isShuffled";
+    private final String repeatStateKey = "repeatState";
     private final String isPlayingKey = "isPlaying";
 
     public int currentSongQueueIndex()
@@ -54,6 +65,17 @@ public class Data
     public boolean isShuffled()
     {
         return sharedPreferences.getBoolean(isShuffledKey, false);
+    }
+
+    public RepeatState repeatState()
+    {
+        int repeatStateNumber = sharedPreferences.getInt(repeatStateKey, 0);
+        if(repeatStateNumber == 1)
+            return RepeatState.ALL;
+        else if(repeatStateNumber == 2)
+            return RepeatState.ONE;
+        else
+            return RepeatState.OFF;
     }
 
     public boolean isPlaying()

@@ -34,6 +34,8 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
     private ItemTouchHelper touchHelper;
     private RecyclerView playQueue;
 
+    private Data data;
+
     public PlayQueueFragment() {}
 
     @Override
@@ -46,6 +48,8 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
+
+        data = ((MainActivity) getContext()).data;
 
         assert getView() != null;
         view = getView();
@@ -67,7 +71,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
                 switch(item.getItemId())
                 {
                     case R.id.action_shuffle:
-                        Data.isShuffled = !Data.isShuffled;
+                        data.updateIsShuffled(!data.isShuffled());
                         PlayQueue.shuffle();
                         update();
                         scrollToPlaying();
@@ -76,7 +80,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
                         // Data.updateNowPlayingFragment();
                         break;
                     case R.id.action_repeat:
-                        Data.repeat();
+                        data.updateRepeatState();
                         repeat();
                         //TODO: Update NowPlayingFragment
                         //Data.updateNowPlayingFragment();
@@ -145,7 +149,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
 
     private void shuffle()
     {
-        if(Data.isShuffled)
+        if(data.isShuffled())
             menu.findItem(R.id.action_shuffle)
                     .getIcon()
                     .setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
@@ -157,7 +161,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
 
     private void repeat()
     {
-        switch(Data.repeatState)
+        switch(data.repeatState())
         {
             case OFF:
                 menu.findItem(R.id.action_repeat).setIcon(R.drawable.repeat_36dp);
@@ -189,8 +193,8 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
 
     private void scrollToPlaying()
     {
-        if(Data.currentSongQueueIndex != -1)
-            playQueue.scrollToPosition(Data.currentSongQueueIndex);
+        if(data.currentSongQueueIndex() != -1)
+            playQueue.scrollToPosition(data.currentSongQueueIndex());
     }
 
     @Override
