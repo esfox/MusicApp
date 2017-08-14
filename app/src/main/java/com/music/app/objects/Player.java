@@ -1,30 +1,53 @@
 package com.music.app.objects;
 
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.music.app.R;
 import com.music.app.fragments.PlayQueueFragment;
-import com.music.app.utils.UIManager;
+import com.music.app.utils.interfaces.ServiceCommunicator;
 
 import java.io.IOException;
 
 public class Player extends Service
 {
-    public static MediaPlayer player = new MediaPlayer();
+    private IBinder binder = new ServiceBinder();
+    private ServiceCommunicator serviceCommunicator;
+    private MediaPlayer player;
+    private Data data;
 
-    private static Player instance;
+    public class ServiceBinder extends Binder
+    {
+        public Player getService()
+        {
+            return Player.this;
+        }
+    }
+
+    public void setServiceCommunicator(ServiceCommunicator serviceCommunicator)
+    {
+        this.serviceCommunicator = serviceCommunicator;
+    }
+
+    public void setData(Data data)
+    {
+        this.data = data;
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        Log.d("Service", "Called");
         if(Data.currentSong != null)
         {
             try
@@ -47,14 +70,14 @@ public class Player extends Service
                 e.printStackTrace();
             }
 
-//            Intent notifIntent = new Intent(Data.getInstance().getContext(), MainActivity.class);
-//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
+            //            Intent notifIntent = new Intent(Data.getInstance().getContext(), MainActivity.class);
+            //            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setContentTitle(Data.currentSong.getTitle())
                     .setContentText(Data.currentSong.getArtist())
                     .setSmallIcon(R.drawable.play_36dp)
-//                    .setContentIntent(pendingIntent)
+                    //                    .setContentIntent(pendingIntent)
                     .setOngoing(true);
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
@@ -81,14 +104,21 @@ public class Player extends Service
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) { return null; }
+    public IBinder onBind(Intent intent)
+    {
+        player = new MediaPlayer();
+        return binder;
+    }
 
-    public static void playSong(Song song, boolean fromUser)
+    public void updateCurrentSong(Song song, boolean fromUser)
     {
         if(fromUser)
         {
             if(Data.currentSong != null)
+            {
                 PlayQueue.newSongPlayed(song);
+                PlayQueueFragment.update();
+            }
 
             if(Data.currentSongQueueIndex != -1)
                 PlayQueue.updateCurrentSongIndex(!song.equals(Data.currentSong), true);
@@ -97,54 +127,50 @@ public class Player extends Service
         }
 
         Data.currentSong = song;
-        Player.instance.startService(new Intent(Player.instance, Player.class));
-
-        UIManager.instance.togglePlayButtonIcon(true);
-        UIManager.instance.updateNowPlayingBar();
-        PlayQueueFragment.update();
     }
 
-	public static void play()
-	{
+    public void play()
+    {
         if(Data.currentSong != null)
             if(!player.isPlaying())
             {
                 player.start();
-                Data.isPlaying = true;
+                data.updateIsPlaying(true);
             }
             else
             {
                 player.pause();
-                Data.isPlaying = false;
+                data.updateIsPlaying(false);
             }
-	}
+    }
 
-    public static void stop()
+    public void stop()
     {
         player.pause();
         player.seekTo(0);
+        serviceCommunicator.onStopAudio();
     }
 
-    public static boolean previous()
+    public boolean previous()
     {
         if(player.getCurrentPosition() > 3000)
         {
-            playSong(Data.currentSong, false);
+            updateCurrentSong(Data.currentSong, false);
             return false;
         }
         else
         {
-            changeSong(false, true);
+            change(false, true);
             return true;
         }
     }
 
-    public static void next()
+    public void next()
     {
-        changeSong(true, true);
+        change(true, true);
     }
 
-    private static void changeSong(boolean next, boolean fromUser)
+    private void change(boolean next, boolean fromUser)
     {
         Song song = null;
         if(next)
@@ -176,15 +202,17 @@ public class Player extends Service
         PlayQueue.updateQueueStack(next);
 //        PlayQueue.resetQueueStack();
 
-        playSong(song, false);
-
-        UIManager.instance.updateNowPlayingFragment();
-        UIManager.instance.updatePlayQueueFragment();
-        UIManager.instance.updateNowPlayingBar();
+        updateCurrentSong(song, false);
+        serviceCommunicator.onStartAudio(song, false);
     }
 
     private void onFinish()
     {
-        changeSong(true, false);
+        change(true, false);
+    }
+
+    public MediaPlayer getPlayer()
+    {
+        return player;
     }
 }

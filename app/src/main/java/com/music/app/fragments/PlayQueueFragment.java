@@ -17,10 +17,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.PlayQueue;
-import com.music.app.objects.Player;
 import com.music.app.utils.ItemTouchHelperCallback;
 import com.music.app.utils.adapters.PlayQueueAdapterOld;
 import com.music.app.utils.interfaces.OnStartDragListener;
@@ -91,7 +91,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
             @Override
             public void onClick(View v)
             {
-                Player.play();
+                ((MainActivity) getContext()).player.play();
                 togglePlayButtonIcon();
             }
         });

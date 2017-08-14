@@ -1,21 +1,25 @@
 package com.music.app;
 
-import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.music.app.fragments.FragmentManager;
+import com.music.app.fragments.PlayQueueFragment;
 import com.music.app.objects.Data;
+import com.music.app.objects.PlayQueue;
 import com.music.app.objects.Player;
-import com.music.app.objects.UI;
+import com.music.app.objects.Song;
 import com.music.app.utils.AudioFileScanner;
 import com.music.app.utils.UIManager;
+import com.music.app.utils.interfaces.ServiceCommunicator;
 
 /*
 
@@ -45,12 +49,15 @@ NowPlayingFragment  83-84, 157-162
 
 */
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener
+public class MainActivity extends AppCompatActivity implements ServiceCommunicator, View.OnClickListener, View.OnLongClickListener, NavigationView.OnNavigationItemSelectedListener
 {
-    public UI ui;
+    public Player player;
     public UIManager uiManager;
     public FragmentManager fragmentManager;
+
     public Data data;
+
+    private Intent serviceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -58,25 +65,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        data = new Data(this);
+        serviceIntent = new Intent(this, Player.class);
+        bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
-        //Initialize UI
-        ui = new UI();
-
-        //Initialize Fragments
         fragmentManager = new FragmentManager(this);
+        uiManager = new UIManager(this, fragmentManager);
 
-        //Initialize UI Manager
-        uiManager = new UIManager(this);
+        data = new Data(this);
+        PlayQueue.setData(data);
 
         //Scan audio
         AudioFileScanner audioFileScanner = new AudioFileScanner(this);
         audioFileScanner.scanAudio();
-
 //        temp();
     }
 
-//    private void temp()
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        stopService(serviceIntent);
+        unbindService(connection);
+    }
+
+    //    private void temp()
 //    {
 //        TempSongs tempSong = new TempSongs();
 //        ArrayList<TempSongs.TempSong> tempsongs = tempSong.getSongs();
@@ -117,31 +129,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    }
 
     @Override
+    public void onStartAudio(Song song, boolean fromUser)
+    {
+        player.updateCurrentSong(song, fromUser);
+        startService(serviceIntent);
+
+        uiManager.togglePlayButtonIcon(true);
+        uiManager.updateNowPlayingFragment();
+        uiManager.updatePlayQueueFragment();
+        uiManager.updateNowPlayingBar();
+        PlayQueueFragment.update();
+    }
+
+    @Override
+    public void onStopAudio()
+    {
+        stopService(serviceIntent);
+    }
+
+    @Override
     public void onClick(View v)
     {
         switch (v.getId())
         {
             case R.id.play_button:
-                Player.play();
+                player.play();
                 uiManager.togglePlayButtonIcon(Data.isPlaying);
                 break;
 
             case R.id.previous_button:
-                Player.previous();
+                player.previous();
                 break;
 
             case R.id.next_button:
-                Player.next();
+                player.next();
                 break;
 
             case R.id.now_playing_bar:
-                fragmentManager.nowPlaying();
+                uiManager.openNowPlayingBar();
                 break;
 
             case R.id.now_playing_navigation:
-                ((DrawerLayout) ui.navigationDrawer.getTag()).openDrawer(GravityCompat.START);
+                uiManager.toggleNavigationDrawer(true);
                 break;
         }
+    }
+
+    @Override
+    public boolean onLongClick(View v)
+    {
+        player.stop();
+        uiManager.togglePlayButtonIcon(Data.isPlaying);
+        return true;
     }
 
     @Override
@@ -173,8 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
 
-        ((DrawerLayout) ui.navigationDrawer.getTag()).closeDrawer(GravityCompat.START);
-        uiManager.updateNavigationDrawer();
+        uiManager.toggleNavigationDrawer(false);
 
         return true;
     }
@@ -193,4 +231,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            ((FloatingActionButton) controlButtons.findViewById(R.id.next_button)).show();
 //        }
     }
+
+    private ServiceConnection connection = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service)
+        {
+            Player.ServiceBinder binder = (Player.ServiceBinder) service;
+            player = binder.getService();
+            player.setServiceCommunicator(MainActivity.this);
+            player.setData(data);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name)
+        {
+
+        }
+    };
 }

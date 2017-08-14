@@ -11,15 +11,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.PlayQueue;
-import com.music.app.objects.Player;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
 import com.music.app.utils.adapters.SongListAdapter;
+import com.music.app.utils.interfaces.ServiceCommunicator;
 
 public class SongListViewHolder implements View.OnClickListener, View.OnLongClickListener
 {
@@ -184,7 +185,8 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
         if(adapter.inMultiQueueMode())
         {
             PlayQueue.queue(song);
-            Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
+            Toast.makeText(context, song.getTitle() + " queued", Toast.LENGTH_SHORT).show();
+//            Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
         }
         else if(adapter.inSelectionMode())
         {
@@ -192,7 +194,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
             select();
         }
         else
-            Player.playSong(song, true);
+            ((MainActivity) context).onStartAudio(song, true);
     }
 
     private void options()
@@ -250,14 +252,16 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     private void queue()
     {
         PlayQueue.queue(song);
-        Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
+        Toast.makeText(context, song.getTitle() + " queued", Toast.LENGTH_SHORT).show();
+//        Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
         options();
     }
 
     private void playNext()
     {
         PlayQueue.playNext(song);
-        Snackbar.make(null, song.getTitle() + " to play next", Snackbar.LENGTH_LONG).show();
+        Toast.makeText(context, song.getTitle() + " to play next", Toast.LENGTH_SHORT).show();
+//        Snackbar.make(null, song.getTitle() + " to play next", Snackbar.LENGTH_LONG).show();
         options();
     }
 

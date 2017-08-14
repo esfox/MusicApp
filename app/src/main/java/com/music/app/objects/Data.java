@@ -7,18 +7,11 @@ import java.util.ArrayList;
 
 public class Data
 {
-    private Context context;
     private final SharedPreferences sharedPreferences;
 
     public Data(Context context)
     {
-        this.context = context;
         sharedPreferences = context.getSharedPreferences("Data", Context.MODE_PRIVATE);
-    }
-
-    public Context getContext()
-    {
-        return context;
     }
 
     //TODO: STORE ALL THESE TO SHARED PREFS OR TO STORAGE

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.Song;
@@ -26,10 +27,13 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
     private ArrayList<Song> songs;
     private OnStartDragListener dragListener;
 
+    private Context context;
+
     public PlayQueueAdapterOld(Context pContext, ArrayList<Song> pSongs, OnStartDragListener pDragListener)
     {
         songs = pSongs;
         dragListener = pDragListener;
+        context = pContext;
     }
 
     @Override
@@ -48,7 +52,7 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
         holder.artist.setText(song.getArtist());
         holder.cover.setImageDrawable(song.getCover());
 
-        if(position == Data.currentSongQueueIndex)
+        if(position == ((MainActivity) context).data.currentSongQueueIndex())
             holder.background.setBackgroundResource(R.color.colorPrimaryDarker);
         else
             holder.background.setBackgroundResource(R.color.background_primary);
@@ -133,7 +137,7 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
             switch(v.getId())
             {
                 case R.id.queue_item_container:
-//                    Player.playSong(context, queue.get(PlayQueueViewHolder.this.getAdapterPosition()));
+//                    Player.updateCurrentSong(context, queue.get(PlayQueueViewHolder.this.getAdapterPosition()));
 //                    ((ActivityCommunicator) context).onSongPlayed();
 //                    ((ActivityCommunicator) context).onSongChanged();
                     break;

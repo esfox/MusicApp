@@ -381,6 +381,6 @@ public class SongListAdapter extends BaseAdapter implements AbsListView.OnScroll
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
     {
         boolean isLastPosition = songList.getLastVisiblePosition() == items.size() - 1;
-        ((MainActivity) context).uiManager.toggleControlButtons(!isLastPosition);
+//        ((MainActivity) context).uiManager.toggleControlButtons(!isLastPosition);
     }
 }

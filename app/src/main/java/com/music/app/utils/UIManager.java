@@ -2,6 +2,8 @@ package com.music.app.utils;
 
 import android.content.Context;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -10,130 +12,135 @@ import android.widget.ImageView;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
+import com.music.app.fragments.FragmentManager;
 import com.music.app.objects.Data;
-import com.music.app.objects.Player;
 
 public class UIManager
 {
-    public static UIManager instance;
+    private Context context;
+    private FragmentManager fragmentManager;
 
-    private MainActivity mainActivity;
+    public Toolbar toolbar;
+    public ImageButton playButton;
+    private NavigationView navigationDrawer;
 
-    public UIManager(Context context)
+    public UIManager(Context context, FragmentManager fragmentManager)
     {
-        instance = this;
-
-        mainActivity = (MainActivity) context;
+        this.context = context;
+        this.fragmentManager = fragmentManager;
         initUI();
     }
 
     private void initUI()
     {
         //Initialize Now Playing Bar
-        mainActivity.ui.toolbar = (Toolbar) mainActivity.findViewById(R.id.toolbar);
-        mainActivity.ui.toolbar.setTitle("Hello, User!");
-        mainActivity.ui.toolbar.setSubtitle("Select a song to play.");
+        toolbar = (Toolbar) ((MainActivity) context).findViewById(R.id.toolbar);
+        toolbar.setTitle("Hello, User!");
+        toolbar.setSubtitle("Select a song to play.");
 
         //Initialize control buttons
-        mainActivity.ui.previousButton = (ImageButton) mainActivity.findViewById(R.id.previous_button);
-        mainActivity.ui.nextButton = (ImageButton) mainActivity.findViewById(R.id.next_button);
-        mainActivity.ui.playButton = (ImageButton) mainActivity.findViewById(R.id.play_button);
+        ImageButton previousButton = (ImageButton) ((MainActivity) context).findViewById(R.id.previous_button);
+        ImageButton nextButton = (ImageButton) ((MainActivity) context).findViewById(R.id.next_button);
+        playButton = (ImageButton) ((MainActivity) context).findViewById(R.id.play_button);
 
         //Initialize Navigation Drawer
-        mainActivity.ui.navigationDrawer = ((NavigationView) mainActivity.findViewById(R.id.navigation_drawer));
-        mainActivity.ui.navigationDrawer.setItemIconTintList(null);
-        mainActivity.ui.navigationDrawer.setNavigationItemSelectedListener(mainActivity);
-        mainActivity.ui.navigationDrawer.setTag(mainActivity.findViewById(R.id.drawer_layout));
+        navigationDrawer = ((NavigationView) ((MainActivity) context).findViewById(R.id.navigation_drawer));
+        navigationDrawer.setItemIconTintList(null);
+        navigationDrawer.setNavigationItemSelectedListener((MainActivity) context);
+        navigationDrawer.setTag(((MainActivity) context).findViewById(R.id.drawer_layout));
         updateNavigationDrawer();
 
         //Set Click Listeners
-        mainActivity.findViewById(R.id.now_playing_bar).setOnClickListener(mainActivity);
-        mainActivity.findViewById(R.id.now_playing_navigation).setOnClickListener(mainActivity);
-        mainActivity.ui.previousButton.setOnClickListener(mainActivity);
-        mainActivity.ui.nextButton.setOnClickListener(mainActivity);
-        mainActivity.ui.playButton.setOnClickListener(mainActivity);
-        mainActivity.ui.playButton.setOnLongClickListener(new View.OnLongClickListener()
-        {
-            @Override
-            public boolean onLongClick(View v)
-            {
-                Player.stop();
-                togglePlayButtonIcon(Data.isPlaying);
-                return true;
-            }
-        });
+        ((MainActivity) context).findViewById(R.id.now_playing_bar).setOnClickListener((MainActivity) context);
+        ((MainActivity) context).findViewById(R.id.now_playing_navigation).setOnClickListener((MainActivity) context);
+        previousButton.setOnClickListener((MainActivity) context);
+        nextButton.setOnClickListener((MainActivity) context);
+        playButton.setOnClickListener((MainActivity) context);
+        playButton.setOnLongClickListener((MainActivity) context);
+    }
+
+    public void openNowPlayingBar()
+    {
+        fragmentManager.nowPlaying();
+//        toggleControlButtons(false);
     }
 
     public void updateNowPlayingBar()
     {
-        ImageView nowPlayingCover = (ImageView) mainActivity.findViewById(R.id.now_playing_bar_cover);
+        ImageView nowPlayingCover = (ImageView) ((MainActivity) context).findViewById(R.id.now_playing_bar_cover);
 
         if (Data.currentSong != null)
         {
             nowPlayingCover.setVisibility(View.VISIBLE);
             nowPlayingCover.setImageDrawable(Data.currentSong.getCover());
-            mainActivity.ui.toolbar.setTitle(Data.currentSong.getTitle());
-            mainActivity.ui.toolbar.setSubtitle(Data.currentSong.getArtist());
+            toolbar.setTitle(Data.currentSong.getTitle());
+            toolbar.setSubtitle(Data.currentSong.getArtist());
         }
         else
         {
             nowPlayingCover.setVisibility(View.INVISIBLE);
-            mainActivity.ui.toolbar.setTitle("Hello, User!");
-            mainActivity.ui.toolbar.setSubtitle("Select a song to play.");
+            toolbar.setTitle("Hello, User!");
+            toolbar.setSubtitle("Select a song to play.");
         }
     }
 
     public void updateNowPlayingFragment()
     {
-        if (mainActivity.fragmentManager.nowPlayingFragment.isVisible())
-            mainActivity.fragmentManager.nowPlayingFragment.update(true);
+        if (fragmentManager.nowPlayingFragment.isVisible())
+            fragmentManager.nowPlayingFragment.update(true);
     }
 
     public void updatePlayQueueFragment()
     {
-        if (mainActivity.fragmentManager.playQueueFragment.isVisible())
-            mainActivity.fragmentManager.playQueueFragment.updateNowPlaying();
+        if (fragmentManager.playQueueFragment.isVisible())
+            fragmentManager.playQueueFragment.updateNowPlaying();
     }
 
-    public void updateNavigationDrawer()
+    public void toggleNavigationDrawer(boolean open)
     {
-        if(mainActivity.ui.navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).isChecked())
-            mainActivity.ui.navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).setChecked(false);
-
-        mainActivity.ui.navigationDrawer.getMenu().findItem(mainActivity.fragmentManager.activeFragment).setChecked(true);
-    }
-
-    public void toggleControlButtons(boolean toggle)
-    {
-        if(toggle)
-        {
-//            mainActivity.ui.playButton.show();
-//            mainActivity.ui.previousButton.show();
-//            mainActivity.ui.nextButton.show();
-        }
+        if(open)
+            ((DrawerLayout) navigationDrawer.getTag()).openDrawer(GravityCompat.START);
         else
         {
-//            mainActivity.ui.playButton.hide();
-//            mainActivity.ui.previousButton.hide();
-//            mainActivity.ui.nextButton.hide();
+            updateNavigationDrawer();
         }
     }
+
+    private void updateNavigationDrawer()
+    {
+        if(navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).isChecked())
+            navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).setChecked(false);
+
+        navigationDrawer.getMenu().findItem(fragmentManager.activeFragment).setChecked(true);
+    }
+
+//    public void toggleControlButtons(boolean toggle)
+//    {
+//        if(toggle)
+//        {
+//            playButton.show();
+//            previousButton.show();
+//            nextButton.show();
+//        }
+//        else
+//        {
+//            playButton.hide();
+//            previousButton.hide();
+//            nextButton.hide();
+//        }
+//    }
 
     public void togglePlayButtonIcon(boolean isPlaying)
     {
-        if(mainActivity.fragmentManager.nowPlayingFragment.isVisible())
-            mainActivity.fragmentManager.nowPlayingFragment.togglePlayButtonIcon(isPlaying);
+        Log.d("isPlaying", String.valueOf(isPlaying));
+
+        if(fragmentManager.nowPlayingFragment.isVisible())
+            fragmentManager.nowPlayingFragment.togglePlayButtonIcon(isPlaying);
 
         if (isPlaying)
-        {
-            Log.d("com.music.app", "Button: Pause");
-            mainActivity.ui.playButton.setImageResource(R.drawable.pause_24dp);
-        }
+            playButton.setImageResource(R.drawable.pause_24dp);
         else
-        {
-            Log.d("com.music.app", "Button: Play");
-            mainActivity.ui.playButton.setImageResource(R.drawable.play_24dp);
-        }
+            playButton.setImageResource(R.drawable.play_24dp);
     }
 
 //    private void showGreetings()

@@ -5,7 +5,6 @@ import android.widget.Toast;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
-import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 
 public class FragmentManager
@@ -75,8 +74,6 @@ public class FragmentManager
 
     public void nowPlaying()
     {
-        mainActivity.uiManager.toggleControlButtons(false);
-
         fragmentManager
                 .beginTransaction()
                 .setCustomAnimations(R.anim.slide_down, R.anim.slide_up, R.anim.slide_down, R.anim.slide_up)

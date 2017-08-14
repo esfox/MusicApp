@@ -1,17 +1,22 @@
 package com.music.app.objects;
 
-import com.music.app.fragments.PlayQueueFragment;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 public class PlayQueue
 {
+    private static Data data;
+
     private static int currentIndex = -1;
     private static int queueStack = 0;
 
     public static ArrayList<Song> queue = new ArrayList<>();
+
+    public static void setData(Data data)
+    {
+        PlayQueue.data = data;
+    }
 
     static void newSongPlayed(Song song)
     {
@@ -29,14 +34,12 @@ public class PlayQueue
             queue.remove(queue.indexOf(song));
             queue.add(0, song);
         }
-
-        PlayQueueFragment.update();
     }
 
     static void newCurrentSongIndex(Song song)
     {
         currentIndex = queue.indexOf(song);
-        Data.currentSongQueueIndex = currentIndex;
+        data.updateCurrentSongQueueIndex(currentIndex);
     }
 
     static void updateCurrentSongIndex(boolean update, boolean increment)
@@ -44,18 +47,18 @@ public class PlayQueue
         if(update)
             if(increment) currentIndex++; else currentIndex--;
 
-        Data.currentSongQueueIndex = currentIndex;
+        data.updateCurrentSongQueueIndex(currentIndex);
     }
 
 //    static void logCurrents()
 //    {
-//        if(Data.currentSong != null)
+//        if(data.currentSong != null)
 //        {
 //            Log.wtf("Current Index", String.valueOf(currentIndex));
-//            Log.wtf("Data Current Song", Data.currentSong.getTitle());
+//            Log.wtf("Data Current Song", data.currentSong.getTitle());
 //            Log.wtf("Index Current Song", queue.get(currentIndex).getTitle());
 //
-//            if (queue.get(currentIndex).equals(Data.currentSong))
+//            if (queue.get(currentIndex).equals(data.currentSong))
 //                Log.wtf("Currents Checking", "OHYES!!!");
 //            else
 //                Log.wtf("Currents Checking", "pls");
@@ -146,7 +149,7 @@ public class PlayQueue
     {
         queueStack = 0;
 
-        if(Data.isShuffled)
+        if(data.isShuffled())
         {
             Collections.shuffle(queue);
 

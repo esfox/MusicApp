@@ -52,7 +52,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
 //            switch(v.getId())
 //            {
 //                case R.id.queue_item_container:
-//                    Player.playSong(queue.get(PlayQueueViewHolder.this.getAdapterPosition()));
+//                    Player.updateCurrentSong(queue.get(PlayQueueViewHolder.this.getAdapterPosition()));
 //                    ((ActivityCommunicator) context).onSongPlayed();
 //                    ((ActivityCommunicator) context).onSongChanged(PlayQueue.currentSong());
 //                    PlayQueueFragment.updateNowPlayingBar();

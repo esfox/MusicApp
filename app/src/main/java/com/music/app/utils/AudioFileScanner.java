@@ -283,7 +283,7 @@ public class AudioFileScanner
         protected void onPreExecute()
         {
             super.onPreExecute();
-            snackbar = Snackbar.make(((MainActivity) context).ui.playButton, "Loading album covers...", Snackbar.LENGTH_INDEFINITE);
+            snackbar = Snackbar.make(((MainActivity) context).uiManager.playButton, "Loading album covers...", Snackbar.LENGTH_INDEFINITE);
             snackbar.show();
         }
 
