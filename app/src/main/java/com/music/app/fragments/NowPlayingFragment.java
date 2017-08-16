@@ -181,7 +181,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             ((TextView) getView().findViewById(R.id.now_playing_title)).setText(song.getTitle());
             ((TextView) getView().findViewById(R.id.now_playing_artist)).setText(song.getArtist());
             ((TextView) getView().findViewById(R.id.now_playing_album)).setText(song.getAlbum());
-            ((ImageView) getView().findViewById(R.id.now_playing_cover)).setImageDrawable(song.getCover());
+            ((ImageView) getView().findViewById(R.id.now_playing_cover)).setImageDrawable(Data.currentAlbumArt);
             ((TextView) getView().findViewById(R.id.now_playing_end_time)).setText(song.getDuration());
 
             if(updateProgress)

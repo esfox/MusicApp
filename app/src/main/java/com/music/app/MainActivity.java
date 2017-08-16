@@ -4,13 +4,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.fragments.PlayQueueFragment;
 import com.music.app.objects.Data;
@@ -20,6 +23,9 @@ import com.music.app.objects.Song;
 import com.music.app.utils.AudioFileScanner;
 import com.music.app.utils.UIManager;
 import com.music.app.utils.interfaces.ServiceCommunicator;
+
+import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 /*
 
@@ -75,9 +81,12 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         PlayQueue.setData(data);
 
         //Scan audio
-        AudioFileScanner audioFileScanner = new AudioFileScanner(this);
+        AudioFileScanner audioFileScanner = new AudioFileScanner(this, data);
         audioFileScanner.scanAudio();
 //        temp();
+
+
+        //Git Push Test
     }
 
     @Override
@@ -133,6 +142,8 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
     {
         player.updateCurrentSong(song, fromUser);
         startService(serviceIntent);
+
+        new CurrentAlbumArtScanner().execute();
 
         uiManager.togglePlayButtonIcon(true);
         uiManager.updateNowPlayingFragment();
@@ -249,4 +260,28 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
 
         }
     };
+
+    private class CurrentAlbumArtScanner extends AsyncTask<Void, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            try
+            {
+                Data.currentAlbumArt = Glide.with(MainActivity.this).load(new File(Data.currentSong.getCoverPath())).into(500, 500).get();
+            }
+            catch (NullPointerException | InterruptedException | ExecutionException e)
+            {
+                Data.currentAlbumArt = ResourcesCompat.getDrawable(getResources(), R.drawable.library_music_48dp, null);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
+            uiManager.updateNowPlayingFragment();
+        }
+    }
 }

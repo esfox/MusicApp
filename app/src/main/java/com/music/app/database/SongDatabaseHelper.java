@@ -46,7 +46,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
             {
                 do
                 {
-                    Song song = new Song();
+                    final Song song = new Song();
                     song.setUUID(cursor.getString(cursor.getColumnIndex(DB.SONG_UUID)));
                     song.setId(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ID))));
                     song.setPath(cursor.getString(cursor.getColumnIndex(DB.SONG_PATH)));
@@ -62,7 +62,9 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
 
 //                    byte[] coverBytes = cursor.getBlob(cursor.getColumnIndex(DB.SONG_COVER));
 //                    Bitmap cover = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes.length);
-//                    song.setCover(cover);
+//                    song.setCover(new BitmapDrawable(context.getResources(), cover));
+
+                    songs.add(song);
 
                 } while(cursor.moveToNext());
             }
@@ -83,9 +85,9 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
         this.getWritableDatabase().delete(DB.SONG_TABLE, DB.SONG_UUID + " = ?", new String[] { song.getUUID() });
     }
 
-    private ContentValues getContentValues(Song song)
+    private ContentValues getContentValues(final Song song)
     {
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put(DB.SONG_UUID, song.getUUID());
         values.put(DB.SONG_ID, song.getId());
         values.put(DB.SONG_PATH, song.getPath());
@@ -99,7 +101,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
         values.put(DB.SONG_DURATION, song.getDuration());
         values.put(DB.SONG_ALBUM_ID, song.getAlbumID());
 
-//        Bitmap coverBitmap = song.getCover();
+//        Bitmap coverBitmap = ((BitmapDrawable) song.getCover()).getBitmap();
 //        ByteArrayOutputStream stream = new ByteArrayOutputStream();
 //        coverBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
 //        byte[] coverBytes = stream.toByteArray();

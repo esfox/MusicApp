@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.PlayQueue;
@@ -21,6 +22,8 @@ import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
 import com.music.app.utils.adapters.SongListAdapter;
 import com.music.app.utils.interfaces.ServiceCommunicator;
+
+import java.io.File;
 
 public class SongListViewHolder implements View.OnClickListener, View.OnLongClickListener
 {
@@ -115,8 +118,12 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
         else
             artist.setText(song.getArtist());
 
-//        cover.setImageResource(R.drawable.library_music_48dp);
        cover.setImageDrawable(song.getCover());
+
+//        if(song.getCoverPath() != null)
+//            Glide.with(context).load(new File(song.getCoverPath())).into(cover);
+//        else
+//            cover.setImageResource(R.drawable.library_music_48dp);
     }
 
     public void setClickListeners()

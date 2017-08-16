@@ -9,7 +9,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.res.ResourcesCompat;
+import android.view.View;
 
+import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.database.SongDatabaseHelper;
@@ -19,6 +22,7 @@ import com.music.app.objects.PlayQueue;
 import com.music.app.objects.Song;
 import com.music.app.utils.adapters.SongListAdapter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -26,26 +30,28 @@ public class AudioFileScanner
 {
     private Context context;
     private ArrayList<Song> songs;
-    private String filename;
+    private Data data;
 
-    private boolean stored = false;
-
-    public AudioFileScanner(Context pContext)
+    public AudioFileScanner(Context pContext, Data pData)
     {
         context = pContext;
         songs = new ArrayList<>();
+        data = pData;
     }
 
     public void scanAudio()
     {
-        if(!stored)
+        if(!data.stored())
         {
-            BackgroundScanner backgroundProcess = new BackgroundScanner();
-            backgroundProcess.execute();
+            new BackgroundScanner().execute();
+
+            store();
         }
         else
         {
-            //Query DB
+            ((MainActivity) context).findViewById(R.id.loading).setVisibility(View.VISIBLE);
+            songs = new SongDatabaseHelper(context).getSongs();
+            new BackgroundQuery().execute();
         }
     }
 
@@ -83,7 +89,7 @@ public class AudioFileScanner
                 cursor.moveToFirst();
                 while(!cursor.isAfterLast())
                 {
-                    this.filename = cursor.getString(2);
+                    String filename = cursor.getString(2);
                     if(filename.endsWith(".mp3"))
                     {
                         Song song = new Song();
@@ -193,16 +199,28 @@ public class AudioFileScanner
                     {
                         try
                         {
-                            cover = Drawable.createFromPath(cursor.getString(2));
+////                            BitmapFactory.Options options = new BitmapFactory.Options();
+////                            options.inScaled = true;
+////                            options.inSampleSize = 2;
+////                            options.inDensity = 100;
+////                            options.inTargetDensity = 100 * options.inSampleSize;
+//
+////                            cover = new BitmapDrawable(context.getResources(), BitmapFactory.decodeFile(cursor.getString(2), options));
+
+                            cover = Glide.with(context)
+                                    .load(new File(cursor.getString(2)))
+                                    .skipMemoryCache(true)
+                                    .into(100,100)
+                                    .get();
                         }
                         catch(OutOfMemoryError e)
                         {
                             e.printStackTrace();
-                            cover = context.getResources().getDrawable(R.drawable.library_music_48dp);
+                            cover = ResourcesCompat.getDrawable(context.getResources(), R.drawable.library_music_48dp, null);
                         }
                     }
                     else
-                        cover = context.getResources().getDrawable(R.drawable.library_music_48dp);
+                        cover = ResourcesCompat.getDrawable(context.getResources(), R.drawable.library_music_48dp, null);
 
                     for(Song song: songs)
                     {
@@ -210,6 +228,7 @@ public class AudioFileScanner
                         {
                             song.setAlbumArtist(cursor.getString(1));
                             song.setCover(cover);
+                            song.setCoverPath(cursor.getString(2));
                         }
                     }
 
@@ -223,15 +242,18 @@ public class AudioFileScanner
             if(cursor != null)
                 cursor.close();
         }
-
-        store();
     }
 
     private void store()
     {
-        SongDatabaseHelper databaseHelper = new SongDatabaseHelper(context);
-        for(Song song: songs)
-            databaseHelper.add(song);
+        if(!data.stored())
+        {
+            SongDatabaseHelper databaseHelper = new SongDatabaseHelper(context);
+            for (Song song : songs)
+                databaseHelper.add(song);
+
+            data.updateStored(true);
+        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -239,6 +261,23 @@ public class AudioFileScanner
     {
         Long length = Long.parseLong(value);
         return String.valueOf(length / 60000) + ":" + String.format("%02d", (length % 60000) / 1000);
+    }
+
+    private class BackgroundQuery extends AsyncTask<Void, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            setSongList();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
+            ((MainActivity) context).findViewById(R.id.loading).setVisibility(View.GONE);
+        }
     }
 
     private class BackgroundScanner extends AsyncTask<Void, Void, Void>
@@ -265,15 +304,7 @@ public class AudioFileScanner
         {
             super.onPostExecute(aVoid);
             progressDialog.dismiss();
-
-            Data.songs = songs;
-            PlayQueue.queue = songs;
-
-            ((MainActivity) context).fragmentManager.songListFragment = new SongListFragment();
-            ((MainActivity) context).fragmentManager.songList();
-
-            AlbumCoverScanner albumCoverScanner = new AlbumCoverScanner();
-            albumCoverScanner.execute();
+            setSongList();
         }
     }
 
@@ -304,5 +335,16 @@ public class AudioFileScanner
 
             ((SongListAdapter) ((MainActivity) context).fragmentManager.songListFragment.getSongList().getAdapter()).notifyDataSetChanged();
         }
+    }
+
+    private void setSongList()
+    {
+        Data.songs = songs;
+        PlayQueue.queue = songs;
+
+        ((MainActivity) context).fragmentManager.songListFragment = new SongListFragment();
+        ((MainActivity) context).fragmentManager.songList();
+
+        new AlbumCoverScanner().execute();
     }
 }

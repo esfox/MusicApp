@@ -17,6 +17,7 @@ public class Song
     private String duration;
     private Long albumID;
     private Drawable cover;
+    private String coverPath;
 
     public Song() {}
 
@@ -33,6 +34,7 @@ public class Song
     public String getDuration() { return duration; }
     public Long getAlbumID() { return albumID; }
     public Drawable getCover() { return cover; }
+    public String getCoverPath() { return coverPath; }
 
     public void setUUID(String UUID) { this.UUID = UUID; }
     public void setId(Long id) { this.id = id; }
@@ -47,4 +49,5 @@ public class Song
     public void setDuration(String duration) { this.duration = duration; }
     public void setAlbumID(Long albumID) { this.albumID = albumID; }
     public void setCover(Drawable cover) { this.cover = cover; }
+    public void setCoverPath(String coverPath) { this.coverPath = coverPath; }
 }
