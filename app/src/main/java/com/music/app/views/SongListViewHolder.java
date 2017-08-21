@@ -3,7 +3,6 @@ package com.music.app.views;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.design.widget.Snackbar;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -13,7 +12,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.PlayQueue;
@@ -21,9 +19,6 @@ import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
 import com.music.app.utils.adapters.SongListAdapter;
-import com.music.app.utils.interfaces.ServiceCommunicator;
-
-import java.io.File;
 
 public class SongListViewHolder implements View.OnClickListener, View.OnLongClickListener
 {
@@ -112,11 +107,12 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
         song = pSong;
 
         title.setText(song.getTitle());
+        artist.setText(song.getArtist());
 
-        if(sort == Sorter.SortBy.artist)
-            artist.setText(song.getAlbum());
-        else
-            artist.setText(song.getArtist());
+//        if(sort == Sorter.SortBy.artist)
+//            artist.setText(song.getAlbum());
+//        else
+//            artist.setText(song.getArtist());
 
        cover.setImageDrawable(song.getCover());
 

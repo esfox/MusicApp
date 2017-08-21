@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
-import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
@@ -42,15 +41,9 @@ public class AudioFileScanner
     public void scanAudio()
     {
         if(!data.stored())
-        {
             new BackgroundScanner().execute();
-
-            store();
-        }
         else
         {
-            ((MainActivity) context).findViewById(R.id.loading).setVisibility(View.VISIBLE);
-            songs = new SongDatabaseHelper(context).getSongs();
             new BackgroundQuery().execute();
         }
     }
@@ -263,23 +256,6 @@ public class AudioFileScanner
         return String.valueOf(length / 60000) + ":" + String.format("%02d", (length % 60000) / 1000);
     }
 
-    private class BackgroundQuery extends AsyncTask<Void, Void, Void>
-    {
-        @Override
-        protected Void doInBackground(Void... params)
-        {
-            setSongList();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            super.onPostExecute(aVoid);
-            ((MainActivity) context).findViewById(R.id.loading).setVisibility(View.GONE);
-        }
-    }
-
     private class BackgroundScanner extends AsyncTask<Void, Void, Void>
     {
         private ProgressDialog progressDialog = new ProgressDialog(context);
@@ -305,6 +281,7 @@ public class AudioFileScanner
             super.onPostExecute(aVoid);
             progressDialog.dismiss();
             setSongList();
+            store();
         }
     }
 
@@ -334,6 +311,23 @@ public class AudioFileScanner
             snackbar.dismiss();
 
             ((SongListAdapter) ((MainActivity) context).fragmentManager.songListFragment.getSongList().getAdapter()).notifyDataSetChanged();
+        }
+    }
+
+    private class BackgroundQuery extends AsyncTask<Void, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            songs = new SongDatabaseHelper(context).getSongs();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
+            setSongList();
         }
     }
 

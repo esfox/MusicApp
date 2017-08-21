@@ -8,10 +8,9 @@ public class PlayQueue
 {
     private static Data data;
 
-    private static int currentIndex = -1;
     private static int queueStack = 0;
 
-    public static ArrayList<Song> queue = new ArrayList<>();
+    public static ArrayList<Song> queue;
 
     public static void setData(Data data)
     {
@@ -24,9 +23,9 @@ public class PlayQueue
         {
             if(song != Data.currentSong)
             {
-                if (currentIndex == -1)
+                if (data.currentQueueIndex() == -1)
                     queue.remove(queue.indexOf(song));
-                queue.add(currentIndex + 1, song);
+                queue.add(data.currentQueueIndex() + 1, song);
             }
         }
         else
@@ -34,20 +33,18 @@ public class PlayQueue
             queue.remove(queue.indexOf(song));
             queue.add(0, song);
         }
-    }
 
-    static void newCurrentSongIndex(Song song)
-    {
-        currentIndex = queue.indexOf(song);
-        data.updateCurrentSongQueueIndex(currentIndex);
+        data.updateCurrentQueueIndex(queue.indexOf(song));
     }
 
     static void updateCurrentSongIndex(boolean update, boolean increment)
     {
         if(update)
-            if(increment) currentIndex++; else currentIndex--;
-
-        data.updateCurrentSongQueueIndex(currentIndex);
+            if(increment)
+            {
+                data.updateCurrentQueueIndex(data.currentQueueIndex() + 1);
+            }
+            else data.updateCurrentQueueIndex(data.currentQueueIndex() - 1);
     }
 
 //    static void logCurrents()
@@ -72,7 +69,7 @@ public class PlayQueue
         if(Data.currentSong != null)
         {
             queueStack++;
-            queue.add(currentIndex + queueStack, song);
+            queue.add(data.currentQueueIndex() + queueStack, song);
         }
     }
 
@@ -81,7 +78,7 @@ public class PlayQueue
         if(Data.currentSong != null)
         {
             queueStack++;
-            queue.add(currentIndex + 1, song);
+            queue.add(data.currentQueueIndex() + 1, song);
         }
     }
 
@@ -115,13 +112,13 @@ public class PlayQueue
 
     static Song getNextSong()
     {
-        return (currentIndex < queue.size() - 1)?
+        return (data.currentQueueIndex() < queue.size() - 1)?
                 next() : first();
     }
 
     static Song getPreviousSong()
     {
-        return (currentIndex > 0)?
+        return (data.currentQueueIndex() > 0)?
                 previous() : last();
     }
 
@@ -132,12 +129,12 @@ public class PlayQueue
 
     private static Song previous()
     {
-        return queue.get(currentIndex - 1);
+        return queue.get(data.currentQueueIndex() - 1);
     }
 
     private static Song next()
     {
-        return queue.get(currentIndex + 1);
+        return queue.get(data.currentQueueIndex() + 1);
     }
 
     private static Song last()
@@ -157,7 +154,7 @@ public class PlayQueue
             {
                 queue.remove(Data.currentSong);
                 queue.add(0, Data.currentSong);
-                currentIndex = 0;
+                data.updateCurrentQueueIndex(0);
             }
         }
         else
@@ -181,6 +178,6 @@ public class PlayQueue
         }
 
         if(Data.currentSong != null)
-            newCurrentSongIndex(Data.currentSong);
+            data.updateCurrentQueueIndex(Data.songs.indexOf(Data.currentSong));
      }
 }

@@ -84,9 +84,6 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         AudioFileScanner audioFileScanner = new AudioFileScanner(this, data);
         audioFileScanner.scanAudio();
 //        temp();
-
-
-        //Git Push Test
     }
 
     @Override
@@ -138,9 +135,9 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
 //    }
 
     @Override
-    public void onStartAudio(Song song, boolean fromUser)
+    public void onStartAudio(Song song, boolean newSong)
     {
-        player.updateCurrentSong(song, fromUser);
+        player.updateCurrentSong(song, newSong);
         startService(serviceIntent);
 
         new CurrentAlbumArtScanner().execute();
@@ -268,11 +265,11 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         {
             try
             {
-                Data.currentAlbumArt = Glide.with(MainActivity.this).load(new File(Data.currentSong.getCoverPath())).into(500, 500).get();
+                data.updateCurrentAlbumArt(Glide.with(MainActivity.this).load(new File(Data.currentSong.getCoverPath())).into(500, 500).get());
             }
             catch (NullPointerException | InterruptedException | ExecutionException e)
             {
-                Data.currentAlbumArt = ResourcesCompat.getDrawable(getResources(), R.drawable.library_music_48dp, null);
+                data.updateCurrentAlbumArt(ResourcesCompat.getDrawable(getResources(), R.drawable.library_music_48dp, null));
             }
             return null;
         }

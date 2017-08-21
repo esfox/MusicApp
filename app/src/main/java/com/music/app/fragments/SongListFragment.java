@@ -14,15 +14,16 @@ import android.widget.Toast;
 
 import com.music.app.R;
 import com.music.app.objects.Data;
-import com.music.app.utils.Menuer;
+import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
+import com.music.app.utils.Menuer;
 import com.music.app.utils.adapters.SongListAdapter;
 import com.music.app.utils.adapters.SongListFastScrollAdapter;
 
+import java.util.ArrayList;
+
 public class SongListFragment extends Fragment implements View.OnClickListener
 {
-    private Data data;
-
     private ListView songList;
     private Sorter.SortBy sort;
 
@@ -188,10 +189,12 @@ public class SongListFragment extends Fragment implements View.OnClickListener
     {
         SongListAdapter adapter;
 
+        ArrayList<Song> songs = Data.songs;
+
         if(sort != Sorter.SortBy.none)
-            adapter = new SongListFastScrollAdapter(getContext(), Sorter.sort(Data.songs, sort), songList, sort);
+            adapter = new SongListFastScrollAdapter(getContext(), Sorter.sort(songs, sort), songList, sort);
         else
-            adapter = new SongListAdapter(getContext(), songList, Data.songs, sort);
+            adapter = new SongListAdapter(getContext(), songList, songs, sort);
 
         songList.setAdapter(adapter);
         adapter.notifyDataSetChanged();

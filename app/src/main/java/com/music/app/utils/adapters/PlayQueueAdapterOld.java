@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
-import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 import com.music.app.utils.interfaces.ItemTouchListener;
 import com.music.app.utils.interfaces.DragListener;
@@ -52,7 +51,7 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
         holder.artist.setText(song.getArtist());
         holder.cover.setImageDrawable(song.getCover());
 
-        if(position == ((MainActivity) context).data.currentSongQueueIndex())
+        if(position == ((MainActivity) context).data.currentQueueIndex())
             holder.background.setBackgroundResource(R.color.colorPrimaryDarker);
         else
             holder.background.setBackgroundResource(R.color.background_primary);

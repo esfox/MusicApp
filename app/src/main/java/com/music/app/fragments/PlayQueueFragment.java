@@ -193,8 +193,8 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
 
     private void scrollToPlaying()
     {
-        if(data.currentSongQueueIndex() != -1)
-            playQueue.scrollToPosition(data.currentSongQueueIndex());
+        if(data.currentQueueIndex() != -1)
+            playQueue.scrollToPosition(data.currentQueueIndex());
     }
 
     @Override

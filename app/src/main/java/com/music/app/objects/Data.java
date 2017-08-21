@@ -19,10 +19,10 @@ public class Data
 
     public static ArrayList<Song> songs;
     public static Song currentSong;
-    public static Drawable currentAlbumArt;
+    private Drawable currentAlbumArt;
 
-    //Convert to XML
-    private final String currentSongQueueIndexKey = "CurrentSongQueueIndex";
+    private final String currentSongUUIDKey = "CurrentSongUUID";
+    private final String currentQueueIndexKey = "CurrentSongQueueIndex";
     private final String isShuffledKey = "isShuffled";
     private final String repeatStateKey = "repeatState";
     private final String isPlayingKey = "isPlaying";
@@ -36,9 +36,28 @@ public class Data
         ONE  //2
     }
 
-    public int currentSongQueueIndex()
+    public Song currentSong()
     {
-        return sharedPreferences.getInt(currentSongQueueIndexKey, 0);
+        Song s = null;
+        if(songs != null)
+        {
+            for (Song song : songs)
+                if (song.getUUID().equals(sharedPreferences.getString(currentSongUUIDKey, "")))
+                    s = song;
+        }
+        else s = null;
+
+        return s;
+    }
+
+    public int currentQueueIndex()
+    {
+        return sharedPreferences.getInt(currentQueueIndexKey, -1);
+    }
+
+    public Drawable currentAlbumArt()
+    {
+        return currentAlbumArt;
     }
 
     public boolean isShuffled()
@@ -67,11 +86,23 @@ public class Data
         return sharedPreferences.getBoolean(storedKey, false);
     }
 
-    public void updateCurrentSongQueueIndex(int index)
+    public void updateCurrentSong(String UUID)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(currentSongQueueIndexKey, index);
+        editor.putString(currentSongUUIDKey, "");
         editor.apply();
+    }
+
+    public void updateCurrentQueueIndex(int index)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(currentQueueIndexKey, index);
+        editor.apply();
+    }
+
+    public void updateCurrentAlbumArt(Drawable albumArt)
+    {
+        currentAlbumArt = albumArt;
     }
 
     public void updateIsShuffled(boolean isShuffled)

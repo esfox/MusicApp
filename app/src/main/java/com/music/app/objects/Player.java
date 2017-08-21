@@ -114,16 +114,8 @@ public class Player extends Service
     {
         if(fromUser)
         {
-            if(Data.currentSong != null)
-            {
-                PlayQueue.newSongPlayed(song);
-                PlayQueueFragment.update();
-            }
-
-            if(data.currentSongQueueIndex() != -1)
-                PlayQueue.updateCurrentSongIndex(!song.equals(Data.currentSong), true);
-            else
-                PlayQueue.newCurrentSongIndex(song);
+            PlayQueue.newSongPlayed(song);
+            PlayQueueFragment.update();
         }
 
         Data.currentSong = song;
