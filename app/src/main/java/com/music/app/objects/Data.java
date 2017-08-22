@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 
+import com.music.app.database.SongDatabaseHelper;
+
 import java.util.ArrayList;
 
 public class Data
@@ -12,16 +14,20 @@ public class Data
 
     public Data(Context context)
     {
-        sharedPreferences = context.getSharedPreferences("Data", Context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences("Data",
+                Context.MODE_PRIVATE);
     }
 
     //TODO: STORE ALL THESE TO SHARED PREFS OR TO STORAGE
 
     public static ArrayList<Song> songs;
+
+    //Eliminating all uses of currentSong
     public static Song currentSong;
     private Drawable currentAlbumArt;
 
     private final String currentSongUUIDKey = "CurrentSongUUID";
+    private final String currentSongIsNotNullKey = "CurrentSongIsNotNull";
     private final String currentQueueIndexKey = "CurrentSongQueueIndex";
     private final String isShuffledKey = "isShuffled";
     private final String repeatStateKey = "repeatState";
@@ -36,18 +42,25 @@ public class Data
         ONE  //2
     }
 
-    public Song currentSong()
+    public Song currentSong(Context context)
     {
-        Song s = null;
-        if(songs != null)
-        {
-            for (Song song : songs)
-                if (song.getUUID().equals(sharedPreferences.getString(currentSongUUIDKey, "")))
-                    s = song;
-        }
-        else s = null;
+//        if(songs != null)
+//        {
+//            for (Song song : songs)
+//                if (song.getUUID().equals(sharedPreferences
+//                        .getString(currentSongUUIDKey, "")))
+//                    s = song;
+//        }
+//        else s = null;
 
-        return s;
+        return new SongDatabaseHelper(context)
+                .getCurrentSong(sharedPreferences
+                        .getString(currentSongUUIDKey, ""));
+    }
+
+    public boolean currentSongIsNotNull()
+    {
+        return sharedPreferences.getBoolean(currentSongIsNotNullKey, false);
     }
 
     public int currentQueueIndex()
@@ -62,7 +75,8 @@ public class Data
 
     public boolean isShuffled()
     {
-        return sharedPreferences.getBoolean(isShuffledKey, false);
+        return sharedPreferences
+                .getBoolean(isShuffledKey, false);
     }
 
     public RepeatState repeatState()
@@ -78,18 +92,27 @@ public class Data
 
     public boolean isPlaying()
     {
-        return sharedPreferences.getBoolean(isPlayingKey, false);
+        return sharedPreferences
+                .getBoolean(isPlayingKey, false);
     }
 
     public boolean stored()
     {
-        return sharedPreferences.getBoolean(storedKey, false);
+        return sharedPreferences
+                .getBoolean(storedKey, false);
     }
 
-    public void updateCurrentSong(String UUID)
+    public void updateCurrentSong(String uuid)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(currentSongUUIDKey, "");
+        editor.putString(currentSongUUIDKey, uuid);
+        editor.apply();
+    }
+
+    public void updateCurrentSongIsNotNull(boolean currentSongIsNotNull)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(currentSongIsNotNullKey, currentSongIsNotNull);
         editor.apply();
     }
 

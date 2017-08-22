@@ -14,7 +14,6 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.music.app.R;
-import com.music.app.fragments.PlayQueueFragment;
 import com.music.app.utils.interfaces.ServiceCommunicator;
 
 import java.io.IOException;
@@ -25,6 +24,7 @@ public class Player extends Service
     private ServiceCommunicator serviceCommunicator;
     private MediaPlayer player;
     private Data data;
+    private String path, title, artist;
 
     public class ServiceBinder extends Binder
     {
@@ -44,16 +44,23 @@ public class Player extends Service
         this.data = data;
     }
 
+    public void setSong(Song song)
+    {
+        this.path = song.getPath();
+        this.title = song.getTitle();
+        this.artist = song.getArtist();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         Log.d("Service", "Called");
-        if(Data.currentSong != null)
+        if(data.currentSongIsNotNull())
         {
             try
             {
                 player.reset();
-                player.setDataSource(Data.currentSong.getPath());
+                player.setDataSource(path);
                 player.prepare();
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
                 {
@@ -74,8 +81,8 @@ public class Player extends Service
             //            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setContentTitle(Data.currentSong.getTitle())
-                    .setContentText(Data.currentSong.getArtist())
+                    .setContentTitle(title)
+                    .setContentText(artist)
                     .setSmallIcon(R.drawable.play_36dp)
                     //                    .setContentIntent(pendingIntent)
                     .setOngoing(true);
@@ -113,17 +120,18 @@ public class Player extends Service
     public void updateCurrentSong(Song song, boolean fromUser)
     {
         if(fromUser)
-        {
             PlayQueue.newSongPlayed(song);
-            PlayQueueFragment.update();
-        }
 
         Data.currentSong = song;
+        data.updateCurrentSong(song.getUUID());
+
+        if(!data.currentSongIsNotNull())
+            data.updateCurrentSongIsNotNull(true);
     }
 
     public void play()
     {
-        if(Data.currentSong != null)
+        if(data.currentSongIsNotNull())
             if(!player.isPlaying())
             {
                 player.start();
@@ -141,13 +149,14 @@ public class Player extends Service
         player.pause();
         player.seekTo(0);
         serviceCommunicator.onStopAudio();
+        data.updateIsPlaying(false);
     }
 
     public boolean previous()
     {
         if(player.getCurrentPosition() > 3000)
         {
-            serviceCommunicator.onStartAudio(Data.currentSong, false);
+            player.seekTo(0);
             return false;
         }
         else
@@ -192,8 +201,6 @@ public class Player extends Service
 
         PlayQueue.updateCurrentSongIndex(true, next);
         PlayQueue.updateQueueStack(next);
-//        PlayQueue.resetQueueStack();
-
         serviceCommunicator.onStartAudio(song, false);
     }
 

@@ -9,10 +9,14 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.objects.Data;
+import com.music.app.objects.Song;
+
+import java.io.File;
 
 public class UIManager
 {
@@ -64,16 +68,22 @@ public class UIManager
 //        toggleControlButtons(false);
     }
 
-    public void updateNowPlayingBar()
+    public void updateNowPlayingBar(Song song)
     {
         ImageView nowPlayingCover = (ImageView) ((MainActivity) context).findViewById(R.id.now_playing_bar_cover);
 
-        if (Data.currentSong != null)
+        if (song != null)
         {
             nowPlayingCover.setVisibility(View.VISIBLE);
-            nowPlayingCover.setImageDrawable(Data.currentSong.getCover());
-            toolbar.setTitle(Data.currentSong.getTitle());
-            toolbar.setSubtitle(Data.currentSong.getArtist());
+
+            if(song.getCover() != null)
+                nowPlayingCover.setImageDrawable(song.getCover());
+            else Glide.with(context)
+                    .load(new File(song.getCoverPath()))
+                    .into(nowPlayingCover);
+
+            toolbar.setTitle(song.getTitle());
+            toolbar.setSubtitle(song.getArtist());
         }
         else
         {
@@ -83,16 +93,21 @@ public class UIManager
         }
     }
 
-    public void updateNowPlayingFragment()
+    public void updateNowPlayingFragment(Song song)
     {
         if (fragmentManager.nowPlayingFragment.isVisible())
-            fragmentManager.nowPlayingFragment.update(true);
+            fragmentManager.nowPlayingFragment.update(song, true);
     }
 
-    public void updatePlayQueueFragment()
+    public void updatePlayQueueAdapter()
+    {
+        fragmentManager.playQueueFragment.updateAdapter();
+    }
+
+    public void updatePlayQueueFragmentNowPlaying(Song song)
     {
         if (fragmentManager.playQueueFragment.isVisible())
-            fragmentManager.playQueueFragment.updateNowPlaying();
+            fragmentManager.playQueueFragment.updateNowPlaying(song);
     }
 
     public void toggleNavigationDrawer(boolean open)

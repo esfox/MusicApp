@@ -36,6 +36,33 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
         this.getWritableDatabase().delete(DB.SONG_TABLE, DB.SONG_UUID + " = ?", new String[] { song.getUUID() });
     }
 
+    public Song getCurrentSong(String uuid)
+    {
+        Song song = new Song();
+        Cursor cursor = this.getReadableDatabase().query(DB.SONG_TABLE, null, DB.SONG_UUID + " = ?", new String[] { uuid }, null, null, null);
+
+        if(cursor.moveToFirst())
+        {
+            song.setUUID(cursor.getString(cursor.getColumnIndex(DB.SONG_UUID)));
+            song.setId(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ID))));
+            song.setPath(cursor.getString(cursor.getColumnIndex(DB.SONG_PATH)));
+            song.setFilename(cursor.getString(cursor.getColumnIndex(DB.SONG_FILENAME)));
+            song.setTitle(cursor.getString(cursor.getColumnIndex(DB.SONG_TITLE)));
+            song.setArtist(cursor.getString(cursor.getColumnIndex(DB.SONG_ARTIST)));
+            song.setAlbumArtist(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM_ARTIST)));
+            song.setAlbum(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM)));
+            song.setReleaseYear(cursor.getString(cursor.getColumnIndex(DB.SONG_RELEASE_YEAR)));
+            song.setGenre(cursor.getString(cursor.getColumnIndex(DB.SONG_GENRE)));
+            song.setDuration(cursor.getString(cursor.getColumnIndex(DB.SONG_DURATION)));
+            song.setAlbumID(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM_ID))));
+            song.setCoverPath(cursor.getString(cursor.getColumnIndex(DB.SONG_COVER_PATH)));
+        }
+
+        cursor.close();
+
+        return song;
+    }
+
     public ArrayList<Song> getSongs()
     {
         ArrayList<Song> songs = new ArrayList<>();
@@ -64,7 +91,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
                     song.setDuration(cursor.getString(cursor.getColumnIndex(DB.SONG_DURATION)));
                     song.setAlbumID(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM_ID))));
 
-//                    byte[] coverBytes = cursor.getBlob(cursor.getColumnIndex(DB.SONG_COVER));
+//                    byte[] coverBytes = cursor.getBlob(cursor.getColumnIndex(DB.SONG_COVER_PATH));
 //                    Bitmap cover = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes.length);
 //                    song.setCover(new BitmapDrawable(context.getResources(), cover));
 
@@ -78,38 +105,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
 
         return songs;
     }
-
-//    public Song getCurrentSong(String UUID)
-//    {
-//        Cursor cursor = this.getReadableDatabase().query(DB.SONG_TABLE, null, DB.SONG_UUID + " = ?", new String[] { UUID }, null, null, null);
-//
-//        if(cursor.moveToFirst())
-//        {
-//            do
-//            {
-//                final Song song = new Song();
-//                song.setUUID(cursor.getString(cursor.getColumnIndex(DB.SONG_UUID)));
-//                song.setId(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ID))));
-//                song.setPath(cursor.getString(cursor.getColumnIndex(DB.SONG_PATH)));
-//                song.setFilename(cursor.getString(cursor.getColumnIndex(DB.SONG_FILENAME)));
-//                song.setTitle(cursor.getString(cursor.getColumnIndex(DB.SONG_TITLE)));
-//                song.setArtist(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM_ARTIST)));
-//                song.setAlbumArtist(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM_ARTIST)));
-//                song.setAlbum(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM)));
-//                song.setReleaseYear(cursor.getString(cursor.getColumnIndex(DB.SONG_RELEASE_YEAR)));
-//                song.setGenre(cursor.getString(cursor.getColumnIndex(DB.SONG_GENRE)));
-//                song.setDuration(cursor.getString(cursor.getColumnIndex(DB.SONG_DURATION)));
-//                song.setAlbumID(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM_ID))));
-//
-////                    byte[] coverBytes = cursor.getBlob(cursor.getColumnIndex(DB.SONG_COVER));
-////                    Bitmap cover = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes.length);
-////                    song.setCover(new BitmapDrawable(context.getResources(), cover));
-//
-//            } while(cursor.moveToNext());
-//        }
-//
-//        cursor.close();
-//    }
 
     private ContentValues getContentValues(final Song song)
     {
@@ -126,13 +121,14 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
         values.put(DB.SONG_GENRE, song.getGenre());
         values.put(DB.SONG_DURATION, song.getDuration());
         values.put(DB.SONG_ALBUM_ID, song.getAlbumID());
+        values.put(DB.SONG_COVER_PATH, song.getCoverPath());
 
 //        Bitmap coverBitmap = ((BitmapDrawable) song.getCover()).getBitmap();
 //        ByteArrayOutputStream stream = new ByteArrayOutputStream();
 //        coverBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
 //        byte[] coverBytes = stream.toByteArray();
 //
-//        values.put(DB.SONG_COVER, coverBytes);
+//        values.put(DB.SONG_COVER_PATH, coverBytes);
 //
 //        try { stream.close(); }
 //        catch(IOException e) { e.printStackTrace(); }
@@ -159,7 +155,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
                 + DB.SONG_GENRE + " TEXT, "
                 + DB.SONG_DURATION + " TEXT, "
                 + DB.SONG_ALBUM_ID + " TEXT, "
-                + DB.SONG_COVER + " BLOB"
+                + DB.SONG_COVER_PATH + " TEXT"
                 + " );";
 
         db.execSQL(createSongsQuery);

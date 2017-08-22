@@ -1,5 +1,7 @@
 package com.music.app.objects;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,6 +12,7 @@ public class PlayQueue
 
     private static int queueStack = 0;
 
+    //TODO: Save this
     public static ArrayList<Song> queue;
 
     public static void setData(Data data)
@@ -19,22 +22,24 @@ public class PlayQueue
 
     static void newSongPlayed(Song song)
     {
-        if(Data.currentSong != null)
+        if(data.currentSongIsNotNull())
         {
             if(song != Data.currentSong)
             {
                 if (data.currentQueueIndex() == -1)
                     queue.remove(queue.indexOf(song));
-                queue.add(data.currentQueueIndex() + 1, song);
+
+                int index = data.currentQueueIndex() + 1;
+                queue.add(index, song);
+                data.updateCurrentQueueIndex(index);
             }
         }
         else
         {
-            queue.remove(queue.indexOf(song));
-            queue.add(0, song);
+//            queue.remove(queue.indexOf(song));
+//            queue.add(0, song);
+            data.updateCurrentQueueIndex(queue.indexOf(song));
         }
-
-        data.updateCurrentQueueIndex(queue.indexOf(song));
     }
 
     static void updateCurrentSongIndex(boolean update, boolean increment)
@@ -66,7 +71,7 @@ public class PlayQueue
 
     public static void queue(Song song)
     {
-        if(Data.currentSong != null)
+        if(data.currentSongIsNotNull())
         {
             queueStack++;
             queue.add(data.currentQueueIndex() + queueStack, song);
@@ -75,7 +80,7 @@ public class PlayQueue
 
     public static void playNext(Song song)
     {
-        if(Data.currentSong != null)
+        if(data.currentSongIsNotNull())
         {
             queueStack++;
             queue.add(data.currentQueueIndex() + 1, song);
@@ -150,7 +155,7 @@ public class PlayQueue
         {
             Collections.shuffle(queue);
 
-            if(Data.currentSong != null)
+            if(data.currentSongIsNotNull())
             {
                 queue.remove(Data.currentSong);
                 queue.add(0, Data.currentSong);
@@ -177,7 +182,7 @@ public class PlayQueue
             }
         }
 
-        if(Data.currentSong != null)
+        if(data.currentSongIsNotNull())
             data.updateCurrentQueueIndex(Data.songs.indexOf(Data.currentSong));
      }
 }

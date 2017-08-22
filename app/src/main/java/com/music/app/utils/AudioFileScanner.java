@@ -281,7 +281,6 @@ public class AudioFileScanner
             super.onPostExecute(aVoid);
             progressDialog.dismiss();
             setSongList();
-            store();
         }
     }
 
@@ -309,6 +308,7 @@ public class AudioFileScanner
         {
             super.onPostExecute(aVoid);
             snackbar.dismiss();
+            store();
 
             ((SongListAdapter) ((MainActivity) context).fragmentManager.songListFragment.getSongList().getAdapter()).notifyDataSetChanged();
         }

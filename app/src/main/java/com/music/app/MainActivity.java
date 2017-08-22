@@ -15,7 +15,6 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
-import com.music.app.fragments.PlayQueueFragment;
 import com.music.app.objects.Data;
 import com.music.app.objects.PlayQueue;
 import com.music.app.objects.Player;
@@ -84,6 +83,9 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         AudioFileScanner audioFileScanner = new AudioFileScanner(this, data);
         audioFileScanner.scanAudio();
 //        temp();
+
+        if(data.currentSongIsNotNull())
+            uiManager.updateNowPlayingBar(data.currentSong(this));
     }
 
     @Override
@@ -137,22 +139,25 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
     @Override
     public void onStartAudio(Song song, boolean newSong)
     {
-        player.updateCurrentSong(song, newSong);
+        player.setSong(song);
         startService(serviceIntent);
-
-        new CurrentAlbumArtScanner().execute();
+        player.updateCurrentSong(song, newSong);
 
         uiManager.togglePlayButtonIcon(true);
-        uiManager.updateNowPlayingFragment();
-        uiManager.updatePlayQueueFragment();
-        uiManager.updateNowPlayingBar();
-        PlayQueueFragment.update();
+        uiManager.updateNowPlayingFragment(song);
+        uiManager.updateNowPlayingBar(song);
+        uiManager.updatePlayQueueFragmentNowPlaying(song);
+        uiManager.updatePlayQueueAdapter();
+
+        //TODO: More efficient current art loading
+        new CurrentAlbumArtScanner().execute();
     }
 
     @Override
     public void onStopAudio()
     {
         stopService(serviceIntent);
+        player.stopForeground(true);
     }
 
     @Override
@@ -265,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         {
             try
             {
-                data.updateCurrentAlbumArt(Glide.with(MainActivity.this).load(new File(Data.currentSong.getCoverPath())).into(500, 500).get());
+                data.updateCurrentAlbumArt(Glide.with(MainActivity.this).load(new File(data.currentSong(MainActivity.this).getCoverPath())).into(500, 500).get());
             }
             catch (NullPointerException | InterruptedException | ExecutionException e)
             {
@@ -278,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
-            uiManager.updateNowPlayingFragment();
+            uiManager.updateNowPlayingFragment(data.currentSong(MainActivity.this));
         }
     }
 }

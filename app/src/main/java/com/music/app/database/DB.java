@@ -22,5 +22,5 @@ public class DB implements BaseColumns
     public static final String SONG_GENRE           = "genre";
     public static final String SONG_DURATION        = "duration";
     public static final String SONG_ALBUM_ID        = "album_id";
-    public static final String SONG_COVER           = "album_cover";
+    public static final String SONG_COVER_PATH      = "album_cover_path";
 }

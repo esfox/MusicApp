@@ -1,6 +1,7 @@
 package com.music.app.fragments;
 
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,12 +18,15 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.PlayQueue;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
+
+import java.io.File;
 
 public class NowPlayingFragment extends Fragment implements View.OnClickListener
 {
@@ -98,7 +102,9 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
         updater = new Handler();
         initProgress();
-        update(true);
+
+        //TODO: Fetch current playing song
+        update(data.currentSong(getContext()), true);
 
 //        Data.setNowPlayingFragment(this);
     }
@@ -156,7 +162,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
     private void updateProgress()
     {
-        if(Data.currentSong != null)
+        if(data.currentSongIsNotNull())
         {
             progress.setProgress(player.getPlayer().getCurrentPosition());
             time.setText(getDuration(player.getPlayer().getCurrentPosition()));
@@ -173,16 +179,24 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         }
     };
 
-    public void update(boolean updateProgress)
+    public void update(Song song, boolean updateProgress)
     {
-        Song song = Data.currentSong;
         if(song != null)
         {
             ((TextView) getView().findViewById(R.id.now_playing_title)).setText(song.getTitle());
             ((TextView) getView().findViewById(R.id.now_playing_artist)).setText(song.getArtist());
             ((TextView) getView().findViewById(R.id.now_playing_album)).setText(song.getAlbum());
-            ((ImageView) getView().findViewById(R.id.now_playing_cover)).setImageDrawable(data.currentAlbumArt());
             ((TextView) getView().findViewById(R.id.now_playing_end_time)).setText(song.getDuration());
+
+            ImageView cover = ((ImageView) getView().findViewById(R.id.now_playing_cover));
+            Drawable currentAlbumArt = data.currentAlbumArt();
+            if(currentAlbumArt != null)
+                cover.setImageDrawable(currentAlbumArt);
+            else
+                Glide.with(getContext())
+                        .load(new File(song.getCoverPath()))
+                        .dontAnimate()
+                        .into(cover);
 
             if(updateProgress)
             {

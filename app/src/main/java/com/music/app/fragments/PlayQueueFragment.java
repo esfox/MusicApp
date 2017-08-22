@@ -21,6 +21,7 @@ import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.PlayQueue;
+import com.music.app.objects.Song;
 import com.music.app.utils.ItemTouchHelperCallback;
 import com.music.app.utils.adapters.PlayQueueAdapterOld;
 import com.music.app.utils.interfaces.OnStartDragListener;
@@ -30,7 +31,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
 {
     private View view;
     private Menu menu;
-    private static PlayQueueAdapterOld playQueueAdapterOld;
+    private PlayQueueAdapterOld playQueueAdapterOld;
     private ItemTouchHelper touchHelper;
     private RecyclerView playQueue;
 
@@ -73,7 +74,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
                     case R.id.action_shuffle:
                         data.updateIsShuffled(!data.isShuffled());
                         PlayQueue.shuffle();
-                        update();
+                        updateAdapter();
                         scrollToPlaying();
                         shuffle();
                         //TODO: Update NowPlayingFragment
@@ -101,7 +102,9 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         });
 
         menu = toolbar.getMenu();
-        updateNowPlaying();
+
+        //TODO: Fetch current playing song
+        updateNowPlaying(null);
         shuffle();
         repeat();
 
@@ -131,17 +134,17 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         scrollToPlaying();
     }
 
-    public void updateNowPlaying()
+    public void updateNowPlaying(Song song)
     {
-        if(Data.currentSong != null)
+        if(song != null)
         {
-            ((TextView) view.findViewById(R.id.play_queue_title)).setText(Data.currentSong.getTitle());
-            ((TextView) view.findViewById(R.id.play_queue_artist)).setText(Data.currentSong.getArtist());
-            ((ImageView) view.findViewById(R.id.play_queue_cover)).setImageDrawable(Data.currentSong.getCover());
+            ((TextView) view.findViewById(R.id.play_queue_title)).setText(song.getTitle());
+            ((TextView) view.findViewById(R.id.play_queue_artist)).setText(song.getArtist());
+            ((ImageView) view.findViewById(R.id.play_queue_cover)).setImageDrawable(song.getCover());
         }
     }
 
-    public static void update()
+    public void updateAdapter()
     {
         if(playQueueAdapterOld != null)
             playQueueAdapterOld.update(PlayQueue.queue);
