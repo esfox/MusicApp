@@ -1,7 +1,5 @@
 package com.music.app.objects;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

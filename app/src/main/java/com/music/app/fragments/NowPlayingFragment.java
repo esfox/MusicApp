@@ -103,7 +103,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         updater = new Handler();
         initProgress();
 
-        //TODO: Fetch current playing song
         update(data.currentSong(getContext()), true);
 
 //        Data.setNowPlayingFragment(this);
@@ -192,11 +191,11 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             Drawable currentAlbumArt = data.currentAlbumArt();
             if(currentAlbumArt != null)
                 cover.setImageDrawable(currentAlbumArt);
-            else
-                Glide.with(getContext())
-                        .load(new File(song.getCoverPath()))
-                        .dontAnimate()
-                        .into(cover);
+            else Glide.with(getContext())
+                      .load((song.getCoverPath() != null)?
+                              new File(song.getCoverPath()) :
+                              R.drawable.library_music_48dp)
+                      .into(cover);
 
             if(updateProgress)
             {

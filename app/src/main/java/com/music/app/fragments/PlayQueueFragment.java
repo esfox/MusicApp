@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
@@ -26,6 +27,8 @@ import com.music.app.utils.ItemTouchHelperCallback;
 import com.music.app.utils.adapters.PlayQueueAdapterOld;
 import com.music.app.utils.interfaces.OnStartDragListener;
 import com.music.app.views.RecyclerViewFastScroller;
+
+import java.io.File;
 
 public class PlayQueueFragment extends Fragment implements OnStartDragListener
 {
@@ -103,8 +106,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
 
         menu = toolbar.getMenu();
 
-        //TODO: Fetch current playing song
-        updateNowPlaying(null);
+        updateNowPlaying(data.currentSong(getContext()));
         shuffle();
         repeat();
 
@@ -140,7 +142,15 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         {
             ((TextView) view.findViewById(R.id.play_queue_title)).setText(song.getTitle());
             ((TextView) view.findViewById(R.id.play_queue_artist)).setText(song.getArtist());
-            ((ImageView) view.findViewById(R.id.play_queue_cover)).setImageDrawable(song.getCover());
+
+            ImageView cover = ((ImageView) view.findViewById(R.id.play_queue_cover));
+            if(song.getCover() != null)
+                cover.setImageDrawable(song.getCover());
+            else Glide.with(getContext())
+                      .load((song.getCoverPath() != null)?
+                              new File(song.getCoverPath()) :
+                              R.drawable.library_music_48dp)
+                      .into(cover);
         }
     }
 

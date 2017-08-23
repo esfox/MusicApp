@@ -181,12 +181,13 @@ public class Player extends Service
             else
             {
                 if(data.repeatState() == Data.RepeatState.ONE)
-                    song = Data.currentSong;
+                    song = data.currentSong(this);
                 else
                 {
                     if(data.repeatState() == Data.RepeatState.OFF)
                     {
-                        if(PlayQueue.queue.indexOf(Data.currentSong) < PlayQueue.queue.size() - 1)
+                        //TODO: replace with data.currentQueueIndex()
+                        if(PlayQueue.queue.indexOf(data.currentSong(this)) < PlayQueue.queue.size() - 1)
                             song = PlayQueue.getNextSong();
                         else
                             stop();

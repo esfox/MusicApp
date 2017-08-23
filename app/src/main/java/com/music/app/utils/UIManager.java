@@ -78,9 +78,14 @@ public class UIManager
 
             if(song.getCover() != null)
                 nowPlayingCover.setImageDrawable(song.getCover());
-            else Glide.with(context)
-                    .load(new File(song.getCoverPath()))
-                    .into(nowPlayingCover);
+            else
+            {
+                Glide.with(context)
+                        .load((song.getCoverPath() != null)?
+                                new File(song.getCoverPath()) :
+                                R.drawable.library_music_48dp)
+                        .into(nowPlayingCover);
+            }
 
             toolbar.setTitle(song.getTitle());
             toolbar.setSubtitle(song.getArtist());
