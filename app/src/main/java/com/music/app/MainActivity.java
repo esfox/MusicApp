@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements
 
         fragmentManager = new FragmentManager(this);
         uiManager = new UIManager(this, fragmentManager);
-        PlayQueue.setData(data);
         queue = new Queue(data);
+//        PlayQueue.setData(data);
 
         //Scan audio
         AudioFileScanner audioFileScanner = new AudioFileScanner(this, data);
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onScanComplete(ArrayList<Song> songs)
     {
         Data.songs = songs;
-        PlayQueue.queue = songs;
+//        PlayQueue.queue = songs;
 
         if(data.queueIsSaved())
             queue.load(this);
