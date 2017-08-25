@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
+import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 import com.music.app.utils.interfaces.ItemTouchListener;
 import com.music.app.utils.interfaces.DragListener;
@@ -23,16 +24,25 @@ import java.util.Collections;
 
 public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOld.PlayQueueViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter, ItemTouchListener
 {
-    private ArrayList<Song> songs;
+    private ArrayList<Long> songIDs;
     private OnStartDragListener dragListener;
 
     private Context context;
 
-    public PlayQueueAdapterOld(Context pContext, ArrayList<Song> pSongs, OnStartDragListener pDragListener)
+    public PlayQueueAdapterOld(Context pContext, ArrayList<Long> songIDs, OnStartDragListener pDragListener)
     {
-        songs = pSongs;
+        this.songIDs = songIDs;
         dragListener = pDragListener;
         context = pContext;
+    }
+
+    private Song getSongByID(long id)
+    {
+        Song song = null;
+        for(Song s : Data.songs)
+            if(s.getId() == id)
+                song = s;
+        return song;
     }
 
     @Override
@@ -45,7 +55,7 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
     @Override
     public void onBindViewHolder(final PlayQueueViewHolder holder, int position)
     {
-        Song song = songs.get(position);
+        Song song = getSongByID(songIDs.get(position));
 
         holder.title.setText(song.getTitle());
         holder.artist.setText(song.getArtist());
@@ -60,18 +70,19 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
     @Override
     public int getItemCount()
     {
-        return songs.size();
+        return songIDs.size();
     }
 
     @Override
     public String getTextToShowInBubble(int pos)
     {
-        return Character.toString(songs.get(pos).getTitle().charAt(0));
+        return Character.toString(getSongByID(songIDs.get(pos))
+                .getTitle().charAt(0));
     }
 
-    public void update(ArrayList<Song> pSongs)
+    public void update(ArrayList<Long> songIDs)
     {
-        songs = pSongs;
+        this.songIDs = songIDs;
         notifyDataSetChanged();
     }
 
@@ -82,14 +93,14 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
         {
             for (int i = fromPosition; i < toPosition; i++)
             {
-                Collections.swap(songs, i, i + 1);
+                Collections.swap(songIDs, i, i + 1);
             }
         }
         else
         {
             for (int i = fromPosition; i > toPosition; i--)
             {
-                Collections.swap(songs, i, i - 1);
+                Collections.swap(songIDs, i, i - 1);
             }
         }
 
@@ -102,9 +113,9 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
         public TextView artist;
         public ImageView cover;
         public View background;
-        public View drag;
+        View drag;
 
-        public PlayQueueViewHolder(View view)
+        PlayQueueViewHolder(View view)
         {
             super(view);
 

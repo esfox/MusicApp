@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.PlayQueue;
+import com.music.app.objects.Queue;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
@@ -146,12 +147,12 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
                 options();
                 break;
 
-            case R.id.song_list_options_play_next:
-                playNext();
-                break;
-
             case R.id.song_list_options_queue:
                 queue();
+                break;
+
+            case R.id.song_list_options_play_next:
+                playNext();
                 break;
 
             case R.id.song_list_options_more:
@@ -187,8 +188,9 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     {
         if(adapter.inMultiQueueMode())
         {
-            PlayQueue.queue(song);
+            ((MainActivity) context).onQueue(song.getId());
             Toast.makeText(context, song.getTitle() + " queued", Toast.LENGTH_SHORT).show();
+//            PlayQueue.queue(song);
 //            Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
         }
         else if(adapter.inSelectionMode())
@@ -254,16 +256,18 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 
     private void queue()
     {
-        PlayQueue.queue(song);
+        ((MainActivity) context).onQueue(song.getId());
         Toast.makeText(context, song.getTitle() + " queued", Toast.LENGTH_SHORT).show();
+//        PlayQueue.queue(song);
 //        Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
         options();
     }
 
     private void playNext()
     {
-        PlayQueue.playNext(song);
+        ((MainActivity) context).onPlayNext(song.getId());
         Toast.makeText(context, song.getTitle() + " to play next", Toast.LENGTH_SHORT).show();
+//        PlayQueue.playNext(song);
 //        Snackbar.make(null, song.getTitle() + " to play next", Snackbar.LENGTH_LONG).show();
         options();
     }

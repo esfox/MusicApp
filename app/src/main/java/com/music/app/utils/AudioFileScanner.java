@@ -15,11 +15,8 @@ import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.database.SongDatabaseHelper;
-import com.music.app.fragments.SongListFragment;
 import com.music.app.objects.Data;
-import com.music.app.objects.PlayQueue;
 import com.music.app.objects.Song;
-import com.music.app.utils.adapters.SongListAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -280,7 +277,7 @@ public class AudioFileScanner
         {
             super.onPostExecute(aVoid);
             progressDialog.dismiss();
-            setSongList();
+            scanComplete();
         }
     }
 
@@ -309,8 +306,7 @@ public class AudioFileScanner
             super.onPostExecute(aVoid);
             snackbar.dismiss();
             store();
-
-            ((SongListAdapter) ((MainActivity) context).fragmentManager.songListFragment.getSongList().getAdapter()).notifyDataSetChanged();
+            ((MainActivity) context).onUpdate();
         }
     }
 
@@ -327,18 +323,13 @@ public class AudioFileScanner
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
-            setSongList();
+            scanComplete();
         }
     }
 
-    private void setSongList()
+    private void scanComplete()
     {
-        Data.songs = songs;
-        PlayQueue.queue = songs;
-
-        ((MainActivity) context).fragmentManager.songListFragment = new SongListFragment();
-        ((MainActivity) context).fragmentManager.songList();
-
+        ((MainActivity) context).onScanComplete(songs);
         new AlbumCoverScanner().execute();
     }
 }

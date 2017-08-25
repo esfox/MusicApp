@@ -26,6 +26,12 @@ public class SongListFragment extends Fragment implements View.OnClickListener
 {
     private ListView songList;
     private Sorter.SortBy sort;
+    private ArrayList<Song> songs;
+
+    public void setSongs(ArrayList<Song> songs)
+    {
+        this.songs = songs;
+    }
 
     public SongListFragment() {}
 
@@ -189,7 +195,7 @@ public class SongListFragment extends Fragment implements View.OnClickListener
     {
         SongListAdapter adapter;
 
-        ArrayList<Song> songs = Data.songs;
+//        ArrayList<Song> songs = Data.songs;
 
         if(sort != Sorter.SortBy.none)
             adapter = new SongListFastScrollAdapter(getContext(), Sorter.sort(songs, sort), songList, sort);

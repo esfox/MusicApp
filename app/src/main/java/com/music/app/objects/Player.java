@@ -24,6 +24,7 @@ public class Player extends Service
     private ServiceCommunicator serviceCommunicator;
     private MediaPlayer player;
     private Data data;
+    private Queue queue;
     private String path, title, artist;
 
     public class ServiceBinder extends Binder
@@ -39,9 +40,10 @@ public class Player extends Service
         this.serviceCommunicator = serviceCommunicator;
     }
 
-    public void setData(Data data)
+    public void initialize(Data data, Queue queue)
     {
         this.data = data;
+        this.queue = queue;
     }
 
     public void setSong(Song song)
@@ -77,8 +79,8 @@ public class Player extends Service
                 e.printStackTrace();
             }
 
-            //            Intent notifIntent = new Intent(Data.getInstance().getContext(), MainActivity.class);
-            //            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
+//            Intent notifIntent = new Intent(Data.getInstance().getContext(), MainActivity.class);
+//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setContentTitle(title)
@@ -120,10 +122,11 @@ public class Player extends Service
     public void updateCurrentSong(Song song, boolean fromUser)
     {
         if(fromUser)
-            PlayQueue.newSongPlayed(song);
+            queue.newSong(song.getId());
+//            PlayQueue.newSongPlayed(song);
 
         Data.currentSong = song;
-        data.updateCurrentSong(song.getUUID());
+        data.updateCurrentSong(song.getId());
 
         if(!data.currentSongIsNotNull())
             data.updateCurrentSongIsNotNull(true);
@@ -177,7 +180,8 @@ public class Player extends Service
         if(next)
         {
             if(fromUser)
-                song = PlayQueue.getNextSong();
+                song = getSongByID(queue.update(next));
+//                song = PlayQueue.getNextSong();
             else
             {
                 if(data.repeatState() == Data.RepeatState.ONE)
@@ -186,23 +190,34 @@ public class Player extends Service
                 {
                     if(data.repeatState() == Data.RepeatState.OFF)
                     {
-                        //TODO: replace with data.currentQueueIndex()
-                        if(PlayQueue.queue.indexOf(data.currentSong(this)) < PlayQueue.queue.size() - 1)
-                            song = PlayQueue.getNextSong();
+                        if(queue.update(next) != queue.getQueue().get(0))
+                            song = getSongByID(queue.update(next));
+//                            song = PlayQueue.getNextSong();
                         else
                             stop();
                     }
                     else if(data.repeatState() == Data.RepeatState.ALL)
-                        song = PlayQueue.getNextSong();
+                        song = getSongByID(queue.update(next));
+//                        song = PlayQueue.getNextSong();
                 }
             }
         }
         else
-            song = PlayQueue.getPreviousSong();
+            song = getSongByID(queue.update(next));
+//            song = PlayQueue.getPreviousSong();
 
-        PlayQueue.updateCurrentSongIndex(true, next);
-        PlayQueue.updateQueueStack(next);
+//        PlayQueue.updateCurrentSongIndex(true, next);
+//        PlayQueue.updateQueueStack(next);
         serviceCommunicator.onStartAudio(song, false);
+    }
+
+    private Song getSongByID(long id)
+    {
+        Song song = null;
+        for(Song s : Data.songs)
+            if(s.getId() == id)
+                song = s;
+        return song;
     }
 
     private void onFinish()

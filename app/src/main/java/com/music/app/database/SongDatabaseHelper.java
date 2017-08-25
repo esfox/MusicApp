@@ -36,10 +36,12 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
         this.getWritableDatabase().delete(DB.SONG_TABLE, DB.SONG_UUID + " = ?", new String[] { song.getUUID() });
     }
 
-    public Song getCurrentSong(String uuid)
+    public Song getCurrentSong(long id)
     {
         Song song = new Song();
-        Cursor cursor = this.getReadableDatabase().query(DB.SONG_TABLE, null, DB.SONG_UUID + " = ?", new String[] { uuid }, null, null, null);
+        Cursor cursor = this.getReadableDatabase().query(DB.SONG_TABLE, null,
+                DB.SONG_ID + " = ?", new String[] { String.valueOf(id) },
+                null, null, null);
 
         if(cursor.moveToFirst())
         {

@@ -12,7 +12,7 @@
     tools:ignore="ContentDescription">
 
     <RelativeLayout
-        android:id="@+id/song_list_options_more"
+        android:id="@+id/song_list_options_queue"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -22,7 +22,7 @@
         android:paddingTop="5dp">
 
         <ImageView
-            android:id="@+id/song_list_options_more_icon"
+            android:id="@+id/song_list_options_queue_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -31,15 +31,15 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:paddingStart="5dp"
-            android:src="@drawable/more_horizontal_36dp"
+            android:src="@drawable/queue_36dp"
             android:tint="@color/background_primary"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/song_list_options_more_icon"
+            android:layout_below="@+id/song_list_options_queue_icon"
             android:layout_centerHorizontal="true"
-            android:text="@string/options_more"
+            android:text="@string/options_queue"
             android:textColor="@color/background_primary"
             android:textSize="@dimen/options_text_size"/>
 
@@ -80,7 +80,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/song_list_options_queue"
+        android:id="@+id/song_list_options_more"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -90,7 +90,7 @@
         android:paddingTop="5dp">
 
         <ImageView
-            android:id="@+id/song_list_options_queue_icon"
+            android:id="@+id/song_list_options_more_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -99,15 +99,15 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:paddingStart="5dp"
-            android:src="@drawable/queue_36dp"
+            android:src="@drawable/more_horizontal_36dp"
             android:tint="@color/background_primary"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/song_list_options_queue_icon"
+            android:layout_below="@+id/song_list_options_more_icon"
             android:layout_centerHorizontal="true"
-            android:text="@string/options_queue"
+            android:text="@string/options_more"
             android:textColor="@color/background_primary"
             android:textSize="@dimen/options_text_size"/>
 

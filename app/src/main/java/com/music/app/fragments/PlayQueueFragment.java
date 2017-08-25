@@ -22,6 +22,7 @@ import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.PlayQueue;
+import com.music.app.objects.Queue;
 import com.music.app.objects.Song;
 import com.music.app.utils.ItemTouchHelperCallback;
 import com.music.app.utils.adapters.PlayQueueAdapterOld;
@@ -29,6 +30,7 @@ import com.music.app.utils.interfaces.OnStartDragListener;
 import com.music.app.views.RecyclerViewFastScroller;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class PlayQueueFragment extends Fragment implements OnStartDragListener
 {
@@ -39,6 +41,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
     private RecyclerView playQueue;
 
     private Data data;
+    private Queue queue;
 
     public PlayQueueFragment() {}
 
@@ -54,6 +57,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         super.onActivityCreated(savedInstanceState);
 
         data = ((MainActivity) getContext()).data;
+        queue = ((MainActivity) getContext()).queue;
 
         assert getView() != null;
         view = getView();
@@ -122,7 +126,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         fastScroller.setRecyclerView(playQueue);
         fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller, R.id.fastscroller_bubble, R.id.fastscroller_handle);
 
-        playQueueAdapterOld = new PlayQueueAdapterOld(getContext(), PlayQueue.queue, this);
+        playQueueAdapterOld = new PlayQueueAdapterOld(getContext(), queue.getQueue(), this);
         playQueue.setAdapter(playQueueAdapterOld);
 
         touchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(playQueueAdapterOld));
@@ -157,7 +161,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
     public void updateAdapter()
     {
         if(playQueueAdapterOld != null)
-            playQueueAdapterOld.update(PlayQueue.queue);
+            playQueueAdapterOld.update(queue.getQueue());
     }
 
     private void shuffle()

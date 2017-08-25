@@ -15,15 +15,21 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
+import com.music.app.fragments.SongListFragment;
 import com.music.app.objects.Data;
 import com.music.app.objects.PlayQueue;
 import com.music.app.objects.Player;
+import com.music.app.objects.Queue;
 import com.music.app.objects.Song;
 import com.music.app.utils.AudioFileScanner;
 import com.music.app.utils.UIManager;
+import com.music.app.utils.adapters.SongListAdapter;
+import com.music.app.utils.interfaces.AudioScanListener;
+import com.music.app.utils.interfaces.QueueListener;
 import com.music.app.utils.interfaces.ServiceCommunicator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 /*
@@ -54,12 +60,19 @@ NowPlayingFragment  83-84, 157-162
 
 */
 
-public class MainActivity extends AppCompatActivity implements ServiceCommunicator, View.OnClickListener, View.OnLongClickListener, NavigationView.OnNavigationItemSelectedListener
+public class MainActivity extends AppCompatActivity implements
+        ServiceCommunicator,
+        AudioScanListener,
+        View.OnClickListener,
+        View.OnLongClickListener,
+        QueueListener,
+        NavigationView.OnNavigationItemSelectedListener
 {
-    public Player player;
     public UIManager uiManager;
     public FragmentManager fragmentManager;
 
+    public Player player;
+    public Queue queue;
     public Data data;
 
     private Intent serviceIntent;
@@ -70,14 +83,15 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        data = new Data(this);
+
         serviceIntent = new Intent(this, Player.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
         fragmentManager = new FragmentManager(this);
         uiManager = new UIManager(this, fragmentManager);
-
-        data = new Data(this);
         PlayQueue.setData(data);
+        queue = new Queue(data);
 
         //Scan audio
         AudioFileScanner audioFileScanner = new AudioFileScanner(this, data);
@@ -94,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
         super.onDestroy();
         stopService(serviceIntent);
         unbindService(connection);
+        queue.save(this);
     }
 
     //    private void temp()
@@ -158,6 +173,47 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
     {
         stopService(serviceIntent);
         player.stopForeground(true);
+    }
+
+    @Override
+    public void onQueue(long id)
+    {
+        queue.queue(id);
+    }
+
+    @Override
+    public void onPlayNext(long id)
+    {
+        queue.playNext(id);
+    }
+
+    @Override
+    public void onScanComplete(ArrayList<Song> songs)
+    {
+        Data.songs = songs;
+        PlayQueue.queue = songs;
+
+        if(data.queueIsSaved())
+            queue.load(this);
+        else
+        {
+            long[] ids = new long[songs.size()];
+            for(int i = 0; i < ids.length; i++)
+                ids[i] = songs.get(i).getId();
+
+            queue.initialize(ids);
+        }
+
+        fragmentManager.songListFragment = new SongListFragment();
+        fragmentManager.songListFragment.setSongs(songs);
+        fragmentManager.songList();
+    }
+
+    @Override
+    public void onUpdate()
+    {
+        ((SongListAdapter) fragmentManager.songListFragment
+                .getSongList().getAdapter()).notifyDataSetChanged();
     }
 
     @Override
@@ -253,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements ServiceCommunicat
             Player.ServiceBinder binder = (Player.ServiceBinder) service;
             player = binder.getService();
             player.setServiceCommunicator(MainActivity.this);
-            player.setData(data);
+            player.initialize(data, queue);
         }
 
         @Override
