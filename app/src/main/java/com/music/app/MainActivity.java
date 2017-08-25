@@ -17,7 +17,6 @@ import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.fragments.SongListFragment;
 import com.music.app.objects.Data;
-import com.music.app.objects.PlayQueue;
 import com.music.app.objects.Player;
 import com.music.app.objects.Queue;
 import com.music.app.objects.Song;
@@ -173,6 +172,7 @@ public class MainActivity extends AppCompatActivity implements
     {
         stopService(serviceIntent);
         player.stopForeground(true);
+        uiManager.togglePlayButtonIcon(false);
     }
 
     @Override

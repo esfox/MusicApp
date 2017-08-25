@@ -208,7 +208,8 @@ public class Player extends Service
 
 //        PlayQueue.updateCurrentSongIndex(true, next);
 //        PlayQueue.updateQueueStack(next);
-        serviceCommunicator.onStartAudio(song, false);
+        if(song != null)
+            serviceCommunicator.onStartAudio(song, false);
     }
 
     private Song getSongByID(long id)

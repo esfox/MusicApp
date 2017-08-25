@@ -11,7 +11,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
