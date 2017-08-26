@@ -4,7 +4,6 @@ import android.graphics.drawable.Drawable;
 
 public class Song
 {
-    private String UUID;
     private Long id;
     private String path;
     private String filename;
@@ -21,7 +20,6 @@ public class Song
 
     public Song() {}
 
-    public String getUUID() { return UUID; }
     public Long getId() { return id; }
     public String getPath() { return path; }
     public String getFilename() { return filename; }
@@ -36,7 +34,6 @@ public class Song
     public Drawable getCover() { return cover; }
     public String getCoverPath() { return coverPath; }
 
-    public void setUUID(String UUID) { this.UUID = UUID; }
     public void setId(Long id) { this.id = id; }
     public void setPath(String path) { this.path = path; }
     public void setFilename(String file) { this.filename = file; }

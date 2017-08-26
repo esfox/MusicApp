@@ -26,9 +26,9 @@ public class Data
     public static Song currentSong;
     private Drawable currentAlbumArt;
 
-    private final String currentSongIDKey = "CurrentSongID";
-    private final String currentSongIsNotNullKey = "CurrentSongIsNotNull";
-    private final String currentQueueIndexKey = "CurrentSongQueueIndex";
+    private final String currentSongIDKey = "currentSongID";
+    private final String currentSongIsNotNullKey = "currentSongIsNotNull";
+    private final String currentQueueIndexKey = "currentSongQueueIndex";
     private final String isShuffledKey = "isShuffled";
     private final String repeatStateKey = "repeatState";
     private final String isPlayingKey = "isPlaying";

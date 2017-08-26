@@ -20,7 +20,6 @@ import com.music.app.objects.Song;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class AudioFileScanner
 {
@@ -83,7 +82,6 @@ public class AudioFileScanner
                     if(filename.endsWith(".mp3"))
                     {
                         Song song = new Song();
-                        song.setUUID(UUID.randomUUID().toString());
                         song.setId(Long.parseLong(cursor.getString(0)));
                         song.setPath(cursor.getString(1));
                         song.setFilename(filename);

@@ -13,12 +13,10 @@ import java.util.ArrayList;
 public class SongDatabaseHelper extends SQLiteOpenHelper
 {
     private static final int DATABASE_VERSION = 1;
-    private Context context;
 
     public SongDatabaseHelper(Context pContext)
     {
         super(pContext, DB.DATABASE_NAME, null, DATABASE_VERSION);
-        context = pContext;
     }
 
     public void add(Song song)
@@ -28,12 +26,17 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
 
     public void update(Song song)
     {
-        this.getWritableDatabase().update(DB.SONG_TABLE, getContentValues(song), DB.SONG_UUID + " = " + song.getUUID(), null);
+        this.getWritableDatabase()
+                .update(DB.SONG_TABLE, getContentValues(song),
+                        DB.SONG_ID + " = ?",
+                        new String[] {String.valueOf(song.getId())});
     }
 
     public void delete(Song song)
     {
-        this.getWritableDatabase().delete(DB.SONG_TABLE, DB.SONG_UUID + " = ?", new String[] { song.getUUID() });
+        this.getWritableDatabase()
+                .delete(DB.SONG_TABLE, DB.SONG_ID + " = ?",
+                        new String[] {String.valueOf(song.getId())});
     }
 
     public Song getCurrentSong(long id)
@@ -45,7 +48,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
 
         if(cursor.moveToFirst())
         {
-            song.setUUID(cursor.getString(cursor.getColumnIndex(DB.SONG_UUID)));
             song.setId(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ID))));
             song.setPath(cursor.getString(cursor.getColumnIndex(DB.SONG_PATH)));
             song.setFilename(cursor.getString(cursor.getColumnIndex(DB.SONG_FILENAME)));
@@ -80,7 +82,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
                 do
                 {
                     final Song song = new Song();
-                    song.setUUID(cursor.getString(cursor.getColumnIndex(DB.SONG_UUID)));
                     song.setId(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ID))));
                     song.setPath(cursor.getString(cursor.getColumnIndex(DB.SONG_PATH)));
                     song.setFilename(cursor.getString(cursor.getColumnIndex(DB.SONG_FILENAME)));
@@ -111,7 +112,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
     private ContentValues getContentValues(final Song song)
     {
         final ContentValues values = new ContentValues();
-        values.put(DB.SONG_UUID, song.getUUID());
         values.put(DB.SONG_ID, song.getId());
         values.put(DB.SONG_PATH, song.getPath());
         values.put(DB.SONG_FILENAME, song.getFilename());
@@ -145,7 +145,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
                 + DB.SONG_TABLE
                 + " ("
                 + DB.SONG_DB_ID + " INTEGER PRIMARY KEY, "
-                + DB.SONG_UUID + " TEXT, "
                 + DB.SONG_ID + " TEXT, "
                 + DB.SONG_PATH + " TEXT, "
                 + DB.SONG_FILENAME + " TEXT, "

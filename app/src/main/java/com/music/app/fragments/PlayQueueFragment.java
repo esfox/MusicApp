@@ -21,7 +21,6 @@ import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
-import com.music.app.objects.PlayQueue;
 import com.music.app.objects.Queue;
 import com.music.app.objects.Song;
 import com.music.app.utils.ItemTouchHelperCallback;
@@ -30,7 +29,6 @@ import com.music.app.utils.interfaces.OnStartDragListener;
 import com.music.app.views.RecyclerViewFastScroller;
 
 import java.io.File;
-import java.util.ArrayList;
 
 public class PlayQueueFragment extends Fragment implements OnStartDragListener
 {
@@ -79,8 +77,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
                 switch(item.getItemId())
                 {
                     case R.id.action_shuffle:
-                        data.updateIsShuffled(!data.isShuffled());
-                        PlayQueue.shuffle();
+                        ((MainActivity) getContext()).onShuffle();
                         updateAdapter();
                         scrollToPlaying();
                         shuffle();

@@ -76,8 +76,10 @@ public class FragmentManager
     {
         fragmentManager
                 .beginTransaction()
-                .setCustomAnimations(R.anim.slide_down, R.anim.slide_up, R.anim.slide_down, R.anim.slide_up)
-                .replace(R.id.fragment_area_parent, nowPlayingFragment, "Now Playing")
+                .setCustomAnimations(R.anim.slide_down, R.anim.slide_up,
+                        R.anim.slide_down, R.anim.slide_up)
+                .replace(R.id.fragment_area_parent, nowPlayingFragment,
+                        "Now Playing")
                 .addToBackStack(null)
                 .commit();
     }

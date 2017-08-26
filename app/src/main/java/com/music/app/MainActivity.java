@@ -102,12 +102,18 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onStop()
+    {
+        super.onStop();
+        queue.save(this);
+    }
+
+    @Override
     protected void onDestroy()
     {
         super.onDestroy();
         stopService(serviceIntent);
         unbindService(connection);
-        queue.save(this);
     }
 
     //    private void temp()
@@ -188,6 +194,13 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onShuffle()
+    {
+        data.updateIsShuffled(!data.isShuffled());
+        queue.shuffle(this);
+    }
+
+    @Override
     public void onScanComplete(ArrayList<Song> songs)
     {
         Data.songs = songs;
@@ -248,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onLongClick(View v)
     {
         player.stop();
-        uiManager.togglePlayButtonIcon(false);
+        onStopAudio();
         return true;
     }
 

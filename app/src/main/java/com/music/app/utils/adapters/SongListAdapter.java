@@ -6,7 +6,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -19,7 +18,7 @@ import com.music.app.views.SongListViewHolder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SongListAdapter extends BaseAdapter implements AbsListView.OnScrollListener
+public class SongListAdapter extends BaseAdapter
 {
     private Context context;
     private ListView songList;
@@ -115,8 +114,6 @@ public class SongListAdapter extends BaseAdapter implements AbsListView.OnScroll
             e.printStackTrace();
         }
 
-        songList.setOnScrollListener(this);
-
         /*
         TODO: Add more sort options
         TODO: Implement views show certain details on different sort (e.g. album is shown when sorted by album
@@ -134,14 +131,15 @@ public class SongListAdapter extends BaseAdapter implements AbsListView.OnScroll
 
         if(view == null)
         {
-            LayoutInflater inflater = LayoutInflater.from(context);
+            LayoutInflater inflater = (LayoutInflater)
+                    context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             if(type == type_item)
                 view = inflater.inflate(R.layout.song_list_item, parent, false);
             else
                 view = inflater.inflate(R.layout.song_list_section_header, parent, false);
 
-            viewHolder = new SongListViewHolder(context, view, songList, type, sort);
+            viewHolder = new SongListViewHolder(view, songList, type, sort);
             view.setTag(viewHolder);
 
             if(type == type_item)
@@ -360,26 +358,5 @@ public class SongListAdapter extends BaseAdapter implements AbsListView.OnScroll
     public int getCount()
     {
         return items.size();
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState)
-    {
-//        if(scrollState == SCROLL_STATE_TOUCH_SCROLL)
-//        {
-//            if(openedOptionsPosition != -1)
-//            {
-//                if(openedOptionsPosition > songList.getFirstVisiblePosition() &&
-//                   openedOptionsPosition < songList.getLastVisiblePosition())
-//                    ((SongListViewHolder) songList.getChildAt(openedOptionsPosition - songList.getFirstVisiblePosition()).getTag()).toggleOptions(true, false);
-//            }
-//        }
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-    {
-        boolean isLastPosition = songList.getLastVisiblePosition() == items.size() - 1;
-//        ((MainActivity) context).uiManager.toggleControlButtons(!isLastPosition);
     }
 }

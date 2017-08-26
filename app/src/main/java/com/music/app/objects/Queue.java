@@ -13,7 +13,6 @@ public class Queue
     private ArrayList<Long> queue;
     private int queueStack, queueCount;
 
-
     public Queue(Data data)
     {
         this.data = data;
@@ -33,10 +32,23 @@ public class Queue
 
     void newSong(long id)
     {
+        resetQueue();
         data.updateCurrentQueueIndex(queue.indexOf(id));
     }
 
-    public long update(boolean isNext)
+    private void resetQueue()
+    {
+        ArrayList<Song> songs = Data.songs;
+        long[] ids = new long[songs.size()];
+        for(int i = 0; i < ids.length; i++)
+            ids[i] = songs.get(i).getId();
+        initialize(ids);
+
+        queueStack = 0;
+        queueCount = 0;
+    }
+
+    long update(boolean isNext)
     {
         int index = data.currentQueueIndex();
         if(isNext)
@@ -46,20 +58,22 @@ public class Queue
 
         data.updateCurrentQueueIndex(index);
         updateQueueStack(isNext);
-        return queue.get(data.currentQueueIndex());
+        return queue.get(index);
     }
 
     public void queue(long id)
     {
         queueStack++;
-        queue.add(data.currentQueueIndex() + queueStack, id);
+        int queueIndex = data.currentQueueIndex() + queueStack;
+        queue.add(queueIndex, id);
         queueCount++;
     }
 
     public void playNext(long id)
     {
         queueStack++;
-        queue.add(data.currentQueueIndex() + 1, id);
+        int queueIndex = data.currentQueueIndex() + 1;
+        queue.add(queueIndex, id);
         queueCount++;
     }
 
@@ -120,32 +134,44 @@ public class Queue
 
         if(data.isShuffled())
         {
-            Collections.shuffle(queue);
+            //TODO: Fix current index
 
             if(data.currentSongIsNotNull())
             {
                 long current = queue.get(data.currentQueueIndex());
-                queue.remove(data.currentQueueIndex());
+                queue.remove(current);
+                Collections.shuffle(queue);
                 queue.add(0, current);
                 data.updateCurrentQueueIndex(0);
             }
         }
         else
         {
-            Collections.sort(queue, new Comparator<Long>()
+            ArrayList<Song> songs = Data.songs;
+            ArrayList<Song> tempSongs = new ArrayList<>();
+
+            for(int i = 0; i < queue.size(); i++)
+            {
+                for(int j = 0; j < songs.size(); j++)
+                {
+                    Song song = songs.get(j);
+                    if (queue.get(i).equals(song.getId()))
+                        tempSongs.add(song);
+                }
+            }
+
+            Collections.sort(tempSongs, new Comparator<Song>()
             {
                 @Override
-                public int compare(Long lhs, Long rhs)
+                public int compare(Song lhs, Song rhs)
                 {
-                    return lhs.compareTo(rhs);
-                }
-
-                @Override
-                public boolean equals(Object object)
-                {
-                    return false;
+                    return lhs.getTitle().compareTo(rhs.getTitle());
                 }
             });
+
+            queue.clear();
+            for(Song song : tempSongs)
+                queue.add(song.getId());
 
             for(int i = 0; i < queue.size(); i++)
             {
@@ -154,10 +180,10 @@ public class Queue
                     for(int j = 0; j < duplicates - 1; j++)
                         queue.remove(i);
             }
-        }
 
-        if(data.currentSongIsNotNull())
-            data.updateCurrentQueueIndex(queue.indexOf
-                    (data.currentSong(context).getId()));
+            if(data.currentSongIsNotNull())
+                data.updateCurrentQueueIndex(queue.indexOf
+                        (data.currentSong(context).getId()));
+        }
     }
 }
