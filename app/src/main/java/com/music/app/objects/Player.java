@@ -56,8 +56,6 @@ public class Player extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        Log.d("Service", "Test");
-
         if(data.currentSongIsNotNull())
         {
             try
