@@ -164,12 +164,9 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
     // TODO: FIX PROGRESS
     private void updateProgress() {
-
-        Log.d("AWAISKING_APP", ""+ data.currentSong(getContext()).getPath()
-                + " -- " + player.getPlayer().getCurrentPosition() + " -- " + player.getPlayer().getDuration());
         if (data.currentSongIsNotNull()) {
-//            progress.setProgress(player.getPlayer().getCurrentPosition());
-//            time.setText(getDuration(player.getPlayer().getCurrentPosition()));
+            progress.setProgress(player.getPlayer().getCurrentPosition());
+            time.setText(getDuration(player.getPlayer().getCurrentPosition()));
         }
         updater.postDelayed(update, 500);
     }
