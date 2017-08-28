@@ -14,6 +14,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/song_list_titlebar"
         android:fastScrollEnabled="true"
+        android:fastScrollAlwaysVisible="true"
         android:scrollingCache="false"
         android:animationCache="false"/>
 

@@ -8,7 +8,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,30 +17,37 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
-import com.music.app.objects.Queue;
+import com.music.app.objects.Player;
 import com.music.app.objects.Song;
-import com.music.app.utils.ItemTouchHelperCallback;
 import com.music.app.utils.adapters.PlayQueueAdapterOld;
-import com.music.app.utils.interfaces.OnStartDragListener;
+import com.music.app.utils.interfaces.QueueListener;
 import com.music.app.views.RecyclerViewFastScroller;
 
 import java.io.File;
 
-public class PlayQueueFragment extends Fragment implements OnStartDragListener
+public class PlayQueueFragment extends Fragment /*implements OnStartDragListener*/
 {
     private View view;
     private Menu menu;
     private PlayQueueAdapterOld playQueueAdapterOld;
-    private ItemTouchHelper touchHelper;
+//    private ItemTouchHelper touchHelper;
     private RecyclerView playQueue;
 
     private Data data;
-    private Queue queue;
+    private Player player;
+
+    private QueueListener queueListener;
 
     public PlayQueueFragment() {}
+
+    public void initialize(Data data, Player player, QueueListener queueListener)
+    {
+        this.data = data;
+        this.player = player;
+        this.queueListener = queueListener;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
@@ -53,9 +59,6 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-
-        data = ((MainActivity) getContext()).data;
-        queue = ((MainActivity) getContext()).queue;
 
         assert getView() != null;
         view = getView();
@@ -77,7 +80,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
                 switch(item.getItemId())
                 {
                     case R.id.action_shuffle:
-                        ((MainActivity) getContext()).onShuffle();
+                        queueListener.onShuffle();
                         updateAdapter();
                         scrollToPlaying();
                         shuffle();
@@ -100,7 +103,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
             @Override
             public void onClick(View v)
             {
-                ((MainActivity) getContext()).player.play();
+                player.play();
                 togglePlayButtonIcon();
             }
         });
@@ -119,15 +122,19 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         playQueue.setHasFixedSize(true);
         playQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) getView().findViewById(R.id.play_queue_fast_scroller);
+        RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller)
+                getView().findViewById(R.id.play_queue_fast_scroller);
         fastScroller.setRecyclerView(playQueue);
-        fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller, R.id.fastscroller_bubble, R.id.fastscroller_handle);
+        fastScroller.setViewsToUse
+                (R.layout.recycler_view_fast_scroller,
+                R.id.fastscroller_bubble,
+                R.id.fastscroller_handle);
 
-        playQueueAdapterOld = new PlayQueueAdapterOld(getContext(), queue.getQueue(), this);
+        playQueueAdapterOld = new PlayQueueAdapterOld(data);
         playQueue.setAdapter(playQueueAdapterOld);
 
-        touchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(playQueueAdapterOld));
-        touchHelper.attachToRecyclerView(playQueue);
+//        touchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(playQueueAdapterOld));
+//        touchHelper.attachToRecyclerView(playQueue);
     }
 
     @Override
@@ -158,7 +165,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
     public void updateAdapter()
     {
         if(playQueueAdapterOld != null)
-            playQueueAdapterOld.update(queue.getQueue());
+            playQueueAdapterOld.update(data.queue());
     }
 
     private void shuffle()
@@ -166,11 +173,13 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         if(data.isShuffled())
             menu.findItem(R.id.action_shuffle)
                     .getIcon()
-                    .setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                    .setColorFilter(ContextCompat.getColor
+                            (getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
         else
             menu.findItem(R.id.action_shuffle)
                     .getIcon()
-                    .setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off_light), PorterDuff.Mode.SRC_ATOP);
+                    .setColorFilter(ContextCompat.getColor
+                            (getContext(), R.color.toggle_off_light), PorterDuff.Mode.SRC_ATOP);
     }
 
     private void repeat()
@@ -179,23 +188,36 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         {
             case OFF:
                 menu.findItem(R.id.action_repeat).setIcon(R.drawable.repeat_36dp);
-                menu.findItem(R.id.action_repeat).getIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off_light), PorterDuff.Mode.SRC_ATOP);
+                menu.findItem(R.id.action_repeat)
+                        .getIcon()
+                        .setColorFilter(ContextCompat.getColor
+                                (getContext(), R.color.toggle_off_light),
+                                PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ALL:
-                menu.findItem(R.id.action_repeat).getIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                menu.findItem(R.id.action_repeat)
+                        .getIcon()
+                        .setColorFilter(ContextCompat.getColor
+                                (getContext(), R.color.toggle_on),
+                                PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ONE:
                 menu.findItem(R.id.action_repeat).setIcon(R.drawable.repeat_one_36dp);
-                menu.findItem(R.id.action_repeat).getIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                menu.findItem(R.id.action_repeat)
+                        .getIcon()
+                        .setColorFilter(ContextCompat.getColor
+                                (getContext(), R.color.toggle_on),
+                                PorterDuff.Mode.SRC_ATOP);
                 break;
         }
     }
 
     public void togglePlayButtonIcon()
     {
-//        FloatingActionButton playButton = (FloatingActionButton) view.findViewById(R.id.queue_list_play_button);
+//        FloatingActionButton playButton = (FloatingActionButton)
+//                view.findViewById(R.id.queue_list_play_button);
 //
 //        if(Player.getPlayer().isPlaying())
 //            playButton.setImageResource(R.drawable.pause_36dp);
@@ -211,9 +233,9 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
             playQueue.scrollToPosition(data.currentQueueIndex());
     }
 
-    @Override
-    public void onStartDrag(RecyclerView.ViewHolder holder)
-    {
-        touchHelper.startDrag(holder);
-    }
+//    @Override
+//    public void onStartDrag(RecyclerView.ViewHolder holder)
+//    {
+//        touchHelper.startDrag(holder);
+//    }
 }

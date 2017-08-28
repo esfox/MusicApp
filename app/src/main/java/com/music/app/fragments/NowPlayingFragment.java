@@ -19,18 +19,20 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
+import com.music.app.utils.UIManager;
+import com.music.app.utils.interfaces.QueueListener;
 
 import java.io.File;
 
 public class NowPlayingFragment extends Fragment implements View.OnClickListener
 {
-    private Player player;
     private Data data;
+    private Player player;
+    private UIManager uiManager;
 
     private SeekBar progress;
     private TextView time;
@@ -38,20 +40,31 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     private ImageView shuffle, repeat;
     private FloatingActionButton play;
 
+    private QueueListener queueListener;
+
     public NowPlayingFragment() {}
+
+    public void initialize(Data data,
+                           Player player,
+                           UIManager uiManager,
+                           QueueListener queueListener)
+    {
+        this.data = data;
+        this.player = player;
+        this.uiManager = uiManager;
+        this.queueListener = queueListener;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        Log.d("Check", "onCreateView");
         View view = inflater.inflate(R.layout.fragment_now_playing, container, false);
 
-        player = ((MainActivity) getContext()).player;
-        data = ((MainActivity) getContext()).data;
-
         play = (FloatingActionButton) view.findViewById(R.id.now_playing_play);
-        FloatingActionButton next = (FloatingActionButton) view.findViewById(R.id.now_playing_next);
-        FloatingActionButton previous = (FloatingActionButton) view.findViewById(R.id.now_playing_previous);
+        FloatingActionButton next = (FloatingActionButton)
+                view.findViewById(R.id.now_playing_next);
+        FloatingActionButton previous = (FloatingActionButton)
+                view.findViewById(R.id.now_playing_previous);
         shuffle = (ImageView) view.findViewById(R.id.now_playing_shuffle);
         repeat = (ImageView) view.findViewById(R.id.now_playing_repeat);
 
@@ -68,8 +81,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             @Override
             public void onClick(View v)
             {
-                ((MainActivity) getContext()).fragmentManager.popBackStack();
-//                ((MainActivity) getContext()).uiManager.toggleControlButtons(true);
+                uiManager.fragmentManager().popBackStack();
             }
         });
         header.inflateMenu(R.menu.menu_now_playing);
@@ -81,7 +93,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                 switch(item.getItemId())
                 {
                     case R.id.action_play_queue:
-                        ((MainActivity) getContext()).fragmentManager.playQueue();
+                        uiManager.fragmentManager().playQueue();
                         break;
                 }
                 return false;
@@ -230,7 +242,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             case R.id.now_playing_play:
                 player.play();
                 togglePlayButtonIcon(data.isPlaying());
-                ((MainActivity) getContext()).uiManager.togglePlayButtonIcon(data.isPlaying());
+                uiManager.togglePlayButtonIcon(data.isPlaying());
                 break;
 
             case R.id.now_playing_next:
@@ -254,7 +266,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     public void shuffle(boolean toggle)
     {
         if(toggle)
-            ((MainActivity) getContext()).onShuffle();
+            queueListener.onShuffle();
 
         if(data.isShuffled())
             shuffle.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);

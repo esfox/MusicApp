@@ -17,6 +17,7 @@ import com.music.app.R;
 import com.music.app.database.SongDatabaseHelper;
 import com.music.app.objects.Data;
 import com.music.app.objects.Song;
+import com.music.app.utils.interfaces.AudioScanListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,12 +27,14 @@ public class AudioFileScanner
     private Context context;
     private ArrayList<Song> songs;
     private Data data;
+    private AudioScanListener audioScanListener;
 
-    public AudioFileScanner(Context pContext, Data pData)
+    public AudioFileScanner(Context pContext, AudioScanListener pAudioScanListener, Data pData)
     {
         context = pContext;
-        songs = new ArrayList<>();
+        audioScanListener = pAudioScanListener;
         data = pData;
+        songs = new ArrayList<>();
     }
 
     public void scanAudio()
@@ -72,7 +75,8 @@ public class AudioFileScanner
         Cursor cursor = null;
         try
         {
-            cursor = context.getContentResolver().query(external, projection, selection, null, sortOrder);
+            cursor = context.getContentResolver()
+                    .query(external, projection, selection, null, sortOrder);
             if(cursor != null)
             {
                 cursor.moveToFirst();
@@ -125,12 +129,14 @@ public class AudioFileScanner
                 cursor.moveToFirst();
                 while(!cursor.isAfterLast())
                 {
-                    Uri genreURI = MediaStore.Audio.Genres.Members.getContentUri("external", cursor.getLong(0));
+                    Uri genreURI = MediaStore.Audio.Genres.Members
+                            .getContentUri("external", cursor.getLong(0));
                     String[] gfilename = { MediaStore.Audio.Media.DISPLAY_NAME };
                     Cursor c = null;
                     try
                     {
-                        c = context.getContentResolver().query(genreURI, gfilename, null, null, null);
+                        c = context.getContentResolver()
+                                .query(genreURI, gfilename, null, null, null);
                         if(c != null)
                         {
                             c.moveToFirst();
@@ -187,13 +193,14 @@ public class AudioFileScanner
                     {
                         try
                         {
-////                            BitmapFactory.Options options = new BitmapFactory.Options();
-////                            options.inScaled = true;
-////                            options.inSampleSize = 2;
-////                            options.inDensity = 100;
-////                            options.inTargetDensity = 100 * options.inSampleSize;
+//                            BitmapFactory.Options options = new BitmapFactory.Options();
+//                            options.inScaled = true;
+//                            options.inSampleSize = 2;
+//                            options.inDensity = 100;
+//                            options.inTargetDensity = 100 * options.inSampleSize;
 //
-////                            cover = new BitmapDrawable(context.getResources(), BitmapFactory.decodeFile(cursor.getString(2), options));
+//                            cover = new BitmapDrawable(context.getResources(),
+//                                    BitmapFactory.decodeFile(cursor.getString(2), options));
 
                             cover = Glide.with(context)
                                     .load(new File(cursor.getString(2)))
@@ -204,11 +211,13 @@ public class AudioFileScanner
                         catch(OutOfMemoryError e)
                         {
                             e.printStackTrace();
-                            cover = ResourcesCompat.getDrawable(context.getResources(), R.drawable.library_music_48dp, null);
+                            cover = ResourcesCompat.getDrawable(context.getResources(),
+                                            R.drawable.library_music_48dp, null);
                         }
                     }
                     else
-                        cover = ResourcesCompat.getDrawable(context.getResources(), R.drawable.library_music_48dp, null);
+                        cover = ResourcesCompat.getDrawable(context.getResources(),
+                                R.drawable.library_music_48dp, null);
 
                     for(Song song: songs)
                     {
@@ -248,7 +257,8 @@ public class AudioFileScanner
     private String getDuration(String value)
     {
         Long length = Long.parseLong(value);
-        return String.valueOf(length / 60000) + ":" + String.format("%02d", (length % 60000) / 1000);
+        return String.valueOf(length / 60000) + ":"
+                + String.format("%02d", (length % 60000) / 1000);
     }
 
     private class BackgroundScanner extends AsyncTask<Void, Void, Void>
@@ -287,7 +297,9 @@ public class AudioFileScanner
         protected void onPreExecute()
         {
             super.onPreExecute();
-            snackbar = Snackbar.make(((MainActivity) context).uiManager.playButton, "Loading album covers...", Snackbar.LENGTH_INDEFINITE);
+            snackbar = Snackbar.make(((MainActivity) context)
+                    .getWindow().getDecorView().getRootView(),
+                    "Loading album covers...", Snackbar.LENGTH_INDEFINITE);
             snackbar.show();
         }
 
@@ -303,8 +315,19 @@ public class AudioFileScanner
         {
             super.onPostExecute(aVoid);
             snackbar.dismiss();
+            audioScanListener.onUpdate();
+
+            new Store().execute();
+        }
+    }
+
+    private class Store extends AsyncTask<Void, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(Void... params)
+        {
             store();
-            ((MainActivity) context).onUpdate();
+            return null;
         }
     }
 
@@ -327,7 +350,7 @@ public class AudioFileScanner
 
     private void scanComplete()
     {
-        ((MainActivity) context).onScanComplete(songs);
+        audioScanListener.onScanComplete(songs);
         new AlbumCoverScanner().execute();
     }
 }

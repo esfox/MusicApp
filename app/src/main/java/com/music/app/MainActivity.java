@@ -25,7 +25,7 @@ import com.music.app.utils.UIManager;
 import com.music.app.utils.adapters.SongListAdapter;
 import com.music.app.utils.interfaces.AudioScanListener;
 import com.music.app.utils.interfaces.QueueListener;
-import com.music.app.utils.interfaces.ServiceCommunicator;
+import com.music.app.utils.interfaces.ServiceListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,42 +37,24 @@ TODO CURRENT ACTIVITY
 
 Multi-Queue
 
-
-
 TODO: Remember to do these
-
 Modify NowPlayingFragment layout (Put album name under cover)
-APPLY SINGLETON (SAVE OBJECTS)
-
-
-
-WHEN DEACTIVATING MEDIA PLAYING FEATURE
-
-Comment the following:
-
-Class               line number
-
-MainActivity        114, 439-442
-SongListViewHolder  117
-Player              23-36, 78-84, 87
-NowPlayingFragment  83-84, 157-162
-
 */
 
 public class MainActivity extends AppCompatActivity implements
-        ServiceCommunicator,
+        ServiceListener,
         AudioScanListener,
+        QueueListener,
         View.OnClickListener,
         View.OnLongClickListener,
-        QueueListener,
         NavigationView.OnNavigationItemSelectedListener
 {
-    public UIManager uiManager;
-    public FragmentManager fragmentManager;
+    private Player player;
+    private Queue queue;
+    private Data data;
 
-    public Player player;
-    public Queue queue;
-    public Data data;
+    private UIManager uiManager;
+    private FragmentManager fragmentManager;
 
     private Intent serviceIntent;
 
@@ -87,13 +69,14 @@ public class MainActivity extends AppCompatActivity implements
         serviceIntent = new Intent(this, Player.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
-        fragmentManager = new FragmentManager(this);
-        uiManager = new UIManager(this, fragmentManager);
+        uiManager = new UIManager(this);
+        uiManager.initUI(data, player, this);
+        fragmentManager = uiManager.fragmentManager();
+
         queue = new Queue(data);
-//        PlayQueue.setData(data);
 
         //Scan audio
-        AudioFileScanner audioFileScanner = new AudioFileScanner(this, data);
+        AudioFileScanner audioFileScanner = new AudioFileScanner(this, this, data);
         audioFileScanner.scanAudio();
 //        temp();
 
@@ -203,8 +186,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onScanComplete(ArrayList<Song> songs)
     {
-        Data.songs = songs;
-//        PlayQueue.queue = songs;
+        data.setSongs(songs);
 
         if(data.queueIsSaved())
             queue.load(this);
@@ -217,8 +199,16 @@ public class MainActivity extends AppCompatActivity implements
             queue.initialize(ids);
         }
 
+        ArrayList<Long> idsList = queue.getQueue();
+        long[] ids = new long[idsList.size()];
+        for(int i = 0; i < ids.length; i++)
+            ids[i] = idsList.get(i);
+
+        data.setQueue(ids);
+
         fragmentManager.songListFragment = new SongListFragment();
         fragmentManager.songListFragment.setSongs(songs);
+        fragmentManager.songListFragment.initialize(this, this, fragmentManager);
         fragmentManager.songList();
     }
 
@@ -321,8 +311,8 @@ public class MainActivity extends AppCompatActivity implements
         {
             Player.ServiceBinder binder = (Player.ServiceBinder) service;
             player = binder.getService();
-            player.setServiceCommunicator(MainActivity.this);
             player.initialize(data, queue);
+            player.setServiceListener(MainActivity.this);
         }
 
         @Override
@@ -339,11 +329,15 @@ public class MainActivity extends AppCompatActivity implements
         {
             try
             {
-                data.updateCurrentAlbumArt(Glide.with(MainActivity.this).load(new File(data.currentSong(MainActivity.this).getCoverPath())).into(500, 500).get());
+                data.updateCurrentAlbumArt(Glide
+                        .with(MainActivity.this)
+                        .load(new File(data.currentSong(MainActivity.this).getCoverPath()))
+                        .into(500, 500).get());
             }
             catch (NullPointerException | InterruptedException | ExecutionException e)
             {
-                data.updateCurrentAlbumArt(ResourcesCompat.getDrawable(getResources(), R.drawable.library_music_48dp, null));
+                data.updateCurrentAlbumArt(ResourcesCompat
+                        .getDrawable(getResources(), R.drawable.library_music_48dp, null));
             }
             return null;
         }

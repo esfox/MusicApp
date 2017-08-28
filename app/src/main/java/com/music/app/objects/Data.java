@@ -18,12 +18,14 @@ public class Data
                 Context.MODE_PRIVATE);
     }
 
-    //TODO: STORE ALL THESE TO SHARED PREFS OR TO STORAGE
+    private ArrayList<Song> songs;
+    private long[] queue;
 
-    public static ArrayList<Song> songs;
+    public ArrayList<Song> songs() { return songs; }
+    public void setSongs(ArrayList<Song> songs) { this.songs = songs; }
+    public long[] queue() { return queue; }
+    public void setQueue(long[] queue) { this.queue = queue; }
 
-    //Eliminating all uses of currentSong
-    public static Song currentSong;
     private Drawable currentAlbumArt;
 
     private final String currentSongIDKey = "currentSongID";

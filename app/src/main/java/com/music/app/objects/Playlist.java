@@ -5,9 +5,12 @@ import java.util.ArrayList;
 public class Playlist
 {
     private String name = "Untitled Playlist";
-    private ArrayList<Song> songs = new ArrayList<>();
+    private ArrayList<Song> songs;
 
-    public Playlist() {}
+    public Playlist()
+    {
+        songs = new ArrayList<>();
+    }
 
     public ArrayList<Song> getSongs()
     {

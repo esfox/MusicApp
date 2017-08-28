@@ -38,7 +38,7 @@ public class Queue
 
     private void resetQueue()
     {
-        ArrayList<Song> songs = Data.songs;
+        ArrayList<Song> songs = data.songs();
         long[] ids = new long[songs.size()];
         for(int i = 0; i < ids.length; i++)
             ids[i] = songs.get(i).getId();
@@ -147,7 +147,7 @@ public class Queue
         }
         else
         {
-            ArrayList<Song> songs = Data.songs;
+            ArrayList<Song> songs = data.songs();
             ArrayList<Song> tempSongs = new ArrayList<>();
 
             for(int i = 0; i < queue.size(); i++)

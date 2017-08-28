@@ -14,14 +14,14 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.music.app.R;
-import com.music.app.utils.interfaces.ServiceCommunicator;
+import com.music.app.utils.interfaces.ServiceListener;
 
 import java.io.IOException;
 
 public class Player extends Service
 {
     private IBinder binder = new ServiceBinder();
-    private ServiceCommunicator serviceCommunicator;
+    private ServiceListener serviceListener;
     private MediaPlayer player;
     private Data data;
     private Queue queue;
@@ -35,9 +35,9 @@ public class Player extends Service
         }
     }
 
-    public void setServiceCommunicator(ServiceCommunicator serviceCommunicator)
+    public void setServiceListener(ServiceListener serviceListener)
     {
-        this.serviceCommunicator = serviceCommunicator;
+        this.serviceListener = serviceListener;
     }
 
     public void initialize(Data data, Queue queue)
@@ -56,6 +56,8 @@ public class Player extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        Log.d("Service", "Test");
+
         if(data.currentSongIsNotNull())
         {
             try
@@ -124,7 +126,6 @@ public class Player extends Service
             queue.newSong(song.getId());
 //            PlayQueue.newSongPlayed(song);
 
-        Data.currentSong = song;
         data.updateCurrentSong(song.getId());
 
         if(!data.currentSongIsNotNull())
@@ -150,7 +151,7 @@ public class Player extends Service
     {
         player.pause();
         player.seekTo(0);
-        serviceCommunicator.onStopAudio();
+        serviceListener.onStopAudio();
         data.updateIsPlaying(false);
     }
 
@@ -208,13 +209,13 @@ public class Player extends Service
 //        PlayQueue.updateCurrentSongIndex(true, next);
 //        PlayQueue.updateQueueStack(next);
         if(song != null)
-            serviceCommunicator.onStartAudio(song, false);
+            serviceListener.onStartAudio(song, false);
     }
 
     private Song getSongByID(long id)
     {
         Song song = null;
-        for(Song s : Data.songs)
+        for(Song s : data.songs())
             if(s.getId() == id)
                 song = s;
         return song;

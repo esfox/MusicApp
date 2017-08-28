@@ -1,29 +1,32 @@
 package com.music.app.fragments;
 
 import android.content.Context;
-import android.widget.Toast;
+import android.util.Log;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
+import com.music.app.objects.Data;
+import com.music.app.objects.Player;
 import com.music.app.objects.Song;
+import com.music.app.utils.UIManager;
+import com.music.app.utils.interfaces.QueueListener;
 
 public class FragmentManager
 {
     private android.support.v4.app.FragmentManager fragmentManager;
-    private MainActivity mainActivity;
 
     public SongListFragment songListFragment;
     public NowPlayingFragment nowPlayingFragment;
-    public PlaylistsFragment playlistsFragment;
-    public FavoritesFragment favoritesFragment;
+    private PlaylistsFragment playlistsFragment;
+    private FavoritesFragment favoritesFragment;
     public PlayQueueFragment playQueueFragment;
-    public SongDetailsFragment songDetailsFragment;
+    private SongDetailsFragment songDetailsFragment;
 
     public int activeFragment = R.id.navigation_drawer_songs;
 
-    public FragmentManager(Context context)
+    public FragmentManager
+            (Context context)
     {
-        mainActivity = ((MainActivity) context);
         fragmentManager = ((MainActivity) context).getSupportFragmentManager();
 
         nowPlayingFragment = new NowPlayingFragment();
@@ -99,8 +102,7 @@ public class FragmentManager
     public void settings()
     {
         activeFragment = R.id.navigation_drawer_settings;
-
-        Toast.makeText(mainActivity, "Settings", Toast.LENGTH_SHORT).show();
+        Log.d("Fragment", "Settings");
     }
 
     public void songDetails(Song song)

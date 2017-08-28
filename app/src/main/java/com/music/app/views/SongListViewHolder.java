@@ -11,12 +11,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
 import com.music.app.utils.adapters.SongListAdapter;
+import com.music.app.utils.interfaces.QueueListener;
+import com.music.app.utils.interfaces.ServiceListener;
 
 public class SongListViewHolder implements View.OnClickListener, View.OnLongClickListener
 {
@@ -42,7 +43,16 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     private int position;
     private int viewType;
 
-    public SongListViewHolder(View view, ListView pListView, int pViewType, Sorter.SortBy pSort)
+    private ServiceListener serviceListener;
+    private QueueListener queueListener;
+
+    public SongListViewHolder
+            (View view,
+             ListView pListView,
+             int pViewType,
+             Sorter.SortBy pSort,
+             ServiceListener serviceListener,
+             QueueListener queueListener)
     {
         viewType = pViewType;
         if(viewType == SongListAdapter.type_item)
@@ -68,6 +78,9 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
         sort = pSort;
 
         adapter = (SongListAdapter) songList.getAdapter();
+
+        this.serviceListener = serviceListener;
+        this.queueListener = queueListener;
     }
 
     public void setPosition(int pPosition)
@@ -183,7 +196,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     {
         if(adapter.inMultiQueueMode())
         {
-            ((MainActivity) container.getContext()).onQueue(song.getId());
+            queueListener.onQueue(song.getId());
             Toast.makeText(container.getContext(), song.getTitle() + " queued", Toast.LENGTH_SHORT).show();
 //            PlayQueue.queue(song);
 //            Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
@@ -194,7 +207,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
             select();
         }
         else
-            ((MainActivity) container.getContext()).onStartAudio(song, true);
+            serviceListener.onStartAudio(song, true);
     }
 
     private void options()
@@ -251,7 +264,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 
     private void queue()
     {
-        ((MainActivity) container.getContext()).onQueue(song.getId());
+        queueListener.onQueue(song.getId());
         Toast.makeText(container.getContext(), song.getTitle() + " queued", Toast.LENGTH_SHORT).show();
 //        PlayQueue.queue(song);
 //        Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
@@ -260,7 +273,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 
     private void playNext()
     {
-        ((MainActivity) container.getContext()).onPlayNext(song.getId());
+        queueListener.onPlayNext(song.getId());
         Toast.makeText(container.getContext(), song.getTitle() + " to play next", Toast.LENGTH_SHORT).show();
 //        PlayQueue.playNext(song);
 //        Snackbar.make(null, song.getTitle() + " to play next", Snackbar.LENGTH_LONG).show();
@@ -281,7 +294,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
                         break;
                     case 1:
                         toggleOptions(true, false);
-                        ((MainActivity) container.getContext()).fragmentManager.songDetails(song);
+                        adapter.songDetails(song);
                         break;
                     case 2:
                         //TODO: Add action (Edit Tags)

@@ -13,12 +13,13 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.music.app.R;
-import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Menuer;
 import com.music.app.utils.adapters.SongListAdapter;
 import com.music.app.utils.adapters.SongListFastScrollAdapter;
+import com.music.app.utils.interfaces.QueueListener;
+import com.music.app.utils.interfaces.ServiceListener;
 
 import java.util.ArrayList;
 
@@ -28,12 +29,25 @@ public class SongListFragment extends Fragment implements View.OnClickListener
     private Sorter.SortBy sort;
     private ArrayList<Song> songs;
 
+    private FragmentManager fragmentManager;
+
+    private ServiceListener serviceListener;
+    private QueueListener queueListener;
+
+    public SongListFragment() {}
+
     public void setSongs(ArrayList<Song> songs)
     {
         this.songs = songs;
     }
-
-    public SongListFragment() {}
+    public void initialize(ServiceListener serviceListener,
+                           QueueListener queueListener,
+                           FragmentManager fragmentManager)
+    {
+        this.serviceListener = serviceListener;
+        this.queueListener = queueListener;
+        this.fragmentManager = fragmentManager;
+    }
 
     @Override
     public void onAttach(Context context)
@@ -59,6 +73,7 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         songList = (ListView) view.findViewById(R.id.song_list_view);
         songList.setDividerHeight(0);
         songList.setFastScrollEnabled(true);
+        songList.setTag(fragmentManager);
 
         sort(sort);
 
@@ -201,6 +216,9 @@ public class SongListFragment extends Fragment implements View.OnClickListener
             adapter = new SongListFastScrollAdapter(getContext(), Sorter.sort(songs, sort), songList, sort);
         else
             adapter = new SongListAdapter(getContext(), songList, songs, sort);
+
+        adapter.setServiceListener(serviceListener);
+        adapter.setQueueListener(queueListener);
 
         songList.setAdapter(adapter);
         adapter.notifyDataSetChanged();

@@ -11,12 +11,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.music.app.R;
+import com.music.app.fragments.FragmentManager;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
+import com.music.app.utils.interfaces.QueueListener;
+import com.music.app.utils.interfaces.ServiceListener;
 import com.music.app.views.SongListViewHolder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+//TODO: Extract logic from ViewHolder to here
 
 public class SongListAdapter extends BaseAdapter
 {
@@ -36,6 +41,9 @@ public class SongListAdapter extends BaseAdapter
 
     private ArrayList<Boolean> selectedFlags;
     private int selectedCount = 0;
+
+    private ServiceListener serviceListener;
+    private QueueListener queueListener;
 
     class Item
     {
@@ -71,7 +79,11 @@ public class SongListAdapter extends BaseAdapter
         }
     }
 
-    public SongListAdapter(Context pContext, ListView listView, ArrayList<Song> pSongs, Sorter.SortBy pSort)
+    public SongListAdapter(
+            Context pContext,
+            ListView listView,
+            ArrayList<Song> pSongs,
+            Sorter.SortBy pSort)
     {
         context = pContext;
         songList = listView;
@@ -121,6 +133,16 @@ public class SongListAdapter extends BaseAdapter
         */
     }
 
+    public void setServiceListener(ServiceListener serviceListener)
+    {
+        this.serviceListener = serviceListener;
+    }
+
+    public void setQueueListener(QueueListener queueListener)
+    {
+        this.queueListener = queueListener;
+    }
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent)
     {
@@ -139,7 +161,8 @@ public class SongListAdapter extends BaseAdapter
             else
                 view = inflater.inflate(R.layout.song_list_section_header, parent, false);
 
-            viewHolder = new SongListViewHolder(view, songList, type, sort);
+            viewHolder = new SongListViewHolder
+                    (view, songList, type, sort, serviceListener, queueListener);
             view.setTag(viewHolder);
 
             if(type == type_item)
@@ -161,6 +184,11 @@ public class SongListAdapter extends BaseAdapter
             viewHolder.sectionText.setText(items.get(position).getSection());
 
         return view;
+    }
+
+    public void songDetails(Song song)
+    {
+        ((FragmentManager) songList.getTag()).songDetails(song);
     }
 
     private void checkIfPositionIsOpened(int position, SongListViewHolder viewHolder)

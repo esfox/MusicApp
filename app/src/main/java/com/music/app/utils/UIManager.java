@@ -14,9 +14,12 @@ import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.objects.Data;
+import com.music.app.objects.Player;
 import com.music.app.objects.Song;
+import com.music.app.utils.interfaces.QueueListener;
 
 import java.io.File;
+import java.util.Calendar;
 
 public class UIManager
 {
@@ -24,21 +27,28 @@ public class UIManager
     private FragmentManager fragmentManager;
 
     public Toolbar toolbar;
-    ImageButton playButton;
+    private ImageButton playButton;
     private NavigationView navigationDrawer;
 
-    public UIManager(Context context, FragmentManager fragmentManager)
+    public UIManager(Context context)
     {
         this.context = context;
-        this.fragmentManager = fragmentManager;
-        initUI();
     }
 
-    private void initUI()
+    public FragmentManager fragmentManager()
     {
+        return fragmentManager;
+    }
+
+    public void initUI(Data data, Player player, QueueListener queueListener)
+    {
+        fragmentManager = new FragmentManager(context);
+        fragmentManager.nowPlayingFragment.initialize(data, player, this, queueListener);
+        fragmentManager.playQueueFragment.initialize(data, player, queueListener);
+
         //Initialize Now Playing Bar
         toolbar = (Toolbar) ((MainActivity) context).findViewById(R.id.toolbar);
-        toolbar.setTitle("Hello, User!");
+        toolbar.setTitle(greetings());
         toolbar.setSubtitle("Select a song to play.");
 
         //Initialize control buttons
@@ -93,7 +103,7 @@ public class UIManager
         else
         {
             nowPlayingCover.setVisibility(View.INVISIBLE);
-            toolbar.setTitle("Hello, User!");
+            toolbar.setTitle(greetings());
             toolbar.setSubtitle("Select a song to play.");
         }
     }
@@ -161,20 +171,25 @@ public class UIManager
             playButton.setImageResource(R.drawable.play_24dp);
     }
 
-//    private void showGreetings()
-//    {
-//        String greeting = "Good ";
-//
-//        Calendar calendar = Calendar.getInstance();
-//        int time = calendar.get(Calendar.HOUR_OF_DAY);
-//
-//        if (time >= 0 && time < 12)
-//            greeting += "Morning";
-//        else if (time >= 12 && time < 18)
-//            greeting += "Afternoon";
-//        else if (time >= 18 && time < 24)
-//            greeting += "Evening";
-//        else
-//            greeting += "Day";
-//    }
+    private String greetings()
+    {
+        String greeting = "Good ";
+
+        Calendar calendar = Calendar.getInstance();
+        int time = calendar.get(Calendar.HOUR_OF_DAY);
+
+        if (time >= 0 && time < 12)
+            greeting += "Morning";
+        else if (time >= 12 && time < 18)
+            greeting += "Afternoon";
+        else if (time >= 18 && time < 24)
+            greeting += "Evening";
+        else
+            greeting += "Day";
+
+        //TODO: Get user's name
+        greeting += ", " + "John!";
+
+        return greeting;
+    }
 }

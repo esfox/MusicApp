@@ -1,7 +1,5 @@
 package com.music.app.utils.adapters;
 
-import android.content.Context;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -10,36 +8,33 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.Song;
-import com.music.app.utils.interfaces.ItemTouchListener;
 import com.music.app.utils.interfaces.DragListener;
-import com.music.app.utils.interfaces.OnStartDragListener;
 import com.music.app.views.RecyclerViewFastScroller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOld.PlayQueueViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter, ItemTouchListener
+public class PlayQueueAdapterOld
+        extends RecyclerView.Adapter<PlayQueueAdapterOld.PlayQueueViewHolder>
+        implements RecyclerViewFastScroller.BubbleTextGetter/*, ItemTouchListener*/
 {
-    private ArrayList<Long> songIDs;
-    private OnStartDragListener dragListener;
+    private long[] songIDs;
+//    private OnStartDragListener dragListener;
 
-    private Context context;
+    private Data data;
 
-    public PlayQueueAdapterOld(Context pContext, ArrayList<Long> songIDs, OnStartDragListener pDragListener)
+    public PlayQueueAdapterOld(Data data/*, OnStartDragListener dragListener*/)
     {
-        this.songIDs = songIDs;
-        dragListener = pDragListener;
-        context = pContext;
+        this.data = data;
+//        this.dragListener = dragListener;
+
+        songIDs = data.queue();
     }
 
     private Song getSongByID(long id)
     {
         Song song = null;
-        for(Song s : Data.songs)
+        for(Song s : data.songs())
             if(s.getId() == id)
                 song = s;
         return song;
@@ -48,20 +43,21 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
     @Override
     public PlayQueueViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.play_queue_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.play_queue_item, parent, false);
         return new PlayQueueViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final PlayQueueViewHolder holder, int position)
     {
-        Song song = getSongByID(songIDs.get(position));
+        Song song = getSongByID(songIDs[position]);
 
         holder.title.setText(song.getTitle());
         holder.artist.setText(song.getArtist());
         holder.cover.setImageDrawable(song.getCover());
 
-        if(position == ((MainActivity) context).data.currentQueueIndex())
+        if(position == data.currentQueueIndex())
             holder.background.setBackgroundResource(R.color.colorPrimaryDarker);
         else
             holder.background.setBackgroundResource(R.color.background_primary);
@@ -70,44 +66,46 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
     @Override
     public int getItemCount()
     {
-        return songIDs.size();
+        return songIDs.length;
     }
 
     @Override
     public String getTextToShowInBubble(int pos)
     {
-        return Character.toString(getSongByID(songIDs.get(pos))
+        return Character.toString(getSongByID(songIDs[pos])
                 .getTitle().charAt(0));
     }
 
-    public void update(ArrayList<Long> songIDs)
+    public void update(long[] songIDs)
     {
         this.songIDs = songIDs;
         notifyDataSetChanged();
     }
 
-    @Override
-    public void onItemMove(int fromPosition, int toPosition)
-    {
-        if (fromPosition < toPosition)
-        {
-            for (int i = fromPosition; i < toPosition; i++)
-            {
-                Collections.swap(songIDs, i, i + 1);
-            }
-        }
-        else
-        {
-            for (int i = fromPosition; i > toPosition; i--)
-            {
-                Collections.swap(songIDs, i, i - 1);
-            }
-        }
+//    @Override
+//    public void onItemMove(int fromPosition, int toPosition)
+//    {
+//        if (fromPosition < toPosition)
+//        {
+//            for (int i = fromPosition; i < toPosition; i++)
+//            {
+//                Collections.swap(songIDs, i, i + 1);
+//            }
+//        }
+//        else
+//        {
+//            for (int i = fromPosition; i > toPosition; i--)
+//            {
+//                Collections.swap(songIDs, i, i - 1);
+//            }
+//        }
+//
+//        notifyItemMoved(fromPosition, toPosition);
+//    }
 
-        notifyItemMoved(fromPosition, toPosition);
-    }
-
-    class PlayQueueViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, DragListener
+    class PlayQueueViewHolder extends RecyclerView.ViewHolder implements
+            View.OnClickListener,
+            DragListener
     {
         public TextView title;
         public TextView artist;
@@ -134,8 +132,8 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
                 @Override
                 public boolean onTouch(View v, MotionEvent event)
                 {
-                    if(MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN)
-                        dragListener.onStartDrag(PlayQueueViewHolder.this);
+//                    if(MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN)
+//                        dragListener.onStartDrag(PlayQueueViewHolder.this);
                     return false;
                 }
             });
@@ -147,7 +145,8 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
             switch(v.getId())
             {
                 case R.id.queue_item_container:
-//                    Player.updateCurrentSong(context, queue.get(PlayQueueViewHolder.this.getAdapterPosition()));
+//                    Player.updateCurrentSong(context, queue
+//                            .get(PlayQueueViewHolder.this.getAdapterPosition()));
 //                    ((ActivityCommunicator) context).onSongPlayed();
 //                    ((ActivityCommunicator) context).onSongChanged();
                     break;
