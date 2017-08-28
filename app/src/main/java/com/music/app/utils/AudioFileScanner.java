@@ -182,7 +182,7 @@ public class AudioFileScanner
                 cursor.moveToFirst();
                 while(!cursor.isAfterLast())
                 {
-                    Drawable cover;
+                    Drawable cover = null;
                     if(cursor.getString(2) != null)
                     {
                         try
@@ -195,11 +195,13 @@ public class AudioFileScanner
 //
 ////                            cover = new BitmapDrawable(context.getResources(), BitmapFactory.decodeFile(cursor.getString(2), options));
 
-                            cover = Glide.with(context)
-                                    .load(new File(cursor.getString(2)))
-                                    .skipMemoryCache(true)
-                                    .into(100,100)
-                                    .get();
+                            File f = new File(cursor.getString(2));
+                            if (f.exists() && f.isFile())
+                                cover = Glide.with(context)
+                                        .load(new File(cursor.getString(2)))
+                                        .skipMemoryCache(true)
+                                        .into(100,100)
+                                        .get();
                         }
                         catch(OutOfMemoryError e)
                         {

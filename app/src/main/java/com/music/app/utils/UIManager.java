@@ -37,17 +37,17 @@ public class UIManager
     private void initUI()
     {
         //Initialize Now Playing Bar
-        toolbar = (Toolbar) ((MainActivity) context).findViewById(R.id.toolbar);
+        toolbar = ((MainActivity) context).findViewById(R.id.toolbar);
         toolbar.setTitle("Hello, User!");
         toolbar.setSubtitle("Select a song to play.");
 
         //Initialize control buttons
-        ImageButton previousButton = (ImageButton) ((MainActivity) context).findViewById(R.id.previous_button);
-        ImageButton nextButton = (ImageButton) ((MainActivity) context).findViewById(R.id.next_button);
-        playButton = (ImageButton) ((MainActivity) context).findViewById(R.id.play_button);
+        ImageButton previousButton = ((MainActivity) context).findViewById(R.id.previous_button);
+        ImageButton nextButton = ((MainActivity) context).findViewById(R.id.next_button);
+        playButton = ((MainActivity) context).findViewById(R.id.play_button);
 
         //Initialize Navigation Drawer
-        navigationDrawer = ((NavigationView) ((MainActivity) context).findViewById(R.id.navigation_drawer));
+        navigationDrawer = ((MainActivity) context).findViewById(R.id.navigation_drawer);
         navigationDrawer.setItemIconTintList(null);
         navigationDrawer.setNavigationItemSelectedListener((MainActivity) context);
         navigationDrawer.setTag(((MainActivity) context).findViewById(R.id.drawer_layout));
@@ -70,7 +70,7 @@ public class UIManager
 
     public void updateNowPlayingBar(Song song)
     {
-        ImageView nowPlayingCover = (ImageView) ((MainActivity) context).findViewById(R.id.now_playing_bar_cover);
+        ImageView nowPlayingCover = ((MainActivity) context).findViewById(R.id.now_playing_bar_cover);
 
         if (song != null)
         {

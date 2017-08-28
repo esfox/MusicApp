@@ -1,17 +1,25 @@
 package com.music.app;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
@@ -29,7 +37,6 @@ import com.music.app.utils.interfaces.ServiceCommunicator;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 /*
 
@@ -52,21 +59,16 @@ Comment the following:
 
 Class               line number
 
-MainActivity        114, 439-442
+MainActivity                114, 439-442
 SongListViewHolder  117
 Player              23-36, 78-84, 87
 NowPlayingFragment  83-84, 157-162
 
 */
 
-public class MainActivity extends AppCompatActivity implements
-        ServiceCommunicator,
-        AudioScanListener,
-        View.OnClickListener,
-        View.OnLongClickListener,
-        QueueListener,
-        NavigationView.OnNavigationItemSelectedListener
-{
+public class MainActivity extends AppCompatActivity implements View.OnLongClickListener, AudioScanListener,
+        ServiceCommunicator, NavigationView.OnNavigationItemSelectedListener, QueueListener,
+        View.OnClickListener {
     public UIManager uiManager;
     public FragmentManager fragmentManager;
 
@@ -76,14 +78,20 @@ public class MainActivity extends AppCompatActivity implements
 
     private Intent serviceIntent;
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
+    public void onRequestPermissionsResult(int r, @NonNull String[] p, @NonNull int[] gR) {
+        super.onRequestPermissionsResult(r, p, gR);
+        if (gR[0] != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Grant External Storage permissions.", Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2005);
+        } else create();
+    }
+
+    void create() {
         setContentView(R.layout.activity_main);
 
         data = new Data(this);
-
         serviceIntent = new Intent(this, Player.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
@@ -102,22 +110,28 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onStop()
-    {
+    protected void onCreate(Bundle savedInstanceState) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2005);
+        }
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onStop() {
         super.onStop();
         queue.save(this);
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
         stopService(serviceIntent);
         unbindService(connection);
     }
 
-    //    private void temp()
-//    {
+//        private void temp() {
 //        TempSongs tempSong = new TempSongs();
 //        ArrayList<TempSongs.TempSong> tempsongs = tempSong.getSongs();
 //
@@ -157,8 +171,7 @@ public class MainActivity extends AppCompatActivity implements
 //    }
 
     @Override
-    public void onStartAudio(Song song, boolean newSong)
-    {
+    public void onStartAudio(Song song, boolean newSong) {
         player.setSong(song);
         startService(serviceIntent);
         player.updateCurrentSong(song, newSong);
@@ -174,8 +187,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onStopAudio()
-    {
+    public void onStopAudio() {
         stopService(serviceIntent);
         player.stopForeground(true);
         uiManager.togglePlayButtonIcon(false);
@@ -194,22 +206,19 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onShuffle()
-    {
+    public void onShuffle() {
         data.updateIsShuffled(!data.isShuffled());
         queue.shuffle(this);
     }
 
     @Override
-    public void onScanComplete(ArrayList<Song> songs)
-    {
+    public void onScanComplete(ArrayList<Song> songs) {
         Data.songs = songs;
 //        PlayQueue.queue = songs;
 
         if(data.queueIsSaved())
             queue.load(this);
-        else
-        {
+        else {
             long[] ids = new long[songs.size()];
             for(int i = 0; i < ids.length; i++)
                 ids[i] = songs.get(i).getId();
@@ -223,17 +232,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onUpdate()
-    {
+    public void onUpdate() {
         ((SongListAdapter) fragmentManager.songListFragment
                 .getSongList().getAdapter()).notifyDataSetChanged();
     }
 
     @Override
-    public void onClick(View v)
-    {
-        switch (v.getId())
-        {
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.play_button:
                 player.play();
                 uiManager.togglePlayButtonIcon(data.isPlaying());
@@ -258,21 +264,18 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onLongClick(View v)
-    {
+    public boolean onLongClick(View v) {
         player.stop();
         onStopAudio();
         return true;
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
-    {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         //TODO: Do other fragments
         //TODO: Update currently selected
 
-        switch(item.getItemId())
-        {
+        switch(item.getItemId()) {
             case R.id.navigation_drawer_songs:
                 fragmentManager.songList();
                 break;
@@ -300,8 +303,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         super.onBackPressed();
         //TODO: Manage backstack
 
@@ -314,11 +316,9 @@ public class MainActivity extends AppCompatActivity implements
 //        }
     }
 
-    private ServiceConnection connection = new ServiceConnection()
-    {
+    private ServiceConnection connection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service)
-        {
+        public void onServiceConnected(ComponentName name, IBinder service) {
             Player.ServiceBinder binder = (Player.ServiceBinder) service;
             player = binder.getService();
             player.setServiceCommunicator(MainActivity.this);
@@ -326,31 +326,25 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name)
-        {
-
-        }
+        public void onServiceDisconnected(ComponentName name) {}
     };
 
-    private class CurrentAlbumArtScanner extends AsyncTask<Void, Void, Void>
-    {
+    @SuppressLint("StaticFieldLeak")
+    private class CurrentAlbumArtScanner extends AsyncTask<Void, Void, Void> {
         @Override
-        protected Void doInBackground(Void... params)
-        {
-            try
-            {
-                data.updateCurrentAlbumArt(Glide.with(MainActivity.this).load(new File(data.currentSong(MainActivity.this).getCoverPath())).into(500, 500).get());
-            }
-            catch (NullPointerException | InterruptedException | ExecutionException e)
-            {
+        protected Void doInBackground(Void... params) {
+            try {
+                data.updateCurrentAlbumArt(Glide.with(MainActivity.this)
+                        .load(new File(data.currentSong(MainActivity.this).getCoverPath()))
+                        .into(500, 500).get());
+            } catch (Exception e) {
                 data.updateCurrentAlbumArt(ResourcesCompat.getDrawable(getResources(), R.drawable.library_music_48dp, null));
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid)
-        {
+        protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             uiManager.updateNowPlayingFragment(data.currentSong(MainActivity.this));
         }
