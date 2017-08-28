@@ -12,21 +12,19 @@ import android.widget.TextView;
 import com.music.app.R;
 import com.music.app.objects.Song;
 
-public class SongDetailsFragment extends Fragment
-{
+public class SongDetailsFragment extends Fragment {
     private Song song;
 
-    public SongDetailsFragment() {}
+    public SongDetailsFragment() {
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_song_details, container, false);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ((ImageView) getView().findViewById(R.id.album_cover)).setImageDrawable(song.getCover());
         ((TextView) getView().findViewById(R.id.queue_item_title)).setText(song.getTitle());
@@ -38,8 +36,7 @@ public class SongDetailsFragment extends Fragment
         ((TextView) getView().findViewById(R.id.duration)).setText(song.getDuration());
     }
 
-    public void setSong(Song pSong)
-    {
+    public void setSong(Song pSong) {
         song = pSong;
     }
 }

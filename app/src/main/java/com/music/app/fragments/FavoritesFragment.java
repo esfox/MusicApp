@@ -9,20 +9,18 @@ import android.view.ViewGroup;
 
 import com.music.app.R;
 
-public class FavoritesFragment extends Fragment
-{
-    public FavoritesFragment() {}
+public class FavoritesFragment extends Fragment {
+    public FavoritesFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_favorites, container, false);
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState)
-    {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
 }

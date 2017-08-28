@@ -19,7 +19,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.music.app.MainActivity;
+import com.music.app.Main;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
@@ -27,27 +27,32 @@ import com.music.app.objects.Song;
 
 import java.io.File;
 
-public class NowPlayingFragment extends Fragment implements View.OnClickListener
-{
+public class NowPlayingFragment extends Fragment implements View.OnClickListener {
     private Player player;
     private Data data;
 
     private SeekBar progress;
     private TextView time;
     private Handler updater;
+    Runnable update = new Runnable() {
+        @Override
+        public void run() {
+            updateProgress();
+        }
+    };
     private ImageView shuffle, repeat;
     private FloatingActionButton play;
 
-    public NowPlayingFragment() {}
+    public NowPlayingFragment() {
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d("Check", "onCreateView");
         View view = inflater.inflate(R.layout.fragment_now_playing, container, false);
 
-        player = ((MainActivity) getContext()).player;
-        data = ((MainActivity) getContext()).data;
+        player = ((Main) getContext()).player;
+        data = ((Main) getContext()).data;
 
         play = (FloatingActionButton) view.findViewById(R.id.now_playing_play);
         FloatingActionButton next = (FloatingActionButton) view.findViewById(R.id.now_playing_next);
@@ -63,25 +68,20 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         repeat(false);
 
         Toolbar header = ((Toolbar) view.findViewById(R.id.header));
-        header.setNavigationOnClickListener(new View.OnClickListener()
-        {
+        header.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
-                ((MainActivity) getContext()).fragmentManager.popBackStack();
-//                ((MainActivity) getContext()).uiManager.toggleControlButtons(true);
+            public void onClick(View v) {
+                ((Main) getContext()).fragmentManager.popBackStack();
+//                ((Main) getContext()).uiManager.toggleControlButtons(true);
             }
         });
         header.inflateMenu(R.menu.menu_now_playing);
-        header.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener()
-        {
+        header.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item)
-            {
-                switch(item.getItemId())
-                {
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
                     case R.id.action_play_queue:
-                        ((MainActivity) getContext()).fragmentManager.playQueue();
+                        ((Main) getContext()).fragmentManager.playQueue();
                         break;
                 }
                 return false;
@@ -101,8 +101,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initProgress();
 
@@ -112,14 +111,12 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         togglePlayButtonIcon(data.isPlaying());
     }
 
-    private void initProgress()
-    {
+    private void initProgress() {
         //TODO: Better progressbar performance
 
         final MediaPlayer mediaPlayer = player.getPlayer();
@@ -127,19 +124,16 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         progress = (SeekBar) getView().findViewById(R.id.now_playing_progress_bar);
         time = (TextView) getView().findViewById(R.id.now_playing_start_time);
 
-        progress.setPadding(0,0,0,0);
+        progress.setPadding(0, 0, 0, 0);
         progress.setMax(mediaPlayer.getDuration());
-        progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-        {
+        progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
-                if(fromUser)
-                {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
                     Log.d("Duration", String.valueOf(mediaPlayer.getDuration()));
                     Log.d("Progress", String.valueOf(progress));
 
-                    if(progress >= mediaPlayer.getDuration())
+                    if (progress >= mediaPlayer.getDuration())
                         mediaPlayer.seekTo(mediaPlayer.getDuration());
                     else
                         mediaPlayer.seekTo(progress);
@@ -147,26 +141,21 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar)
-            {
+            public void onStartTrackingTouch(SeekBar seekBar) {
                 player.play();
             }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
+            public void onStopTrackingTouch(SeekBar seekBar) {
                 player.play();
                 updateProgress();
             }
         });
 
         int currentPosition = 0;
-        try
-        {
+        try {
             currentPosition = mediaPlayer.getCurrentPosition();
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -175,29 +164,16 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         updateProgress();
     }
 
-    private void updateProgress()
-    {
-        if(data.currentSongIsNotNull())
-        {
+    private void updateProgress() {
+        if (data.currentSongIsNotNull()) {
             progress.setProgress(player.getPlayer().getCurrentPosition());
             time.setText(getDuration(player.getPlayer().getCurrentPosition()));
         }
         updater.postDelayed(update, 1000);
     }
 
-    Runnable update = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            updateProgress();
-        }
-    };
-
-    public void update(Song song, boolean updateProgress)
-    {
-        if(song != null)
-        {
+    public void update(Song song, boolean updateProgress) {
+        if (song != null) {
             ((TextView) getView().findViewById(R.id.now_playing_title)).setText(song.getTitle());
             ((TextView) getView().findViewById(R.id.now_playing_artist)).setText(song.getArtist());
             ((TextView) getView().findViewById(R.id.now_playing_album)).setText(song.getAlbum());
@@ -205,16 +181,15 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
             ImageView cover = ((ImageView) getView().findViewById(R.id.now_playing_cover));
             Drawable currentAlbumArt = data.currentAlbumArt();
-            if(currentAlbumArt != null)
+            if (currentAlbumArt != null)
                 cover.setImageDrawable(currentAlbumArt);
             else Glide.with(getContext())
-                      .load((song.getCoverPath() != null)?
-                              new File(song.getCoverPath()) :
-                              R.drawable.library_music_48dp)
-                      .into(cover);
+                    .load((song.getCoverPath() != null) ?
+                            new File(song.getCoverPath()) :
+                            R.drawable.library_music_48dp)
+                    .into(cover);
 
-            if(updateProgress)
-            {
+            if (updateProgress) {
                 progress.setMax(player.getPlayer().getDuration());
                 updater.removeCallbacks(this.update);
                 updateProgress();
@@ -223,14 +198,12 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public void onClick(View v)
-    {
-        switch(v.getId())
-        {
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.now_playing_play:
                 player.play();
                 togglePlayButtonIcon(data.isPlaying());
-                ((MainActivity) getContext()).uiManager.togglePlayButtonIcon(data.isPlaying());
+                ((Main) getContext()).uiManager.togglePlayButtonIcon(data.isPlaying());
                 break;
 
             case R.id.now_playing_next:
@@ -251,24 +224,21 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    public void shuffle(boolean toggle)
-    {
-        if(toggle)
-            ((MainActivity) getContext()).onShuffle();
+    public void shuffle(boolean toggle) {
+        if (toggle)
+            ((Main) getContext()).onShuffle();
 
-        if(data.isShuffled())
+        if (data.isShuffled())
             shuffle.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
         else
             shuffle.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
     }
 
-    public void repeat(boolean toggle)
-    {
-        if(toggle)
+    public void repeat(boolean toggle) {
+        if (toggle)
             data.updateRepeatState();
 
-        switch(data.repeatState())
-        {
+        switch (data.repeatState()) {
             case OFF:
                 repeat.setImageResource(R.drawable.repeat_36dp);
                 repeat.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
@@ -285,16 +255,14 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    public void togglePlayButtonIcon(boolean isPlaying)
-    {
-        if(isPlaying)
+    public void togglePlayButtonIcon(boolean isPlaying) {
+        if (isPlaying)
             play.setImageResource(R.drawable.pause_36dp);
         else
             play.setImageResource(R.drawable.play_36dp);
     }
 
-    private String getDuration(long milliseconds)
-    {
+    private String getDuration(long milliseconds) {
         String duration = "";
         String secondsString;
 
@@ -304,13 +272,12 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         int seconds = (int) ((milliseconds % (1000 * 60 * 60)) % (1000 * 60) / 1000);
 
         // Add hours if there
-        if(hours > 0)
-        {
+        if (hours > 0) {
             duration = hours + ":";
         }
 
         // Prepending 0 to seconds if it is ONE digit
-        if(seconds < 10)
+        if (seconds < 10)
             secondsString = "0" + seconds;
         else
             secondsString = "" + seconds;

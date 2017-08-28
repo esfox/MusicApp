@@ -10,44 +10,37 @@ import com.music.app.objects.Song;
 
 import java.util.ArrayList;
 
-public class SongDatabaseHelper extends SQLiteOpenHelper
-{
+public class SongDatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
-    public SongDatabaseHelper(Context pContext)
-    {
+    public SongDatabaseHelper(Context pContext) {
         super(pContext, DB.DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public void add(Song song)
-    {
+    public void add(Song song) {
         this.getWritableDatabase().insert(DB.SONG_TABLE, null, getContentValues(song));
     }
 
-    public void update(Song song)
-    {
+    public void update(Song song) {
         this.getWritableDatabase()
                 .update(DB.SONG_TABLE, getContentValues(song),
                         DB.SONG_ID + " = ?",
-                        new String[] {String.valueOf(song.getId())});
+                        new String[]{String.valueOf(song.getId())});
     }
 
-    public void delete(Song song)
-    {
+    public void delete(Song song) {
         this.getWritableDatabase()
                 .delete(DB.SONG_TABLE, DB.SONG_ID + " = ?",
-                        new String[] {String.valueOf(song.getId())});
+                        new String[]{String.valueOf(song.getId())});
     }
 
-    public Song getCurrentSong(long id)
-    {
+    public Song getCurrentSong(long id) {
         Song song = new Song();
         Cursor cursor = this.getReadableDatabase().query(DB.SONG_TABLE, null,
-                DB.SONG_ID + " = ?", new String[] { String.valueOf(id) },
+                DB.SONG_ID + " = ?", new String[]{String.valueOf(id)},
                 null, null, null);
 
-        if(cursor.moveToFirst())
-        {
+        if (cursor.moveToFirst()) {
             song.setId(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ID))));
             song.setPath(cursor.getString(cursor.getColumnIndex(DB.SONG_PATH)));
             song.setFilename(cursor.getString(cursor.getColumnIndex(DB.SONG_FILENAME)));
@@ -67,20 +60,16 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
         return song;
     }
 
-    public ArrayList<Song> getSongs()
-    {
+    public ArrayList<Song> getSongs() {
         ArrayList<Song> songs = new ArrayList<>();
 
         Cursor cursor = this.getReadableDatabase().rawQuery("SELECT count(*) FROM " + DB.SONG_TABLE, null);
         cursor.moveToFirst();
-        if(cursor.getInt(0) > 0)
-        {
+        if (cursor.getInt(0) > 0) {
             cursor = this.getReadableDatabase().rawQuery("SELECT * FROM " + DB.SONG_TABLE, null);
 
-            if(cursor.moveToFirst())
-            {
-                do
-                {
+            if (cursor.moveToFirst()) {
+                do {
                     final Song song = new Song();
                     song.setId(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ID))));
                     song.setPath(cursor.getString(cursor.getColumnIndex(DB.SONG_PATH)));
@@ -100,7 +89,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
 
                     songs.add(song);
 
-                } while(cursor.moveToNext());
+                } while (cursor.moveToNext());
             }
         }
 
@@ -109,8 +98,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
         return songs;
     }
 
-    private ContentValues getContentValues(final Song song)
-    {
+    private ContentValues getContentValues(final Song song) {
         final ContentValues values = new ContentValues();
         values.put(DB.SONG_ID, song.getId());
         values.put(DB.SONG_PATH, song.getPath());
@@ -139,8 +127,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db)
-    {
+    public void onCreate(SQLiteDatabase db) {
         String createSongsQuery = "CREATE TABLE "
                 + DB.SONG_TABLE
                 + " ("
@@ -163,8 +150,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-    {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         String dropSongsQuery = "DROP TABLE IF EXISTS " + DB.SONG_TABLE;
         db.execSQL(dropSongsQuery);
         onCreate(db);

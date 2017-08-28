@@ -59,14 +59,14 @@ Comment the following:
 
 Class               line number
 
-MainActivity                114, 439-442
+Main                114, 439-442
 SongListViewHolder  117
 Player              23-36, 78-84, 87
 NowPlayingFragment  83-84, 157-162
 
 */
 
-public class MainActivity extends AppCompatActivity implements View.OnLongClickListener, AudioScanListener,
+public class Main extends AppCompatActivity implements View.OnLongClickListener, AudioScanListener,
         ServiceCommunicator, NavigationView.OnNavigationItemSelectedListener, QueueListener,
         View.OnClickListener {
     public UIManager uiManager;
@@ -77,6 +77,19 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
     public Data data;
 
     private Intent serviceIntent;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Player.ServiceBinder binder = (Player.ServiceBinder) service;
+            player = binder.getService();
+            player.setServiceCommunicator(Main.this);
+            player.initialize(data, queue);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+    };
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -105,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
         audioFileScanner.scanAudio();
 //        temp();
 
-        if(data.currentSongIsNotNull())
+        if (data.currentSongIsNotNull())
             uiManager.updateNowPlayingBar(data.currentSong(this));
     }
 
@@ -122,13 +135,6 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
     protected void onStop() {
         super.onStop();
         queue.save(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopService(serviceIntent);
-        unbindService(connection);
     }
 
 //        private void temp() {
@@ -171,6 +177,13 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
 //    }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(serviceIntent);
+        unbindService(connection);
+    }
+
+    @Override
     public void onStartAudio(Song song, boolean newSong) {
         player.setSong(song);
         startService(serviceIntent);
@@ -194,14 +207,12 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
     }
 
     @Override
-    public void onQueue(long id)
-    {
+    public void onQueue(long id) {
         queue.queue(id);
     }
 
     @Override
-    public void onPlayNext(long id)
-    {
+    public void onPlayNext(long id) {
         queue.playNext(id);
     }
 
@@ -216,11 +227,11 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
         Data.songs = songs;
 //        PlayQueue.queue = songs;
 
-        if(data.queueIsSaved())
+        if (data.queueIsSaved())
             queue.load(this);
         else {
             long[] ids = new long[songs.size()];
-            for(int i = 0; i < ids.length; i++)
+            for (int i = 0; i < ids.length; i++)
                 ids[i] = songs.get(i).getId();
 
             queue.initialize(ids);
@@ -275,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
         //TODO: Do other fragments
         //TODO: Update currently selected
 
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.navigation_drawer_songs:
                 fragmentManager.songList();
                 break;
@@ -316,26 +327,13 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
 //        }
     }
 
-    private ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Player.ServiceBinder binder = (Player.ServiceBinder) service;
-            player = binder.getService();
-            player.setServiceCommunicator(MainActivity.this);
-            player.initialize(data, queue);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {}
-    };
-
     @SuppressLint("StaticFieldLeak")
     private class CurrentAlbumArtScanner extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                data.updateCurrentAlbumArt(Glide.with(MainActivity.this)
-                        .load(new File(data.currentSong(MainActivity.this).getCoverPath()))
+                data.updateCurrentAlbumArt(Glide.with(Main.this)
+                        .load(new File(data.currentSong(Main.this).getCoverPath()))
                         .into(500, 500).get());
             } catch (Exception e) {
                 data.updateCurrentAlbumArt(ResourcesCompat.getDrawable(getResources(), R.drawable.library_music_48dp, null));
@@ -346,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements View.OnLongClickL
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            uiManager.updateNowPlayingFragment(data.currentSong(MainActivity.this));
+            uiManager.updateNowPlayingFragment(data.currentSong(Main.this));
         }
     }
 }

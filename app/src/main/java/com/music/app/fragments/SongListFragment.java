@@ -22,35 +22,31 @@ import com.music.app.utils.adapters.SongListFastScrollAdapter;
 
 import java.util.ArrayList;
 
-public class SongListFragment extends Fragment implements View.OnClickListener
-{
+public class SongListFragment extends Fragment implements View.OnClickListener {
     private ListView songList;
     private Sorter.SortBy sort;
     private ArrayList<Song> songs;
 
-    public void setSongs(ArrayList<Song> songs)
-    {
+    public SongListFragment() {
+    }
+
+    public void setSongs(ArrayList<Song> songs) {
         this.songs = songs;
     }
 
-    public SongListFragment() {}
-
     @Override
-    public void onAttach(Context context)
-    {
+    public void onAttach(Context context) {
         super.onAttach(context);
         sort = Sorter.SortBy.title;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_song_list, container, false);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         View view = getView();
@@ -77,8 +73,7 @@ public class SongListFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
 //        Messager.showMessage("YOW. RESUMED.", Snackbar.LENGTH_SHORT);
     }
@@ -86,10 +81,8 @@ public class SongListFragment extends Fragment implements View.OnClickListener
     //TODO: Show Control Buttons on resume if on last index (Do when finished managing fragment navigation)
 
     @Override
-    public void onClick(View v)
-    {
-        switch (v.getId())
-        {
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.song_list_toolbar_sort:
                 sortOptions(v);
                 break;
@@ -108,16 +101,12 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    private void menu(View view)
-    {
-        PopupMenu.OnMenuItemClickListener listener =  new PopupMenu.OnMenuItemClickListener()
-        {
+    private void menu(View view) {
+        PopupMenu.OnMenuItemClickListener listener = new PopupMenu.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item)
-            {
+            public boolean onMenuItemClick(MenuItem item) {
 
-                switch (item.getItemId())
-                {
+                switch (item.getItemId()) {
                     case R.id.multi_select:
                         ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(true);
                         return true;
@@ -135,15 +124,11 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         Menuer.createMenu(getContext(), view, R.menu.song_list_menu, listener);
     }
 
-    private void selectionMenu(View view)
-    {
-        PopupMenu.OnMenuItemClickListener listener = new PopupMenu.OnMenuItemClickListener()
-        {
+    private void selectionMenu(View view) {
+        PopupMenu.OnMenuItemClickListener listener = new PopupMenu.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item)
-            {
-                switch (item.getItemId())
-                {
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
                     case R.id.delete:
                         ((SongListAdapter) songList.getAdapter()).deleteSelectedItems();
                         return true;
@@ -157,19 +142,15 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         Menuer.createMenu(getContext(), view, R.menu.selection_menu, listener);
     }
 
-    private void sortOptions(View view)
-    {
+    private void sortOptions(View view) {
         //TODO: Revise and Debug
 
-        PopupMenu.OnMenuItemClickListener listener = new PopupMenu.OnMenuItemClickListener()
-        {
+        PopupMenu.OnMenuItemClickListener listener = new PopupMenu.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item)
-            {
+            public boolean onMenuItemClick(MenuItem item) {
                 Toast.makeText(getContext(), "Debug this", Toast.LENGTH_SHORT).show();
 
-                switch (item.getItemId())
-                {
+                switch (item.getItemId()) {
                     case R.id.sort_by_title:
 //                        sort(Sorter.SortBy.title);
                         return true;
@@ -191,13 +172,12 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         Menuer.createMenu(getContext(), view, R.menu.sort_by_menu, listener);
     }
 
-    private void sort(final Sorter.SortBy sort)
-    {
+    private void sort(final Sorter.SortBy sort) {
         SongListAdapter adapter;
 
 //        ArrayList<Song> songs = Data.songs;
 
-        if(sort != Sorter.SortBy.none)
+        if (sort != Sorter.SortBy.none)
             adapter = new SongListFastScrollAdapter(getContext(), Sorter.sort(songs, sort), songList, sort);
         else
             adapter = new SongListAdapter(getContext(), songList, songs, sort);
@@ -207,8 +187,7 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         this.sort = sort;
     }
 
-    public ListView getSongList()
-    {
+    public ListView getSongList() {
         return songList;
     }
 }

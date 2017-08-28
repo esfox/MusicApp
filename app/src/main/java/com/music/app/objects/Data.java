@@ -8,24 +8,13 @@ import com.music.app.database.SongDatabaseHelper;
 
 import java.util.ArrayList;
 
-public class Data
-{
-    private final SharedPreferences sharedPreferences;
-
-    public Data(Context context)
-    {
-        sharedPreferences = context.getSharedPreferences("Data",
-                Context.MODE_PRIVATE);
-    }
+public class Data {
+    public static ArrayList<Song> songs;
+    //Eliminating all uses of currentSong
+    static Song currentSong;
 
     //TODO: STORE ALL THESE TO SHARED PREFS OR TO STORAGE
-
-    public static ArrayList<Song> songs;
-
-    //Eliminating all uses of currentSong
-    public static Song currentSong;
-    private Drawable currentAlbumArt;
-
+    private final SharedPreferences sharedPreferences;
     private final String currentSongIDKey = "currentSongID";
     private final String currentSongIsNotNullKey = "currentSongIsNotNull";
     private final String currentQueueIndexKey = "currentSongQueueIndex";
@@ -34,17 +23,13 @@ public class Data
     private final String isPlayingKey = "isPlaying";
     private final String storedKey = "stored";
     private final String queueIsSavedKey = "queueIsSaved";
-
-    @SuppressWarnings("WeakerAccess")
-    public enum RepeatState
-    {
-        OFF, //0
-        ALL, //1
-        ONE  //2
+    private Drawable currentAlbumArt;
+    public Data(Context context) {
+        sharedPreferences = context.getSharedPreferences("Data",
+                Context.MODE_PRIVATE);
     }
 
-    public Song currentSong(Context context)
-    {
+    public Song currentSong(Context context) {
 //        if(songs != null)
 //        {
 //            for (Song song : songs)
@@ -59,114 +44,98 @@ public class Data
                         .getLong(currentSongIDKey, 0));
     }
 
-    public boolean currentSongIsNotNull()
-    {
+    public boolean currentSongIsNotNull() {
         return sharedPreferences.getBoolean(currentSongIsNotNullKey, false);
     }
 
-    public int currentQueueIndex()
-    {
+    public int currentQueueIndex() {
         return sharedPreferences.getInt(currentQueueIndexKey, -1);
     }
 
-    public Drawable currentAlbumArt()
-    {
+    public Drawable currentAlbumArt() {
         return currentAlbumArt;
     }
 
-    public boolean isShuffled()
-    {
+    public boolean isShuffled() {
         return sharedPreferences
                 .getBoolean(isShuffledKey, false);
     }
 
-    public RepeatState repeatState()
-    {
+    public RepeatState repeatState() {
         int repeatStateNumber = sharedPreferences.getInt(repeatStateKey, 0);
-        if(repeatStateNumber == 1)
+        if (repeatStateNumber == 1)
             return RepeatState.ALL;
-        else if(repeatStateNumber == 2)
+        else if (repeatStateNumber == 2)
             return RepeatState.ONE;
         else
             return RepeatState.OFF;
     }
 
-    public boolean isPlaying()
-    {
+    public boolean isPlaying() {
         return sharedPreferences
                 .getBoolean(isPlayingKey, false);
     }
 
-    public boolean stored()
-    {
+    public boolean stored() {
         return sharedPreferences
                 .getBoolean(storedKey, false);
     }
 
-    public boolean queueIsSaved()
-    {
+    public boolean queueIsSaved() {
         return sharedPreferences
                 .getBoolean(queueIsSavedKey, false);
     }
 
-    public void updateCurrentSong(long id)
-    {
+    public void updateCurrentSong(long id) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong(currentSongIDKey, id);
         editor.apply();
     }
 
-    public void updateCurrentSongIsNotNull(boolean currentSongIsNotNull)
-    {
+    public void updateCurrentSongIsNotNull(boolean currentSongIsNotNull) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(currentSongIsNotNullKey, currentSongIsNotNull);
         editor.apply();
     }
 
-    public void updateCurrentQueueIndex(int index)
-    {
+    public void updateCurrentQueueIndex(int index) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(currentQueueIndexKey, index);
         editor.apply();
     }
 
-    public void updateCurrentAlbumArt(Drawable albumArt)
-    {
+    public void updateCurrentAlbumArt(Drawable albumArt) {
         currentAlbumArt = albumArt;
     }
 
-    public void updateIsShuffled(boolean isShuffled)
-    {
+    public void updateIsShuffled(boolean isShuffled) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(isShuffledKey, isShuffled);
         editor.apply();
     }
 
-    public void updateIsPlaying(boolean isPlaying)
-    {
+    public void updateIsPlaying(boolean isPlaying) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(isPlayingKey, isPlaying);
         editor.apply();
     }
 
-    public void updateRepeatState()
-    {
-        if(repeatState() == RepeatState.OFF)
+    public void updateRepeatState() {
+        if (repeatState() == RepeatState.OFF)
             saveRepeatState(RepeatState.ALL);
-        else if(repeatState() == RepeatState.ALL)
+        else if (repeatState() == RepeatState.ALL)
             saveRepeatState(RepeatState.ONE);
-        else if(repeatState() == RepeatState.ONE)
+        else if (repeatState() == RepeatState.ONE)
             saveRepeatState(RepeatState.OFF);
     }
 
-    private void saveRepeatState(RepeatState repeatState)
-    {
+    private void saveRepeatState(RepeatState repeatState) {
         int repeatStateNumber = 0;
-        if(repeatState == RepeatState.OFF)
+        if (repeatState == RepeatState.OFF)
             repeatStateNumber = 0;
-        else if(repeatState == RepeatState.ALL)
+        else if (repeatState == RepeatState.ALL)
             repeatStateNumber = 1;
-        else if(repeatState == RepeatState.ONE)
+        else if (repeatState == RepeatState.ONE)
             repeatStateNumber = 2;
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -174,17 +143,22 @@ public class Data
         editor.apply();
     }
 
-    public void updateStored(boolean stored)
-    {
+    public void updateStored(boolean stored) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(storedKey, stored);
         editor.apply();
     }
 
-    public void updateQueueIsSaved(boolean queueIsSaved)
-    {
+    public void updateQueueIsSaved(boolean queueIsSaved) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(queueIsSavedKey, queueIsSaved);
         editor.apply();
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public enum RepeatState {
+        OFF, //0
+        ALL, //1
+        ONE  //2
     }
 }

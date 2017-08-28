@@ -14,27 +14,52 @@ import com.music.app.views.RecyclerViewFastScroller;
 
 import java.util.ArrayList;
 
-public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter
-{
+public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter {
     private Context context;
     private ArrayList<Song> songs;
 
-    public PlaylistAdapter(Context context, ArrayList<Song> songs)
-    {
+    public PlaylistAdapter(Context context, ArrayList<Song> songs) {
         this.context = context;
         this.songs = songs;
     }
 
-    class PlaylistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
-    {
+    @Override
+    public PlaylistViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_list_item, parent, false);
+        return new PlaylistViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(PlaylistViewHolder holder, int position) {
+        if (position % 2 != 0)
+            holder.background.setBackgroundResource(R.color.background_alternate);
+        else
+            holder.background.setBackgroundResource(R.color.background_primary);
+
+        Song song = songs.get(position);
+        holder.title.setText(song.getTitle());
+        holder.artist.setText(song.getArtist());
+        holder.cover.setImageDrawable(song.getCover());
+    }
+
+    @Override
+    public int getItemCount() {
+        return songs.size();
+    }
+
+    @Override
+    public String getTextToShowInBubble(int pos) {
+        return Character.toString(songs.get(pos).getTitle().charAt(0));
+    }
+
+    class PlaylistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView title,
                 artist;
         ImageView cover,
                 options;
         View background;
 
-        public PlaylistViewHolder(View view)
-        {
+        public PlaylistViewHolder(View view) {
             super(view);
 
             title = (TextView) view.findViewById(R.id.title);
@@ -47,8 +72,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
         }
 
         @Override
-        public void onClick(View v)
-        {
+        public void onClick(View v) {
 //            switch(v.getId())
 //            {
 //                case R.id.queue_item_container:
@@ -64,38 +88,5 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
 //                    break;
 //            }
         }
-    }
-
-    @Override
-    public PlaylistViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
-    {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_list_item, parent, false);
-        return new PlaylistViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(PlaylistViewHolder holder, int position)
-    {
-        if(position % 2 != 0)
-            holder.background.setBackgroundResource(R.color.background_alternate);
-        else
-            holder.background.setBackgroundResource(R.color.background_primary);
-
-        Song song = songs.get(position);
-        holder.title.setText(song.getTitle());
-        holder.artist.setText(song.getArtist());
-        holder.cover.setImageDrawable(song.getCover());
-    }
-
-    @Override
-    public int getItemCount()
-    {
-        return songs.size();
-    }
-
-    @Override
-    public String getTextToShowInBubble(int pos)
-    {
-        return Character.toString(songs.get(pos).getTitle().charAt(0));
     }
 }

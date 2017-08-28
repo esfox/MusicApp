@@ -10,78 +10,69 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.music.app.MainActivity;
+import com.music.app.Main;
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
-import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 
 import java.io.File;
 
-public class UIManager
-{
-    private Context context;
-    private FragmentManager fragmentManager;
-
+public class UIManager {
     public Toolbar toolbar;
     ImageButton playButton;
+    private Context context;
+    private FragmentManager fragmentManager;
     private NavigationView navigationDrawer;
 
-    public UIManager(Context context, FragmentManager fragmentManager)
-    {
+    public UIManager(Context context, FragmentManager fragmentManager) {
         this.context = context;
         this.fragmentManager = fragmentManager;
         initUI();
     }
 
-    private void initUI()
-    {
+    private void initUI() {
         //Initialize Now Playing Bar
-        toolbar = ((MainActivity) context).findViewById(R.id.toolbar);
+        toolbar = ((Main) context).findViewById(R.id.toolbar);
         toolbar.setTitle("Hello, User!");
         toolbar.setSubtitle("Select a song to play.");
 
         //Initialize control buttons
-        ImageButton previousButton = ((MainActivity) context).findViewById(R.id.previous_button);
-        ImageButton nextButton = ((MainActivity) context).findViewById(R.id.next_button);
-        playButton = ((MainActivity) context).findViewById(R.id.play_button);
+        ImageButton previousButton = ((Main) context).findViewById(R.id.previous_button);
+        ImageButton nextButton = ((Main) context).findViewById(R.id.next_button);
+        playButton = ((Main) context).findViewById(R.id.play_button);
 
         //Initialize Navigation Drawer
-        navigationDrawer = ((MainActivity) context).findViewById(R.id.navigation_drawer);
+        navigationDrawer = ((Main) context).findViewById(R.id.navigation_drawer);
         navigationDrawer.setItemIconTintList(null);
-        navigationDrawer.setNavigationItemSelectedListener((MainActivity) context);
-        navigationDrawer.setTag(((MainActivity) context).findViewById(R.id.drawer_layout));
+        navigationDrawer.setNavigationItemSelectedListener((Main) context);
+        navigationDrawer.setTag(((Main) context).findViewById(R.id.drawer_layout));
         updateNavigationDrawer();
 
         //Set Click Listeners
-        ((MainActivity) context).findViewById(R.id.now_playing_bar).setOnClickListener((MainActivity) context);
-        ((MainActivity) context).findViewById(R.id.now_playing_navigation).setOnClickListener((MainActivity) context);
-        previousButton.setOnClickListener((MainActivity) context);
-        nextButton.setOnClickListener((MainActivity) context);
-        playButton.setOnClickListener((MainActivity) context);
-        playButton.setOnLongClickListener((MainActivity) context);
+        ((Main) context).findViewById(R.id.now_playing_bar).setOnClickListener((Main) context);
+        ((Main) context).findViewById(R.id.now_playing_navigation).setOnClickListener((Main) context);
+        previousButton.setOnClickListener((Main) context);
+        nextButton.setOnClickListener((Main) context);
+        playButton.setOnClickListener((Main) context);
+        playButton.setOnLongClickListener((Main) context);
     }
 
-    public void openNowPlayingBar()
-    {
+    public void openNowPlayingBar() {
         fragmentManager.nowPlaying();
 //        toggleControlButtons(false);
     }
 
-    public void updateNowPlayingBar(Song song)
-    {
-        ImageView nowPlayingCover = ((MainActivity) context).findViewById(R.id.now_playing_bar_cover);
+    public void updateNowPlayingBar(Song song) {
+        ImageView nowPlayingCover = ((Main) context).findViewById(R.id.now_playing_bar_cover);
 
-        if (song != null)
-        {
+        if (song != null) {
             nowPlayingCover.setVisibility(View.VISIBLE);
 
-            if(song.getCover() != null)
+            if (song.getCover() != null)
                 nowPlayingCover.setImageDrawable(song.getCover());
-            else
-            {
+            else {
                 Glide.with(context)
-                        .load((song.getCoverPath() != null)?
+                        .load((song.getCoverPath() != null) ?
                                 new File(song.getCoverPath()) :
                                 R.drawable.library_music_48dp)
                         .into(nowPlayingCover);
@@ -89,46 +80,38 @@ public class UIManager
 
             toolbar.setTitle(song.getTitle());
             toolbar.setSubtitle(song.getArtist());
-        }
-        else
-        {
+        } else {
             nowPlayingCover.setVisibility(View.INVISIBLE);
             toolbar.setTitle("Hello, User!");
             toolbar.setSubtitle("Select a song to play.");
         }
     }
 
-    public void updateNowPlayingFragment(Song song)
-    {
+    public void updateNowPlayingFragment(Song song) {
         if (fragmentManager.nowPlayingFragment.isVisible())
             fragmentManager.nowPlayingFragment.update(song, true);
     }
 
-    public void updatePlayQueueAdapter()
-    {
+    public void updatePlayQueueAdapter() {
         fragmentManager.playQueueFragment.updateAdapter();
     }
 
-    public void updatePlayQueueFragmentNowPlaying(Song song)
-    {
+    public void updatePlayQueueFragmentNowPlaying(Song song) {
         if (fragmentManager.playQueueFragment.isVisible())
             fragmentManager.playQueueFragment.updateNowPlaying(song);
     }
 
-    public void toggleNavigationDrawer(boolean open)
-    {
-        if(open)
+    public void toggleNavigationDrawer(boolean open) {
+        if (open)
             ((DrawerLayout) navigationDrawer.getTag()).openDrawer(GravityCompat.START);
-        else
-        {
+        else {
             ((DrawerLayout) navigationDrawer.getTag()).closeDrawer(GravityCompat.START);
             updateNavigationDrawer();
         }
     }
 
-    private void updateNavigationDrawer()
-    {
-        if(navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).isChecked())
+    private void updateNavigationDrawer() {
+        if (navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).isChecked())
             navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).setChecked(false);
 
         navigationDrawer.getMenu().findItem(fragmentManager.activeFragment).setChecked(true);
@@ -150,9 +133,8 @@ public class UIManager
 //        }
 //    }
 
-    public void togglePlayButtonIcon(boolean isPlaying)
-    {
-        if(fragmentManager.nowPlayingFragment.isVisible())
+    public void togglePlayButtonIcon(boolean isPlaying) {
+        if (fragmentManager.nowPlayingFragment.isVisible())
             fragmentManager.nowPlayingFragment.togglePlayButtonIcon(isPlaying);
 
         if (isPlaying)

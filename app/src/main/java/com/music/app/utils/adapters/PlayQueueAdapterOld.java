@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.music.app.MainActivity;
+import com.music.app.Main;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.Song;
@@ -22,84 +22,70 @@ import com.music.app.views.RecyclerViewFastScroller;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOld.PlayQueueViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter, ItemTouchListener
-{
+public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOld.PlayQueueViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter, ItemTouchListener {
     private ArrayList<Long> songIDs;
     private OnStartDragListener dragListener;
 
     private Context context;
 
-    public PlayQueueAdapterOld(Context pContext, ArrayList<Long> songIDs, OnStartDragListener pDragListener)
-    {
+    public PlayQueueAdapterOld(Context pContext, ArrayList<Long> songIDs, OnStartDragListener pDragListener) {
         this.songIDs = songIDs;
         dragListener = pDragListener;
         context = pContext;
     }
 
-    private Song getSongByID(long id)
-    {
+    private Song getSongByID(long id) {
         Song song = null;
-        for(Song s : Data.songs)
-            if(s.getId() == id)
+        for (Song s : Data.songs)
+            if (s.getId() == id)
                 song = s;
         return song;
     }
 
     @Override
-    public PlayQueueViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
-    {
+    public PlayQueueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.play_queue_item, parent, false);
         return new PlayQueueViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final PlayQueueViewHolder holder, int position)
-    {
+    public void onBindViewHolder(final PlayQueueViewHolder holder, int position) {
         Song song = getSongByID(songIDs.get(position));
 
         holder.title.setText(song.getTitle());
         holder.artist.setText(song.getArtist());
         holder.cover.setImageDrawable(song.getCover());
 
-        if(position == ((MainActivity) context).data.currentQueueIndex())
+        if (position == ((Main) context).data.currentQueueIndex())
             holder.background.setBackgroundResource(R.color.colorPrimaryDarker);
         else
             holder.background.setBackgroundResource(R.color.background_primary);
     }
 
     @Override
-    public int getItemCount()
-    {
+    public int getItemCount() {
         return songIDs.size();
     }
 
     @Override
-    public String getTextToShowInBubble(int pos)
-    {
+    public String getTextToShowInBubble(int pos) {
         return Character.toString(getSongByID(songIDs.get(pos))
                 .getTitle().charAt(0));
     }
 
-    public void update(ArrayList<Long> songIDs)
-    {
+    public void update(ArrayList<Long> songIDs) {
         this.songIDs = songIDs;
         notifyDataSetChanged();
     }
 
     @Override
-    public void onItemMove(int fromPosition, int toPosition)
-    {
-        if (fromPosition < toPosition)
-        {
-            for (int i = fromPosition; i < toPosition; i++)
-            {
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(songIDs, i, i + 1);
             }
-        }
-        else
-        {
-            for (int i = fromPosition; i > toPosition; i--)
-            {
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
                 Collections.swap(songIDs, i, i - 1);
             }
         }
@@ -107,16 +93,14 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
         notifyItemMoved(fromPosition, toPosition);
     }
 
-    class PlayQueueViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, DragListener
-    {
+    class PlayQueueViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, DragListener {
         public TextView title;
         public TextView artist;
         public ImageView cover;
         public View background;
         View drag;
 
-        PlayQueueViewHolder(View view)
-        {
+        PlayQueueViewHolder(View view) {
             super(view);
 
             title = (TextView) view.findViewById(R.id.queue_item_title);
@@ -129,12 +113,10 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
             view.findViewById(R.id.queue_item_container).setOnClickListener(this);
             view.findViewById(R.id.queue_item_drag_handle).setOnClickListener(this);
             view.findViewById(R.id.queue_item_options).setOnClickListener(this);
-            view.findViewById(R.id.queue_item_drag_handle).setOnTouchListener(new View.OnTouchListener()
-            {
+            view.findViewById(R.id.queue_item_drag_handle).setOnTouchListener(new View.OnTouchListener() {
                 @Override
-                public boolean onTouch(View v, MotionEvent event)
-                {
-                    if(MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN)
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN)
                         dragListener.onStartDrag(PlayQueueViewHolder.this);
                     return false;
                 }
@@ -142,10 +124,8 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
         }
 
         @Override
-        public void onClick(View v)
-        {
-            switch(v.getId())
-            {
+        public void onClick(View v) {
+            switch (v.getId()) {
                 case R.id.queue_item_container:
 //                    Player.updateCurrentSong(context, queue.get(PlayQueueViewHolder.this.getAdapterPosition()));
 //                    ((ActivityCommunicator) context).onSongPlayed();
@@ -157,14 +137,12 @@ public class PlayQueueAdapterOld extends RecyclerView.Adapter<PlayQueueAdapterOl
         }
 
         @Override
-        public void onStartDrag()
-        {
+        public void onStartDrag() {
             background.setBackgroundResource(R.color.colorPrimaryDarker);
         }
 
         @Override
-        public void onStopDrag()
-        {
+        public void onStopDrag() {
             background.setBackgroundResource(R.color.background_primary);
         }
     }

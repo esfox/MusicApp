@@ -9,14 +9,13 @@ import android.view.ViewGroup;
 
 import com.music.app.R;
 
-public class SettingsFragment extends Fragment
-{
-    public SettingsFragment() {}
+public class SettingsFragment extends Fragment {
+    public SettingsFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 

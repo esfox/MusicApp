@@ -18,7 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.music.app.MainActivity;
+import com.music.app.Main;
 import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.Queue;
@@ -30,8 +30,7 @@ import com.music.app.views.RecyclerViewFastScroller;
 
 import java.io.File;
 
-public class PlayQueueFragment extends Fragment implements OnStartDragListener
-{
+public class PlayQueueFragment extends Fragment implements OnStartDragListener {
     private View view;
     private Menu menu;
     private PlayQueueAdapterOld playQueueAdapterOld;
@@ -41,43 +40,37 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
     private Data data;
     private Queue queue;
 
-    public PlayQueueFragment() {}
+    public PlayQueueFragment() {
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_play_queue, container, false);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        data = ((MainActivity) getContext()).data;
-        queue = ((MainActivity) getContext()).queue;
+        data = ((Main) getContext()).data;
+        queue = ((Main) getContext()).queue;
 
         assert getView() != null;
         view = getView();
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.play_queue_toolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener()
-        {
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });
         toolbar.inflateMenu(R.menu.menu_play_queue);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener()
-        {
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item)
-            {
-                switch(item.getItemId())
-                {
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
                     case R.id.action_shuffle:
-                        ((MainActivity) getContext()).onShuffle();
+                        ((Main) getContext()).onShuffle();
                         updateAdapter();
                         scrollToPlaying();
                         shuffle();
@@ -95,12 +88,10 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
             }
         });
 
-        view.findViewById(R.id.queue_list_play_button).setOnClickListener(new View.OnClickListener()
-        {
+        view.findViewById(R.id.queue_list_play_button).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
-                ((MainActivity) getContext()).player.play();
+            public void onClick(View v) {
+                ((Main) getContext()).player.play();
                 togglePlayButtonIcon();
             }
         });
@@ -131,39 +122,34 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         scrollToPlaying();
     }
 
-    public void updateNowPlaying(Song song)
-    {
-        if(song != null)
-        {
+    public void updateNowPlaying(Song song) {
+        if (song != null) {
             ((TextView) view.findViewById(R.id.play_queue_title)).setText(song.getTitle());
             ((TextView) view.findViewById(R.id.play_queue_artist)).setText(song.getArtist());
 
             ImageView cover = ((ImageView) view.findViewById(R.id.play_queue_cover));
-            if(song.getCover() != null)
+            if (song.getCover() != null)
                 cover.setImageDrawable(song.getCover());
             else Glide.with(getContext())
-                      .load((song.getCoverPath() != null)?
-                              new File(song.getCoverPath()) :
-                              R.drawable.library_music_48dp)
-                      .into(cover);
+                    .load((song.getCoverPath() != null) ?
+                            new File(song.getCoverPath()) :
+                            R.drawable.library_music_48dp)
+                    .into(cover);
         }
     }
 
-    public void updateAdapter()
-    {
-        if(playQueueAdapterOld != null)
+    public void updateAdapter() {
+        if (playQueueAdapterOld != null)
             playQueueAdapterOld.update(queue.getQueue());
     }
 
-    private void shuffle()
-    {
-        if(data.isShuffled())
+    private void shuffle() {
+        if (data.isShuffled())
             menu.findItem(R.id.action_shuffle)
                     .getIcon()
                     .setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
@@ -173,10 +159,8 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
                     .setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off_light), PorterDuff.Mode.SRC_ATOP);
     }
 
-    private void repeat()
-    {
-        switch(data.repeatState())
-        {
+    private void repeat() {
+        switch (data.repeatState()) {
             case OFF:
                 menu.findItem(R.id.action_repeat).setIcon(R.drawable.repeat_36dp);
                 menu.findItem(R.id.action_repeat).getIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off_light), PorterDuff.Mode.SRC_ATOP);
@@ -193,8 +177,7 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
         }
     }
 
-    public void togglePlayButtonIcon()
-    {
+    public void togglePlayButtonIcon() {
 //        FloatingActionButton playButton = (FloatingActionButton) view.findViewById(R.id.queue_list_play_button);
 //
 //        if(Player.getPlayer().isPlaying())
@@ -202,18 +185,16 @@ public class PlayQueueFragment extends Fragment implements OnStartDragListener
 //        else
 //            playButton.setImageResource(R.drawable.play_36dp);
 //
-//        ((MainActivity) getActivity()).togglePlayButtonIcon();
+//        ((Main) getActivity()).togglePlayButtonIcon();
     }
 
-    private void scrollToPlaying()
-    {
-        if(data.currentQueueIndex() != -1)
+    private void scrollToPlaying() {
+        if (data.currentQueueIndex() != -1)
             playQueue.scrollToPosition(data.currentQueueIndex());
     }
 
     @Override
-    public void onStartDrag(RecyclerView.ViewHolder holder)
-    {
+    public void onStartDrag(RecyclerView.ViewHolder holder) {
         touchHelper.startDrag(holder);
     }
 }

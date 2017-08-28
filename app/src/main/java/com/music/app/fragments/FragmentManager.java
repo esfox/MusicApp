@@ -3,28 +3,24 @@ package com.music.app.fragments;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.music.app.MainActivity;
+import com.music.app.Main;
 import com.music.app.R;
 import com.music.app.objects.Song;
 
-public class FragmentManager
-{
-    private android.support.v4.app.FragmentManager fragmentManager;
-    private MainActivity mainActivity;
-
+public class FragmentManager {
     public SongListFragment songListFragment;
     public NowPlayingFragment nowPlayingFragment;
-    public PlaylistsFragment playlistsFragment;
-    public FavoritesFragment favoritesFragment;
     public PlayQueueFragment playQueueFragment;
-    public SongDetailsFragment songDetailsFragment;
-
+    private PlaylistsFragment playlistsFragment;
+    private FavoritesFragment favoritesFragment;
+    private SongDetailsFragment songDetailsFragment;
     public int activeFragment = R.id.navigation_drawer_songs;
+    private android.support.v4.app.FragmentManager fragmentManager;
+    private Main mainActivity;
 
-    public FragmentManager(Context context)
-    {
-        mainActivity = ((MainActivity) context);
-        fragmentManager = ((MainActivity) context).getSupportFragmentManager();
+    public FragmentManager(Context context) {
+        mainActivity = ((Main) context);
+        fragmentManager = ((Main) context).getSupportFragmentManager();
 
         nowPlayingFragment = new NowPlayingFragment();
         playQueueFragment = new PlayQueueFragment();
@@ -37,8 +33,7 @@ public class FragmentManager
 //    {
 //    }
 
-    public void songList()
-    {
+    public void songList() {
         activeFragment = R.id.navigation_drawer_songs;
 
         fragmentManager
@@ -50,8 +45,7 @@ public class FragmentManager
                 .commit();
     }
 
-    public void playlists()
-    {
+    public void playlists() {
         activeFragment = R.id.navigation_drawer_playlists;
 
         fragmentManager
@@ -61,8 +55,7 @@ public class FragmentManager
                 .commit();
     }
 
-    public void favorites()
-    {
+    public void favorites() {
         activeFragment = R.id.navigation_drawer_favorites;
 
         fragmentManager
@@ -72,8 +65,7 @@ public class FragmentManager
                 .commit();
     }
 
-    public void nowPlaying()
-    {
+    public void nowPlaying() {
         fragmentManager
                 .beginTransaction()
                 .setCustomAnimations(R.anim.slide_down, R.anim.slide_up,
@@ -84,8 +76,7 @@ public class FragmentManager
                 .commit();
     }
 
-    public void playQueue()
-    {
+    public void playQueue() {
         activeFragment = R.id.navigation_drawer_play_queue;
 
         fragmentManager
@@ -96,15 +87,13 @@ public class FragmentManager
                 .commit();
     }
 
-    public void settings()
-    {
+    public void settings() {
         activeFragment = R.id.navigation_drawer_settings;
 
         Toast.makeText(mainActivity, "Settings", Toast.LENGTH_SHORT).show();
     }
 
-    public void songDetails(Song song)
-    {
+    public void songDetails(Song song) {
         songDetailsFragment.setSong(song);
 
         fragmentManager
@@ -115,8 +104,7 @@ public class FragmentManager
                 .commit();
     }
 
-    void popBackStack()
-    {
+    void popBackStack() {
         fragmentManager.popBackStack();
     }
 }
