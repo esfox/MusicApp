@@ -140,7 +140,7 @@ public class Player extends Service {
         change(true, true);
     }
 
-    private void change(boolean next, boolean fromUser) {
+    public void change(boolean next, boolean fromUser) {
         Song song = null;
         if (next) {
             if (fromUser)

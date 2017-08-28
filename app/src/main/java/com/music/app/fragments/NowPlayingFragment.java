@@ -152,24 +152,26 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             }
         });
 
-        int currentPosition = 0;
         try {
-            currentPosition = mediaPlayer.getCurrentPosition();
+            progress.setProgress(mediaPlayer.getCurrentPosition());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        progress.setProgress(currentPosition);
-
+        player.stop();
         updateProgress();
     }
 
+    // TODO: FIX PROGRESS
     private void updateProgress() {
+
+        Log.d("AWAISKING_APP", ""+ data.currentSong(getContext()).getPath()
+                + " -- " + player.getPlayer().getCurrentPosition() + " -- " + player.getPlayer().getDuration());
         if (data.currentSongIsNotNull()) {
-            progress.setProgress(player.getPlayer().getCurrentPosition());
-            time.setText(getDuration(player.getPlayer().getCurrentPosition()));
+//            progress.setProgress(player.getPlayer().getCurrentPosition());
+//            time.setText(getDuration(player.getPlayer().getCurrentPosition()));
         }
-        updater.postDelayed(update, 1000);
+        updater.postDelayed(update, 500);
     }
 
     public void update(Song song, boolean updateProgress) {
