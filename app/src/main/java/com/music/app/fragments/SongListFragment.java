@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,7 +53,7 @@ public class SongListFragment extends Fragment implements View.OnClickListener {
         View view = getView();
 
         //ListView
-        songList = (ListView) view.findViewById(R.id.song_list_view);
+        songList = view.findViewById(R.id.song_list_view);
         songList.setDividerHeight(0);
         songList.setFastScrollEnabled(true);
 
@@ -67,9 +68,23 @@ public class SongListFragment extends Fragment implements View.OnClickListener {
         getView().findViewById(R.id.selection_toolbar_menu).setOnClickListener(this);
 
         //TODO: Adapter toggle selection mode OFF on close button click
-        Toolbar toolbar = (Toolbar) getView().findViewById(R.id.songlist_toolbar);
+        Toolbar toolbar = getView().findViewById(R.id.songlist_toolbar);
         toolbar.setTag(getView().findViewById(R.id.selection_toolbar_title));
         songList.setTag(toolbar);
+
+//        getView().setOnKeyListener(new View.OnKeyListener() {
+//            @Override
+//            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+//                if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+//                    Toast.makeText(getContext(), "KEY PRESSED!", Toast.LENGTH_SHORT).show();
+//                    if (((SongListAdapter) songList.getAdapter()).inSelectionMode()) {
+//                        ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(false);
+//                        return true;
+//                    }
+//                }
+//                return false;
+//            }
+//        });
     }
 
     @Override

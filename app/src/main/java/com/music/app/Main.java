@@ -87,18 +87,25 @@ public class Main extends AppCompatActivity implements View.OnLongClickListener,
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-        }
+        public void onServiceDisconnected(ComponentName name) {}
     };
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onRequestPermissionsResult(int r, @NonNull String[] p, @NonNull int[] gR) {
         super.onRequestPermissionsResult(r, p, gR);
-        if (gR[0] != PackageManager.PERMISSION_GRANTED) {
+        if (r==2005 && gR[0] != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Grant External Storage permissions.", Toast.LENGTH_SHORT).show();
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2005);
-        } else create();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2005);
+            return;
+        }
+//        if (r==2006 && gR[0] != PackageManager.PERMISSION_GRANTED) {
+//            Toast.makeText(this, "Grant External Storage permissions.", Toast.LENGTH_SHORT).show();
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2006);
+//            return;
+//        }
+        create();
     }
 
     void create() {
@@ -114,8 +121,7 @@ public class Main extends AppCompatActivity implements View.OnLongClickListener,
 //        PlayQueue.setData(data);
 
         //Scan audio
-        AudioFileScanner audioFileScanner = new AudioFileScanner(this, data);
-        audioFileScanner.scanAudio();
+        new AudioFileScanner(this, data).scanAudio();
 //        temp();
 
         if (data.currentSongIsNotNull())
@@ -125,8 +131,8 @@ public class Main extends AppCompatActivity implements View.OnLongClickListener,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2005);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2005);
         }
         super.onCreate(savedInstanceState);
     }

@@ -1,20 +1,25 @@
 package com.music.app.utils.adapters;
 
 import android.animation.ObjectAnimator;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.music.app.R;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.views.SongListViewHolder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -143,6 +148,7 @@ public class SongListAdapter extends BaseAdapter {
         openedOptionsPosition = pOpenedPosition;
     }
 
+    @SuppressWarnings("SameParameterValue")
     public void toggleMultiQueueMode(boolean toggleMultiQueueMode) {
         //TODO: Untoggle when going to other fragments (Do after managing fragment navigation)
 
@@ -155,6 +161,11 @@ public class SongListAdapter extends BaseAdapter {
             ObjectAnimator fade = ObjectAnimator.ofFloat(toolbar, View.ALPHA, 1f);
             fade.setDuration(150);
             fade.start();
+
+            for (int i = 0; i <= songList.getLastVisiblePosition() - songList.getFirstVisiblePosition(); i++) {
+                if (items.get(i).isItem())
+                    ((SongListViewHolder) songList.getChildAt(i).getTag()).toggleOptions(true, false);
+            }
 
             ((TextView) toolbar.getTag()).setText("Multi Queue");
         } else {
@@ -181,8 +192,10 @@ public class SongListAdapter extends BaseAdapter {
             ((TextView) toolbar.getTag()).setText(String.valueOf(selectedCount) + " items selected");
 
             for (int i = 0; i <= songList.getLastVisiblePosition() - songList.getFirstVisiblePosition(); i++) {
-                if (items.get(i).isItem())
+                if (items.get(i).isItem()) {
                     ((SongListViewHolder) songList.getChildAt(i).getTag()).options.setVisibility(View.INVISIBLE);
+                    ((SongListViewHolder) songList.getChildAt(i).getTag()).toggleOptions(true, false);
+                }
             }
         } else {
             if (sort == Sorter.SortBy.title) {
@@ -227,28 +240,89 @@ public class SongListAdapter extends BaseAdapter {
         return selectedFlags.get(position);
     }
 
+    // TODO: FIX DELETION
     public void deleteSelectedItems() {
         //TODO: Delete from storage
         //TODO: Deletion in other sort
 
-        ArrayList<Item> selectedItems = new ArrayList<>();
-
+        final ArrayList<Item> selectedItems = new ArrayList<>();
         for (int i = 0; i < selectedFlags.size(); i++)
-            if (selectedFlags.get(i))
-                selectedItems.add(items.get(i));
+            if (selectedFlags.get(i)) selectedItems.add(items.get(i));
 
-        for (int i = 0; i < selectedItems.size(); i++)
-            items.remove(selectedItems.get(i));
-
-        notifyDataSetChanged();
+        final StringBuilder[] str = {new StringBuilder()};
+        str[0].append("");
+        for (Item item : selectedItems) {
+            File file = new File(item.getSong().getPath());
+            if (file.exists() && file.isFile())
+                if (!file.delete()) str[0].append(item.getSong().getFilename()).append("\n\n");
+        }
+        new AlertDialog.Builder(context).setTitle("Deletion")
+                .setMessage("Are you sure you want to delete selected items?\n" + str[0] +
+                        "\n\nDelete: Deletes files from storage!!!\nRemove: Removes files from list.")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                })
+                .setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        str[0] = new StringBuilder();
+                        for (Item item : selectedItems) {
+                            File file = new File(item.getSong().getPath());
+                            if (file.exists() && file.isFile())
+                                if (!file.delete()) str[0].append(item.getSong().getFilename()).append("\n");
+                        }
+                        str[0].append("\nCould not be deleted.");
+                        Toast.makeText(context, str[0], Toast.LENGTH_LONG).show();
+                        items.removeAll(selectedItems);
+                        notifyDataSetChanged();
+                    }
+                })
+                .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        items.removeAll(selectedItems);
+                        notifyDataSetChanged();
+                    }
+                }).show();
 
         toggleSelectionMode(false);
     }
 
-    public void deleteItem(int position) {
+    // TODO: FIX DELETION
+    public void deleteItem(final int position) {
         setOpenedOptionsPosition(-1);
-        songs.remove(position);
-        notifyDataSetChanged();
+
+        new AlertDialog.Builder(context).setTitle("Deletion")
+                .setMessage("Are you sure you want to delete " + songs.get(position).getFilename()
+                        + "?\nPath: " + songs.get(position).getPath() + "\n\nDelete: Deletes file from storage!!!\nRemove: Removes file from list.")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                })
+                .setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        File file = new File(songs.get(position).getPath());
+                        if (file.exists() && file.isFile())
+                            if (!file.delete())
+                                Toast.makeText(context, songs.get(position).getFilename() + " couldn't be deleted.", Toast.LENGTH_LONG).show();
+
+                        songs.remove(position);
+                        notifyDataSetChanged();
+                    }
+                })
+                .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        songs.remove(position);
+                        notifyDataSetChanged();
+                    }
+                }).show();
     }
 
     ArrayList<Item> getItems() {

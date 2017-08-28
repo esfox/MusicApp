@@ -158,6 +158,8 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //        }
 //        else return false;
 
+        if (adapter.inSelectionMode()) return true;
+        if (adapter.inMultiQueueMode()) return true;
         options();
         return true;
     }
@@ -288,21 +290,23 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     }
 
     private void delete() {
-        //TODO: Fix/Improve
-
-        DialogInterface.OnClickListener positiveButtonListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                toggleOptions(false, false);
-                adapter.deleteItem(position);
-            }
-        };
-
-        String title = "Delete \"" + String.valueOf(song.getTitle()) + "\"?";
-
-        //TODO: Delete from storage or library only
-        String message = "Are you sure you want to delete this track?";
-
-        Dialoger.createAlertDialog(container.getContext(), title, message, positiveButtonListener);
+//        //TODO: Fix/Improve
+//
+//        DialogInterface.OnClickListener positiveButtonListener = new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                toggleOptions(false, false);
+//                adapter.deleteItem(position);
+//            }
+//        };
+//
+//        String title = "Delete \"" + String.valueOf(song.getTitle()) + "\"?";
+//
+//        //TODO: Delete from storage or library only
+//        String message = "Are you sure you want to delete this track?";
+//
+//        Dialoger.createAlertDialog(container.getContext(), title, message, positiveButtonListener);
+        toggleOptions(false, false);
+        adapter.deleteItem(position);
     }
 }
