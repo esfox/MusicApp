@@ -344,10 +344,13 @@ public class AudioFileScanner
     @SuppressLint("StaticFieldLeak")
     private class BackgroundQuery extends AsyncTask<Void, Void, Void>
     {
+        SongDatabaseHelper sd;
+
         @Override
         protected Void doInBackground(Void... params)
         {
-            songs = new SongDatabaseHelper(context).getSongs();
+            sd = new SongDatabaseHelper(context);
+            songs = sd.getSongs();
             return null;
         }
 
@@ -355,6 +358,7 @@ public class AudioFileScanner
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
+            sd.close();         // fixes leaky database
             scanComplete();
         }
     }

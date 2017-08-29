@@ -1,7 +1,6 @@
 package com.music.app;
 
 import android.*;
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -65,52 +64,78 @@ public class MainActivity extends AppCompatActivity implements
 
     private Intent serviceIntent;
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
-        Log.d("AWAISKING_APP", "results[0]: " + grantResults[0] + " --[1]: " +  grantResults[1]);
-        if (grantResults[1] != PackageManager.PERMISSION_GRANTED && grantResults[0] != PackageManager.PERMISSION_GRANTED)
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE}, 2562);
-            }
-        }
-        else
-        {
-            setContentView(R.layout.activity_main);
-
-            data = new Data(this);
-
-            serviceIntent = new Intent(this, Player.class);
-            bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
-
-            uiManager = new UIManager(this);
-            uiManager.initUI(data, player, this);
-            fragmentManager = uiManager.fragmentManager();
-
-            queue = new Queue(data);
-
-            //Scan audio
-            AudioFileScanner audioFileScanner = new AudioFileScanner(this, this, data);
-            audioFileScanner.scanAudio();
-//        temp();
-
-            if(data.currentSongIsNotNull())
-                uiManager.updateNowPlayingBar(data.currentSong(this));
-        }
-    }
+//      TODO: IMPLEMENT PERMISSION REQUESTS
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+//    {
+//        if (grantResults[1] != PackageManager.PERMISSION_GRANTED && grantResults[0] != PackageManager.PERMISSION_GRANTED)
+//        {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+//            {
+//                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//                        android.Manifest.permission.READ_EXTERNAL_STORAGE}, 2562);
+//            }
+//        }
+//        else
+//        {
+//            setContentView(R.layout.activity_main);
+//
+//            data = new Data(this);
+//
+//            serviceIntent = new Intent(this, Player.class);
+//            bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+//
+//            uiManager = new UIManager(this);
+//            uiManager.initUI(data, player, this);
+//            fragmentManager = uiManager.fragmentManager();
+//
+//            queue = new Queue(data);
+//
+//            //Scan audio
+//            AudioFileScanner audioFileScanner = new AudioFileScanner(this, this, data);
+//            audioFileScanner.scanAudio();
+////        temp();
+//
+//            if(data.currentSongIsNotNull())
+//                uiManager.updateNowPlayingBar(data.currentSong(this));
+//        }
+//    }
+//
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState)
+//    {
+//        super.onCreate(savedInstanceState);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+//        {
+//            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//                    android.Manifest.permission.READ_EXTERNAL_STORAGE}, 2562);
+//        }
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-        {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE}, 2562);
-        }
+        setContentView(R.layout.activity_main);
+
+        data = new Data(this);
+
+        serviceIntent = new Intent(this, Player.class);
+        bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+
+        uiManager = new UIManager(this);
+        uiManager.initUI(data, player, this);
+        fragmentManager = uiManager.fragmentManager();
+
+        queue = new Queue(data);
+
+        //Scan audio
+        AudioFileScanner audioFileScanner = new AudioFileScanner(this, this, data);
+        audioFileScanner.scanAudio();
+//        temp();
+
+        if(data.currentSongIsNotNull())
+            uiManager.updateNowPlayingBar(data.currentSong(this));
     }
 
     @Override
