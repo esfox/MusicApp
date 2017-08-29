@@ -21,6 +21,7 @@ import com.music.app.utils.interfaces.AudioScanListener;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class AudioFileScanner
 {
@@ -202,11 +203,18 @@ public class AudioFileScanner
 //                            cover = new BitmapDrawable(context.getResources(),
 //                                    BitmapFactory.decodeFile(cursor.getString(2), options));
 
-                            cover = Glide.with(context)
-                                    .load(new File(cursor.getString(2)))
-                                    .skipMemoryCache(true)
-                                    .into(100,100)
-                                    .get();
+                            File f = new File(cursor.getString(2));
+                            if (f.exists() && f.isFile())
+                            {
+                                cover = Glide.with(context)
+                                        .load(new File(cursor.getString(2)))
+                                        .skipMemoryCache(true)
+                                        .into(100, 100)
+                                        .get();
+                            }
+                            else
+                                cover = ResourcesCompat.getDrawable(context.getResources(),
+                                        R.drawable.library_music_48dp, null);
                         }
                         catch(OutOfMemoryError e)
                         {
@@ -253,14 +261,14 @@ public class AudioFileScanner
         }
     }
 
-    @SuppressLint("DefaultLocale")
     private String getDuration(String value)
     {
         Long length = Long.parseLong(value);
         return String.valueOf(length / 60000) + ":"
-                + String.format("%02d", (length % 60000) / 1000);
+                + String.format(Locale.getDefault(),"%02d", (length % 60000) / 1000);
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class BackgroundScanner extends AsyncTask<Void, Void, Void>
     {
         private ProgressDialog progressDialog = new ProgressDialog(context);
@@ -289,6 +297,7 @@ public class AudioFileScanner
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class AlbumCoverScanner extends AsyncTask<Void, Void, Void>
     {
         private Snackbar snackbar;
@@ -321,6 +330,7 @@ public class AudioFileScanner
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class Store extends AsyncTask<Void, Void, Void>
     {
         @Override
@@ -331,6 +341,7 @@ public class AudioFileScanner
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class BackgroundQuery extends AsyncTask<Void, Void, Void>
     {
         @Override
