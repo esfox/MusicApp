@@ -44,6 +44,7 @@ public class SongListAdapter extends BaseAdapter
 
     private ServiceListener serviceListener;
     private QueueListener queueListener;
+    private FragmentManager fragmentManager;
 
     class Item
     {
@@ -83,6 +84,7 @@ public class SongListAdapter extends BaseAdapter
             Context pContext,
             ListView listView,
             ArrayList<Song> pSongs,
+            FragmentManager fragmentManager,
             Sorter.SortBy pSort)
     {
         context = pContext;
@@ -143,6 +145,11 @@ public class SongListAdapter extends BaseAdapter
         this.queueListener = queueListener;
     }
 
+    public void setFragmentManager(FragmentManager fragmentManager)
+    {
+        this.fragmentManager = fragmentManager;
+    }
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent)
     {
@@ -188,7 +195,7 @@ public class SongListAdapter extends BaseAdapter
 
     public void songDetails(Song song)
     {
-        ((FragmentManager) songList.getTag()).songDetails(song);
+        fragmentManager.songDetails(song);
     }
 
     private void checkIfPositionIsOpened(int position, SongListViewHolder viewHolder)
@@ -293,7 +300,7 @@ public class SongListAdapter extends BaseAdapter
                 }
             }
             else
-                songList.setAdapter(new SongListFastScrollAdapter(context, songs, songList, sort));
+                songList.setAdapter(new SongListFastScrollAdapter(context, songs, songList, fragmentManager, sort));
 
             toolbar.setAlpha(0);
             toolbar.setVisibility(View.GONE);

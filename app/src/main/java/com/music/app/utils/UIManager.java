@@ -30,9 +30,11 @@ public class UIManager
     private ImageButton playButton;
     private NavigationView navigationDrawer;
 
-    public UIManager(Context context)
+    public UIManager(Context context, Data data, Player player, QueueListener queueListener)
     {
         this.context = context;
+
+        initUI(data,player,queueListener);
     }
 
     public FragmentManager fragmentManager()
@@ -40,7 +42,7 @@ public class UIManager
         return fragmentManager;
     }
 
-    public void initUI(Data data, Player player, QueueListener queueListener)
+    private void initUI(Data data, Player player, QueueListener queueListener)
     {
         fragmentManager = new FragmentManager(context);
         fragmentManager.nowPlayingFragment.initialize(data, player, this, queueListener);

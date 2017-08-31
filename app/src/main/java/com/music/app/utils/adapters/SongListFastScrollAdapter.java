@@ -4,6 +4,7 @@ import android.content.Context;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 
+import com.music.app.fragments.FragmentManager;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 
@@ -20,9 +21,9 @@ public class SongListFastScrollAdapter extends SongListAdapter implements Sectio
 
     private Sorter.SortBy sort;
 
-    public SongListFastScrollAdapter(Context pContext, ArrayList<Song> pSongs, ListView pListView, Sorter.SortBy pSort)
+    public SongListFastScrollAdapter(Context pContext, ArrayList<Song> pSongs, ListView pListView, FragmentManager fragmentManager, Sorter.SortBy pSort)
     {
-        super(pContext, pListView, pSongs, pSort);
+        super(pContext, pListView, pSongs, fragmentManager, pSort);
         items = getItems();
         sort = pSort;
         manageSections();

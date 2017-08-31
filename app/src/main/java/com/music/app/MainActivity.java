@@ -1,21 +1,15 @@
 package com.music.app;
 
-import android.*;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -123,19 +117,11 @@ public class MainActivity extends AppCompatActivity implements
         serviceIntent = new Intent(this, Player.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
-        uiManager = new UIManager(this);
-        uiManager.initUI(data, player, this);
-        fragmentManager = uiManager.fragmentManager();
-
         queue = new Queue(data);
 
         //Scan audio
-        AudioFileScanner audioFileScanner = new AudioFileScanner(this, this, data);
-        audioFileScanner.scanAudio();
+        new AudioFileScanner(this, this, data).scanAudio();
 //        temp();
-
-        if(data.currentSongIsNotNull())
-            uiManager.updateNowPlayingBar(data.currentSong(this));
     }
 
     @Override
@@ -367,6 +353,12 @@ public class MainActivity extends AppCompatActivity implements
             player = binder.getService();
             player.initialize(data, queue);
             player.setServiceListener(MainActivity.this);
+
+            uiManager = new UIManager(MainActivity.this, data, player, MainActivity.this);
+            fragmentManager = uiManager.fragmentManager();
+
+            if(data.currentSongIsNotNull())
+                uiManager.updateNowPlayingBar(data.currentSong(MainActivity.this));
         }
 
         @Override

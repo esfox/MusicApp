@@ -42,6 +42,7 @@ public class Player extends Service
 
     public void initialize(Data data, Queue queue)
     {
+        player = new MediaPlayer();
         this.data = data;
         this.queue = queue;
     }
@@ -114,7 +115,6 @@ public class Player extends Service
     @Override
     public IBinder onBind(Intent intent)
     {
-        player = new MediaPlayer();
         return binder;
     }
 

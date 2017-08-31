@@ -5,11 +5,7 @@ import android.util.Log;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
-import com.music.app.objects.Data;
-import com.music.app.objects.Player;
 import com.music.app.objects.Song;
-import com.music.app.utils.UIManager;
-import com.music.app.utils.interfaces.QueueListener;
 
 public class FragmentManager
 {

@@ -414,42 +414,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <RelativeLayout
-        android:id="@+id/control_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/play_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            app:useCompatPadding="true"
-            app:srcCompat="@drawable/play_36dp"/>
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/previous_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/play_button"
-            android:layout_toStartOf="@+id/play_button"
-            app:fabSize="mini"
-            app:useCompatPadding="true"
-            app:srcCompat="@drawable/fast_rewind_24dp"/>
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/next_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/play_button"
-            android:layout_toRightOf="@+id/play_button"
-            app:fabSize="mini"
-            app:useCompatPadding="true"
-            app:srcCompat="@drawable/fast_forward_24dp"/>
-
-    </RelativeLayout>
 </RelativeLayout>
