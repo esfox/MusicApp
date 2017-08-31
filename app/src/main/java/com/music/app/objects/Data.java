@@ -19,12 +19,12 @@ public class Data
     }
 
     private ArrayList<Song> songs;
-    private long[] queue;
+    private Queue queue;
 
     public ArrayList<Song> songs() { return songs; }
     public void setSongs(ArrayList<Song> songs) { this.songs = songs; }
-    public long[] queue() { return queue; }
-    public void setQueue(long[] queue) { this.queue = queue; }
+    public Queue queue() { return queue; }
+    public void setQueue(Queue queue) { this.queue = queue; }
 
     private Drawable currentAlbumArt;
 

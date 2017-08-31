@@ -1,23 +1,18 @@
 package com.music.app.views;
 
 import android.animation.ObjectAnimator;
-import android.content.DialogInterface;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.music.app.R;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
-import com.music.app.utils.Dialoger;
 import com.music.app.utils.adapters.SongListAdapter;
-import com.music.app.utils.interfaces.QueueListener;
-import com.music.app.utils.interfaces.ServiceListener;
+import com.music.app.utils.interfaces.SongListViewHolderListener;
 
 public class SongListViewHolder implements View.OnClickListener, View.OnLongClickListener
 {
@@ -26,8 +21,8 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     private ImageView cover;
     public RelativeLayout background;
 
-    public View container;
-    public View options;
+    private View container;
+    private View options;
     private View addTo;
     private View queue;
     private View more;
@@ -35,24 +30,18 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     public TextView sectionText;
     private View sectionBackground;
 
-    private Song song;
-    private SongListAdapter adapter;
-    private ListView songList;
     private Sorter.SortBy sort;
 
     private int position;
     private int viewType;
 
-    private ServiceListener serviceListener;
-    private QueueListener queueListener;
+    private SongListViewHolderListener songListViewHolderListener;
 
     public SongListViewHolder
             (View view,
-             ListView pListView,
              int pViewType,
              Sorter.SortBy pSort,
-             ServiceListener serviceListener,
-             QueueListener queueListener)
+             SongListViewHolderListener songListViewHolderListener)
     {
         viewType = pViewType;
         if(viewType == SongListAdapter.type_item)
@@ -74,47 +63,46 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
             sectionBackground = view.findViewById(R.id.section_header_background);
         }
 
-        songList = pListView;
         sort = pSort;
 
-        adapter = (SongListAdapter) songList.getAdapter();
-
-        this.serviceListener = serviceListener;
-        this.queueListener = queueListener;
+        this.songListViewHolderListener = songListViewHolderListener;
     }
 
     public void setPosition(int pPosition)
     {
         position = pPosition;
-        setBackgroundColor(position);
+        setBackgroundColor(position, false);
     }
 
-    public void setBackgroundColor(int position)
+    public void setBackgroundColor(int position, boolean isSelected)
     {
-        if(sort == Sorter.SortBy.title)
+        if(!isSelected)
         {
-            int color;
+            if(sort == Sorter.SortBy.title)
+            {
+                int color;
 
-            if(position % 2 == 0)
-                color = R.color.background_primary;
+                if(position % 2 == 0)
+                    color = R.color.background_primary;
+                else
+                    color = R.color.background_alternate;
+
+                background.setBackgroundResource(color);
+            }
             else
-                color = R.color.background_alternate;
-
-            background.setBackgroundResource(color);
+            {
+                if(viewType == SongListAdapter.type_item)
+                    background.setBackgroundResource(R.color.background_primary);
+                else
+                    sectionBackground.setBackgroundResource(R.color.background_alternate);
+            }
         }
         else
-        {
-            if(viewType == SongListAdapter.type_item)
-                background.setBackgroundResource(R.color.background_primary);
-            else
-                sectionBackground.setBackgroundResource(R.color.background_alternate);
-        }
+            background.setBackgroundResource(R.color.colorPrimaryDarker);
     }
 
-    public void setSong(Song pSong)
+    public void setSongDetails(Song song)
     {
-        song = pSong;
-
         title.setText(song.getTitle());
         artist.setText(song.getArtist());
 
@@ -148,23 +136,25 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
         switch (v.getId())
         {
             case R.id.container:
-                onClick();
+                songListViewHolderListener.onClick(position, this);
                 break;
 
             case R.id.options:
-                options();
+                onOptions();
                 break;
 
             case R.id.song_list_options_queue:
-                queue();
+                songListViewHolderListener.onQueue(position);
+                onOptions();
                 break;
 
             case R.id.song_list_options_play_next:
-                playNext();
+                songListViewHolderListener.onPlayNext(position);
+                onOptions();
                 break;
 
             case R.id.song_list_options_more:
-                more();
+                songListViewHolderListener.onMoreOptions(position, this);
                 break;
         }
     }
@@ -187,51 +177,23 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //            return true;
 //        }
 //        else return false;
-
-        options();
+        onOptions();
         return true;
     }
 
-    private void onClick()
+    private void onOptions()
     {
-        if(adapter.inMultiQueueMode())
-        {
-            queueListener.onQueue(song.getId());
-            Toast.makeText(container.getContext(), song.getTitle() + " queued", Toast.LENGTH_SHORT).show();
-//            PlayQueue.queue(song);
-//            Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
-        }
-        else if(adapter.inSelectionMode())
-        {
-            adapter.selectItem(position);
-            select();
-        }
-        else
-            serviceListener.onStartAudio(song, true);
+        songListViewHolderListener.onOptions
+        (
+            position,
+            optionsIsOpened(),
+            this
+        );
     }
 
-    private void options()
+    private boolean optionsIsOpened()
     {
-        int openedOptionsPosition = adapter.getOpenedOptionsPosition();
-
-        if(openedOptionsPosition != -1)
-        {
-            if(openedOptionsPosition >= songList.getFirstVisiblePosition() &&
-                    openedOptionsPosition <= songList.getLastVisiblePosition())
-                ((SongListViewHolder) songList.getChildAt(openedOptionsPosition - songList.getFirstVisiblePosition()).getTag()).toggleOptions(true, false);
-        }
-
-        if(background.getTranslationX() == 0)
-        {
-            toggleOptions(true, true);
-            adapter.setOpenedOptionsPosition(position);
-        }
-        else
-        {
-            toggleOptions(true, false);
-            adapter.setOpenedOptionsPosition(-1);
-        }
-
+        return background.getTranslationX() == 0;
     }
 
     public void toggleOptions(boolean animate, boolean toggle)
@@ -242,7 +204,14 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 
             if (toggle)
                 swipe = ObjectAnimator.ofFloat(background, View.TRANSLATION_X,
-                        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -180, container.getContext().getResources().getDisplayMetrics()));
+                        TypedValue.applyDimension
+                        (
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            -180,
+                            container.getContext()
+                                     .getResources()
+                                     .getDisplayMetrics()
+                        ));
             else
                 swipe = ObjectAnimator.ofFloat(background, View.TRANSLATION_X, 0);
 
@@ -255,112 +224,162 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
             if(toggle)
                 background.setTranslationX
                 (
-                    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -180, container.getContext().getResources().getDisplayMetrics())
+                    TypedValue.applyDimension
+                    (
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        -180,
+                        container.getContext().getResources().getDisplayMetrics())
                 );
             else
                 background.setTranslationX(0);
         }
     }
 
-    private void queue()
+    public void toggleOptionsVisibility(boolean isVisible)
     {
-        queueListener.onQueue(song.getId());
-        Toast.makeText(container.getContext(), song.getTitle() + " queued", Toast.LENGTH_SHORT).show();
-//        PlayQueue.queue(song);
-//        Snackbar.make(null, song.getTitle() + " queued", Snackbar.LENGTH_LONG).show();
-        options();
-    }
-
-    private void playNext()
-    {
-        queueListener.onPlayNext(song.getId());
-        Toast.makeText(container.getContext(), song.getTitle() + " to play next", Toast.LENGTH_SHORT).show();
-//        PlayQueue.playNext(song);
-//        Snackbar.make(null, song.getTitle() + " to play next", Snackbar.LENGTH_LONG).show();
-        options();
-    }
-
-    private void more()
-    {
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                switch(which)
-                {
-                    case 0:
-                        addTo();
-                        break;
-                    case 1:
-                        toggleOptions(true, false);
-                        adapter.songDetails(song);
-                        break;
-                    case 2:
-                        //TODO: Add action (Edit Tags)
-                        break;
-                    case 3:
-                        //TODO: Add action (Delete)
-                        delete();
-                        break;
-                }
-            }
-        };
-
-        String title = "More Options";
-        Dialoger.createDialog(container.getContext(), title, R.array.options_more_texts, listener);
-    }
-
-    private void addTo()
-    {
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                switch(which)
-                {
-                    case 0:
-                        //TODO: Add action (Playlist...)
-                        break;
-                    case 1:
-                        //TODO: Add action (New Playlist)
-                        break;
-                }
-            }
-        };
-
-        String title = "Add \"" + song.getTitle() + "\" to...";
-        Dialoger.createDialog(container.getContext(), title, R.array.options_add_to_texts, listener);
-    }
-
-    private void select()
-    {
-        if(adapter.itemIsSelected(position))
-            background.setBackgroundResource(R.color.colorPrimaryDarker);
+        if(isVisible)
+            options.setVisibility(View.VISIBLE);
         else
-            setBackgroundColor(position);
+            options.setVisibility(View.INVISIBLE);
     }
 
-    private void delete()
-    {
-        //TODO: Fix/Improve
-
-        DialogInterface.OnClickListener positiveButtonListener = new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                toggleOptions(false, false);
-                adapter.deleteItem(position);
-            }
-        };
-
-        String title = "Delete \"" + String.valueOf(song.getTitle()) + "\"?";
-
-        //TODO: Delete from storage or library only
-        String message = "Are you sure you want to delete this track?";
-
-        Dialoger.createAlertDialog(container.getContext(), title, message, positiveButtonListener);
-    }
+//    private void queue()
+//    {
+//        queueListener.onQueue(song.getId());
+//        Toast.makeText
+//        (
+//            container.getContext(),
+//            song.getTitle() + " queued",
+//            Toast.LENGTH_SHORT
+//        ).show();
+//    }
+//
+//    private void playNext()
+//    {
+//        queueListener.onPlayNext(song.getId());
+//        Toast.makeText
+//        (
+//            container.getContext(),
+//            song.getTitle() + " to play next",
+//            Toast.LENGTH_SHORT
+//        ).show();
+//    }
+//
+//    private void options()
+//    {
+//        int openedOptionsPosition = adapter.getOpenedOptionsPosition();
+//
+//        if(openedOptionsPosition != -1)
+//        {
+//            if(openedOptionsPosition >= songList.getFirstVisiblePosition() &&
+//                    openedOptionsPosition <= songList.getLastVisiblePosition())
+//                ((SongListViewHolder) songList.getChildAt
+//                        (openedOptionsPosition - songList.getFirstVisiblePosition()).getTag())
+//                        .toggleOptions(true, false);
+//        }
+//
+//        if(background.getTranslationX() == 0)
+//        {
+//            toggleOptions(true, true);
+//            adapter.setOpenedOptionsPosition(position);
+//        }
+//        else
+//        {
+//            toggleOptions(true, false);
+//            adapter.setOpenedOptionsPosition(-1);
+//        }
+//    }
+//
+//    private void more()
+//    {
+//        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which)
+//            {
+//                switch(which)
+//                {
+//                    case 0:
+//                        addTo();
+//                        break;
+//                    case 1:
+//                        toggleOptions(true, false);
+//                        adapter.songDetails(song);
+//                        break;
+//                    case 2:
+//                        //TODO: Add action (Edit Tags)
+//                        break;
+//                    case 3:
+//                        //TODO: Add action (Delete)
+//                        delete();
+//                        break;
+//                }
+//            }
+//        };
+//
+//        String title = "More Options";
+//        Dialoger.createDialog
+//        (
+//            container.getContext(),
+//            title,
+//            R.array.options_more_texts, listener
+//        );
+//    }
+//
+//    private void addTo()
+//    {
+//        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which)
+//            {
+//                switch(which)
+//                {
+//                    case 0:
+//                        //TODO: Add action (Playlist...)
+//                        break;
+//                    case 1:
+//                        //TODO: Add action (New Playlist)
+//                        break;
+//                }
+//            }
+//        };
+//
+//        String title = "Add \"" + song.getTitle() + "\" to...";
+//        Dialoger.createDialog
+//        (
+//            container.getContext(),
+//            title,
+//            R.array.options_add_to_texts,
+//            listener
+//        );
+//    }
+//
+//    private void delete()
+//    {
+//        //TODO: Fix/Improve
+//
+//        DialogInterface.OnClickListener positiveButtonListener = new DialogInterface.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which)
+//            {
+//                toggleOptions(false, false);
+//                adapter.deleteItem(position);
+//            }
+//        };
+//
+//        String title = "Delete \"" + String.valueOf(song.getTitle()) + "\"?";
+//
+//        //TODO: Delete from storage or library only
+//        String message = "Are you sure you want to delete this track?";
+//
+//        Dialoger.createAlertDialog
+//        (
+//            container.getContext(),
+//            title,
+//            message,
+//            positiveButtonListener
+//        );
+//    }
 }

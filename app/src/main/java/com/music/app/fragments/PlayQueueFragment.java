@@ -165,7 +165,7 @@ public class PlayQueueFragment extends Fragment /*implements OnStartDragListener
     public void updateAdapter()
     {
         if(playQueueAdapterOld != null)
-            playQueueAdapterOld.update(data.queue());
+            playQueueAdapterOld.update();
     }
 
     private void shuffle()

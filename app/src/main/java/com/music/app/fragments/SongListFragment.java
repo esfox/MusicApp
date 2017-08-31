@@ -212,9 +212,15 @@ public class SongListFragment extends Fragment implements View.OnClickListener
 //        ArrayList<Song> songs = Data.songs;
 
         if(sort != Sorter.SortBy.none)
-            adapter = new SongListFastScrollAdapter(getContext(), Sorter.sort(songs, sort), songList, fragmentManager, sort);
+            adapter = new SongListFastScrollAdapter
+                (
+                    getContext(),
+                    Sorter.sort(songs, sort),
+                    songList,
+                    sort
+                );
         else
-            adapter = new SongListAdapter(getContext(), songList, songs, fragmentManager, sort);
+            adapter = new SongListAdapter(getContext(), songList, songs, sort);
 
         adapter.setServiceListener(serviceListener);
         adapter.setQueueListener(queueListener);

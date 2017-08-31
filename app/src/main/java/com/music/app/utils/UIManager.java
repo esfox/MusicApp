@@ -26,15 +26,13 @@ public class UIManager
     private Context context;
     private FragmentManager fragmentManager;
 
-    public Toolbar toolbar;
-    private ImageButton playButton;
+    private Toolbar toolbar;
+    private ImageButton playButton, previousButton, nextButton;
     private NavigationView navigationDrawer;
 
-    public UIManager(Context context, Data data, Player player, QueueListener queueListener)
+    public UIManager(Context context)
     {
         this.context = context;
-
-        initUI(data,player,queueListener);
     }
 
     public FragmentManager fragmentManager()
@@ -42,7 +40,7 @@ public class UIManager
         return fragmentManager;
     }
 
-    private void initUI(Data data, Player player, QueueListener queueListener)
+    public void initUI(Data data, Player player, QueueListener queueListener)
     {
         fragmentManager = new FragmentManager(context);
         fragmentManager.nowPlayingFragment.initialize(data, player, this, queueListener);
@@ -54,8 +52,8 @@ public class UIManager
         toolbar.setSubtitle("Select a song to play.");
 
         //Initialize control buttons
-        ImageButton previousButton = (ImageButton) ((MainActivity) context).findViewById(R.id.previous_button);
-        ImageButton nextButton = (ImageButton) ((MainActivity) context).findViewById(R.id.next_button);
+        previousButton = (ImageButton) ((MainActivity) context).findViewById(R.id.previous_button);
+        nextButton = (ImageButton) ((MainActivity) context).findViewById(R.id.next_button);
         playButton = (ImageButton) ((MainActivity) context).findViewById(R.id.play_button);
 
         //Initialize Navigation Drawer
@@ -66,12 +64,21 @@ public class UIManager
         updateNavigationDrawer();
 
         //Set Click Listeners
-        ((MainActivity) context).findViewById(R.id.now_playing_bar).setOnClickListener((MainActivity) context);
-        ((MainActivity) context).findViewById(R.id.now_playing_navigation).setOnClickListener((MainActivity) context);
-        previousButton.setOnClickListener((MainActivity) context);
-        nextButton.setOnClickListener((MainActivity) context);
-        playButton.setOnClickListener((MainActivity) context);
-        playButton.setOnLongClickListener((MainActivity) context);
+    }
+
+    public void setClickListeners(View.OnClickListener onClickListener,
+                                  View.OnLongClickListener onLongClickListener)
+    {
+        ((MainActivity) context)
+                .findViewById(R.id.now_playing_bar)
+                .setOnClickListener(onClickListener);
+        ((MainActivity) context)
+                .findViewById(R.id.now_playing_navigation)
+                .setOnClickListener(onClickListener);
+        previousButton.setOnClickListener(onClickListener);
+        nextButton.setOnClickListener(onClickListener);
+        playButton.setOnClickListener(onClickListener);
+        playButton.setOnLongClickListener(onLongClickListener);
     }
 
     public void openNowPlayingBar()

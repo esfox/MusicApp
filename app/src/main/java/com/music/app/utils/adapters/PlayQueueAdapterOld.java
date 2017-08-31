@@ -14,6 +14,8 @@ import com.music.app.objects.Song;
 import com.music.app.utils.interfaces.DragListener;
 import com.music.app.views.RecyclerViewFastScroller;
 
+import java.util.ArrayList;
+
 public class PlayQueueAdapterOld
         extends RecyclerView.Adapter<PlayQueueAdapterOld.PlayQueueViewHolder>
         implements RecyclerViewFastScroller.BubbleTextGetter/*, ItemTouchListener*/
@@ -28,7 +30,10 @@ public class PlayQueueAdapterOld
         this.data = data;
 //        this.dragListener = dragListener;
 
-        songIDs = data.queue();
+        ArrayList<Long> idsList = data.queue().getQueue();;
+        songIDs = new long[idsList.size()];
+        for(int i = 0; i < songIDs.length; i++)
+            songIDs[i] = idsList.get(i);
     }
 
     private Song getSongByID(long id)
@@ -76,9 +81,12 @@ public class PlayQueueAdapterOld
                 .getTitle().charAt(0));
     }
 
-    public void update(long[] songIDs)
+    public void update()
     {
-        this.songIDs = songIDs;
+        ArrayList<Long> idsList = data.queue().getQueue();
+        songIDs = new long[idsList.size()];
+        for(int i = 0; i < songIDs.length; i++)
+            songIDs[i] = idsList.get(i);
         notifyDataSetChanged();
     }
 

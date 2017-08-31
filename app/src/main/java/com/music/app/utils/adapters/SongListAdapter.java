@@ -2,6 +2,7 @@ package com.music.app.utils.adapters;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,13 +10,16 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
+import com.music.app.utils.Dialoger;
 import com.music.app.utils.interfaces.QueueListener;
 import com.music.app.utils.interfaces.ServiceListener;
+import com.music.app.utils.interfaces.SongListViewHolderListener;
 import com.music.app.views.SongListViewHolder;
 
 import java.util.ArrayList;
@@ -23,7 +27,7 @@ import java.util.HashMap;
 
 //TODO: Extract logic from ViewHolder to here
 
-public class SongListAdapter extends BaseAdapter
+public class SongListAdapter extends BaseAdapter implements SongListViewHolderListener
 {
     private Context context;
     private ListView songList;
@@ -80,12 +84,13 @@ public class SongListAdapter extends BaseAdapter
         }
     }
 
-    public SongListAdapter(
-            Context pContext,
-            ListView listView,
-            ArrayList<Song> pSongs,
-            FragmentManager fragmentManager,
-            Sorter.SortBy pSort)
+    public SongListAdapter
+    (
+        Context pContext,
+        ListView listView,
+        ArrayList<Song> pSongs,
+        Sorter.SortBy pSort
+    )
     {
         context = pContext;
         songList = listView;
@@ -150,6 +155,11 @@ public class SongListAdapter extends BaseAdapter
         this.fragmentManager = fragmentManager;
     }
 
+    private Song getSongByIndex(int index)
+    {
+        return items.get(index).getSong();
+    }
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent)
     {
@@ -169,7 +179,7 @@ public class SongListAdapter extends BaseAdapter
                 view = inflater.inflate(R.layout.song_list_section_header, parent, false);
 
             viewHolder = new SongListViewHolder
-                    (view, songList, type, sort, serviceListener, queueListener);
+                    (view, type, sort, this);
             view.setTag(viewHolder);
 
             if(type == type_item)
@@ -182,7 +192,7 @@ public class SongListAdapter extends BaseAdapter
 
         if(type == type_item)
         {
-            viewHolder.setSong(items.get(position).getSong());
+            viewHolder.setSongDetails(items.get(position).getSong());
 
             checkIfPositionIsOpened(position, viewHolder);
             checkIfPositionIsSelected(position, viewHolder);
@@ -193,9 +203,196 @@ public class SongListAdapter extends BaseAdapter
         return view;
     }
 
-    public void songDetails(Song song)
+    @Override
+    public void onClick(int index, SongListViewHolder viewHolder)
     {
-        fragmentManager.songDetails(song);
+        Song song = getSongByIndex(index);
+        if(inMultiQueueMode)
+        {
+            queueListener.onQueue(song.getId());
+            Toast.makeText(context, song.getTitle() + " queued",
+                    Toast.LENGTH_SHORT).show();
+        }
+        else if(inSelectionMode)
+        {
+            selectItem(index);
+            viewHolder.setBackgroundColor(index, itemIsSelected(index));
+        }
+        else
+            serviceListener.onStartAudio(song, true);
+    }
+
+    @Override
+    public void onQueue(int index)
+    {
+        Song song = getSongByIndex(index);
+        queueListener.onQueue(song.getId());
+        Toast.makeText
+        (
+            context,
+            song.getTitle() + " queued",
+            Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    @Override
+    public void onPlayNext(int index)
+    {
+        Song song = getSongByIndex(index);
+        queueListener.onPlayNext(song.getId());
+        Toast.makeText
+        (
+            context,
+            song.getTitle() + " to play next",
+            Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    @Override
+    public void onOptions(int index, boolean isOpened, SongListViewHolder viewHolder)
+    {
+        int openedOptionsPosition = this.openedOptionsPosition;
+
+        if(openedOptionsPosition != -1)
+        {
+            if(openedOptionsPosition >= songList.getFirstVisiblePosition() &&
+                    openedOptionsPosition <= songList.getLastVisiblePosition())
+                ((SongListViewHolder) songList.getChildAt
+                        (openedOptionsPosition - songList.getFirstVisiblePosition()).getTag())
+                        .toggleOptions(true, false);
+        }
+
+        if(isOpened)
+        {
+            viewHolder.toggleOptions(true, true);
+            this.openedOptionsPosition = index;
+        }
+        else
+        {
+            viewHolder.toggleOptions(true, false);
+            this.openedOptionsPosition = -1;
+        }
+    }
+
+    @Override
+    public void onMoreOptions(final int index, final SongListViewHolder viewHolder)
+    {
+        final Song song = getSongByIndex(index);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+            switch(which)
+            {
+                case 0:
+                    addTo(song);
+                    break;
+                case 1:
+                    viewHolder.toggleOptions(false, false);
+                    fragmentManager.songDetails(song);
+                    break;
+                case 2:
+                    //TODO: Add action (Edit Tags)
+                    break;
+                case 3:
+                    //TODO: Add action (Delete)
+                    delete(index, song, viewHolder);
+                    break;
+            }
+            }
+        };
+
+        String title = "More Options";
+        Dialoger.createDialog
+        (
+            context,
+            title,
+            R.array.options_more_texts, listener
+        );
+    }
+
+    private void addTo(Song song)
+    {
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+            switch(which)
+            {
+                case 0:
+                    //TODO: Add action (Playlist...)
+                    break;
+                case 1:
+                    //TODO: Add action (New Playlist)
+                    break;
+            }
+            }
+        };
+
+        String title = "Add \"" + song.getTitle() + "\" to...";
+        Dialoger.createDialog
+        (
+            context,
+            title,
+            R.array.options_add_to_texts,
+            listener
+        );
+    }
+
+    private void delete(final int index, Song song, final SongListViewHolder viewHolder)
+    {
+        //TODO: Fix/Improve
+
+        DialogInterface.OnClickListener positiveButtonListener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                viewHolder.toggleOptions(false, false);
+                deleteItem(index);
+            }
+        };
+
+        String title = "Delete \"" + String.valueOf(song.getTitle()) + "\"?";
+
+        //TODO: Delete from storage or library only
+        String message = "Are you sure you want to delete this track?";
+
+        Dialoger.createAlertDialog
+                (
+                        context,
+                        title,
+                        message,
+                        positiveButtonListener
+                );
+    }
+
+    public void deleteSelectedItems()
+    {
+        //TODO: Delete from storage
+        //TODO: Deletion in other sort
+
+        ArrayList<Item> selectedItems = new ArrayList<>();
+
+        for(int i = 0; i < selectedFlags.size(); i++)
+            if(selectedFlags.get(i))
+                selectedItems.add(items.get(i));
+
+        for(int i = 0; i < selectedItems.size(); i++)
+            items.remove(selectedItems.get(i));
+
+        notifyDataSetChanged();
+
+        toggleSelectionMode(false);
+    }
+
+    private void deleteItem(int position)
+    {
+        this.openedOptionsPosition = -1;
+        songs.remove(position);
+        notifyDataSetChanged();
     }
 
     private void checkIfPositionIsOpened(int position, SongListViewHolder viewHolder)
@@ -214,24 +411,11 @@ public class SongListAdapter extends BaseAdapter
     {
         if(inSelectionMode)
         {
-            viewHolder.options.setVisibility(View.INVISIBLE);
-            if(selectedFlags.get(position))
-                viewHolder.background.setBackgroundResource(R.color.colorPrimaryDarker);
-            else
-                viewHolder.setBackgroundColor(position);
+            viewHolder.toggleOptionsVisibility(false);
+            viewHolder.setBackgroundColor(position, selectedFlags.get(position));
         }
         else
-            viewHolder.options.setVisibility(View.VISIBLE);
-    }
-
-    public int getOpenedOptionsPosition()
-    {
-        return openedOptionsPosition;
-    }
-
-    public void setOpenedOptionsPosition(int pOpenedPosition)
-    {
-        openedOptionsPosition = pOpenedPosition;
+            viewHolder.toggleOptionsVisibility(true);
     }
 
     public void toggleMultiQueueMode(boolean toggleMultiQueueMode)
@@ -280,7 +464,8 @@ public class SongListAdapter extends BaseAdapter
             for(int i = 0; i <= songList.getLastVisiblePosition() - songList.getFirstVisiblePosition(); i++)
             {
                 if(items.get(i).isItem())
-                    ((SongListViewHolder) songList.getChildAt(i).getTag()).options.setVisibility(View.INVISIBLE);
+                    ((SongListViewHolder) songList.getChildAt(i).getTag())
+                            .toggleOptionsVisibility(false);
             }
         }
         else
@@ -295,26 +480,19 @@ public class SongListAdapter extends BaseAdapter
                 for(int i = 0; i <= songList.getLastVisiblePosition() - songList.getFirstVisiblePosition(); i++)
                 {
                     SongListViewHolder viewHolder = (SongListViewHolder) songList.getChildAt(i).getTag();
-                    viewHolder.setBackgroundColor(i);
-                    viewHolder.options.setVisibility(View.VISIBLE);
+                    viewHolder.setBackgroundColor(i, false);
+                    viewHolder.toggleOptionsVisibility(true);
                 }
             }
             else
-                songList.setAdapter(new SongListFastScrollAdapter(context, songs, songList, fragmentManager, sort));
+                songList.setAdapter(new SongListFastScrollAdapter(context, songs, songList, sort));
 
             toolbar.setAlpha(0);
             toolbar.setVisibility(View.GONE);
         }
     }
 
-    public boolean inMultiQueueMode() { return inMultiQueueMode; }
-
-    public boolean inSelectionMode()
-    {
-        return inSelectionMode;
-    }
-
-    public void selectItem(int position)
+    private void selectItem(int position)
     {
         selectedFlags.set(position, !selectedFlags.get(position));
 
@@ -326,35 +504,9 @@ public class SongListAdapter extends BaseAdapter
         ((TextView) ((Toolbar) songList.getTag()).getTag()).setText(String.valueOf(selectedCount) + " items selected");
     }
 
-    public boolean itemIsSelected(int position)
+    private boolean itemIsSelected(int position)
     {
         return selectedFlags.get(position);
-    }
-
-    public void deleteSelectedItems()
-    {
-        //TODO: Delete from storage
-        //TODO: Deletion in other sort
-
-        ArrayList<Item> selectedItems = new ArrayList<>();
-
-        for(int i = 0; i < selectedFlags.size(); i++)
-            if(selectedFlags.get(i))
-                selectedItems.add(items.get(i));
-
-        for(int i = 0; i < selectedItems.size(); i++)
-            items.remove(selectedItems.get(i));
-
-        notifyDataSetChanged();
-
-        toggleSelectionMode(false);
-    }
-
-    public void deleteItem(int position)
-    {
-        setOpenedOptionsPosition(-1);
-        songs.remove(position);
-        notifyDataSetChanged();
     }
 
     ArrayList<Item> getItems()

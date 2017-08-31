@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 TODO CURRENT ACTIVITY
 
-Multi-Queue
+Transfer SongListFragment top bar to activity_main layout
 
 TODO: Remember to do these
 Modify NowPlayingFragment layout (Put album name under cover)
@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onQueue(long id)
     {
         queue.queue(id);
+        fragmentManager.playQueueFragment.updateAdapter();
     }
 
     @Override
@@ -239,12 +240,7 @@ public class MainActivity extends AppCompatActivity implements
             queue.initialize(ids);
         }
 
-        ArrayList<Long> idsList = queue.getQueue();
-        long[] ids = new long[idsList.size()];
-        for(int i = 0; i < ids.length; i++)
-            ids[i] = idsList.get(i);
-
-        data.setQueue(ids);
+        data.setQueue(queue);
 
         fragmentManager.songListFragment = new SongListFragment();
         fragmentManager.songListFragment.setSongs(songs);
@@ -354,7 +350,9 @@ public class MainActivity extends AppCompatActivity implements
             player.initialize(data, queue);
             player.setServiceListener(MainActivity.this);
 
-            uiManager = new UIManager(MainActivity.this, data, player, MainActivity.this);
+            uiManager = new UIManager(MainActivity.this);
+            uiManager.initUI(data, player, MainActivity.this);
+            uiManager.setClickListeners(MainActivity.this, MainActivity.this);
             fragmentManager = uiManager.fragmentManager();
 
             if(data.currentSongIsNotNull())

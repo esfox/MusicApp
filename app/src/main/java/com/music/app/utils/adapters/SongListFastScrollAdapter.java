@@ -21,9 +21,13 @@ public class SongListFastScrollAdapter extends SongListAdapter implements Sectio
 
     private Sorter.SortBy sort;
 
-    public SongListFastScrollAdapter(Context pContext, ArrayList<Song> pSongs, ListView pListView, FragmentManager fragmentManager, Sorter.SortBy pSort)
+    public SongListFastScrollAdapter
+            (Context pContext,
+            ArrayList<Song> pSongs,
+            ListView pListView,
+            Sorter.SortBy pSort)
     {
-        super(pContext, pListView, pSongs, fragmentManager, pSort);
+        super(pContext, pListView, pSongs, pSort);
         items = getItems();
         sort = pSort;
         manageSections();
