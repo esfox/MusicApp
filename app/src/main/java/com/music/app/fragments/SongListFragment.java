@@ -79,8 +79,6 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         //TODO: Add Swipe Actions
 
         //TODO: Add menu onClick listener
-        getView().findViewById(R.id.song_list_toolbar_sort).setOnClickListener(this);
-        getView().findViewById(R.id.song_list_toolbar_menu).setOnClickListener(this);
         getView().findViewById(R.id.selection_toolbar_close).setOnClickListener(this);
         getView().findViewById(R.id.selection_toolbar_menu).setOnClickListener(this);
 
@@ -104,14 +102,6 @@ public class SongListFragment extends Fragment implements View.OnClickListener
     {
         switch (v.getId())
         {
-            case R.id.song_list_toolbar_sort:
-                sortOptions(v);
-                break;
-
-            case R.id.song_list_toolbar_menu:
-                menu(v);
-                break;
-
             case R.id.selection_toolbar_close:
                 ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(false);
                 break;
@@ -122,7 +112,7 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    private void menu(View view)
+    public void menu(View view)
     {
         PopupMenu.OnMenuItemClickListener listener =  new PopupMenu.OnMenuItemClickListener()
         {
@@ -130,19 +120,19 @@ public class SongListFragment extends Fragment implements View.OnClickListener
             public boolean onMenuItemClick(MenuItem item)
             {
 
-                switch (item.getItemId())
-                {
-                    case R.id.multi_select:
-                        ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(true);
-                        return true;
+            switch (item.getItemId())
+            {
+                case R.id.multi_select:
+                    ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(true);
+                    return true;
 
-                    case R.id.multi_queue:
-                        ((SongListAdapter) songList.getAdapter()).toggleMultiQueueMode(true);
-                        return true;
+                case R.id.multi_queue:
+                    ((SongListAdapter) songList.getAdapter()).toggleMultiQueueMode(true);
+                    return true;
 
-                    default:
-                        return false;
-                }
+                default:
+                    return false;
+            }
             }
         };
 
@@ -171,7 +161,7 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         Menuer.createMenu(getContext(), view, R.menu.selection_menu, listener);
     }
 
-    private void sortOptions(View view)
+    public void sortOptions(View view)
     {
         //TODO: Revise and Debug
 

@@ -6,8 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="70dp"
-    android:layout_alignParentTop="true"
-    android:background="@color/background_secondary"
+    android:background="@color/background_material"
     app:elevation="0dp"
     tools:ignore="ContentDescription"
     android:orientation="vertical">
@@ -20,12 +19,10 @@
             android:id="@+id/toolbar"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_toEndOf="@+id/now_playing_navigation"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_toLeftOf="@+id/now_playing_bar_cover"
-            android:layout_toRightOf="@+id/now_playing_navigation"
             android:layout_toStartOf="@+id/now_playing_bar_cover"
-            app:contentInsetLeft="0dp"
-            app:contentInsetStart="0dp"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:subtitleTextColor="@color/text_primary"
             app:theme="@style/ToolbarStyle"
@@ -50,16 +47,6 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"/>
-
-        <ImageView
-            android:id="@+id/now_playing_navigation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackground"
-            android:layout_margin="5dp"
-            android:padding="8dp"
-            android:src="@drawable/menu_24dp"/>
 
     </RelativeLayout>
 </android.support.design.widget.AppBarLayout>

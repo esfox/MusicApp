@@ -41,7 +41,8 @@ public class FragmentManager
         activeFragment = R.id.navigation_drawer_songs;
 
         fragmentManager
-                .popBackStack("Song Details", android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                .popBackStack("Song Details",
+                        android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         fragmentManager
                 .beginTransaction()
@@ -75,8 +76,11 @@ public class FragmentManager
     {
         fragmentManager
                 .beginTransaction()
-                .setCustomAnimations(R.anim.slide_down, R.anim.slide_up,
-                        R.anim.slide_down, R.anim.slide_up)
+                .setCustomAnimations
+                    (
+                        R.anim.slide_up, R.anim.slide_down,
+                        R.anim.slide_up, R.anim.slide_down
+                    )
                 .replace(R.id.fragment_area_parent, nowPlayingFragment,
                         "Now Playing")
                 .addToBackStack(null)
@@ -89,7 +93,11 @@ public class FragmentManager
 
         fragmentManager
                 .beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left, R.anim.slide_in_right, R.anim.slide_out_right)
+                .setCustomAnimations
+                    (
+                        R.anim.slide_in_left, R.anim.slide_out_left,
+                        R.anim.slide_in_right, R.anim.slide_out_right
+                    )
                 .add(R.id.fragment_area_parent, playQueueFragment, "Play Queue")
                 .addToBackStack("Play Queue")
                 .commit();
@@ -107,7 +115,11 @@ public class FragmentManager
 
         fragmentManager
                 .beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
+                .setCustomAnimations
+                    (
+                        R.anim.fade_in, R.anim.fade_out,
+                        R.anim.fade_in, R.anim.fade_out
+                    )
                 .add(R.id.fragment_area, songDetailsFragment, "Song Details")
                 .addToBackStack("Song Details")
                 .commit();

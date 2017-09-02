@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/background_secondary"
-        app:navigationIcon="@drawable/expand_less_36dp"
+        app:navigationIcon="@drawable/expand_more_36dp"
         app:popupTheme="@style/AppTheme.PopupOverlay"
         app:theme="@style/ToolbarStyle"
         app:title="Now Playing"/>

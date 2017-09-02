@@ -73,7 +73,13 @@ public class UIManager
                 .findViewById(R.id.now_playing_bar)
                 .setOnClickListener(onClickListener);
         ((MainActivity) context)
-                .findViewById(R.id.now_playing_navigation)
+                .findViewById(R.id.toolbar_icon)
+                .setOnClickListener(onClickListener);
+        ((MainActivity) context)
+                .findViewById(R.id.toolbar_menu)
+                .setOnClickListener(onClickListener);
+        ((MainActivity) context)
+                .findViewById(R.id.toolbar_sort)
                 .setOnClickListener(onClickListener);
         previousButton.setOnClickListener(onClickListener);
         nextButton.setOnClickListener(onClickListener);

@@ -29,6 +29,7 @@ import com.music.app.utils.interfaces.ServiceListener;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 /*
@@ -273,12 +274,19 @@ public class MainActivity extends AppCompatActivity implements
                 player.next();
                 break;
 
-            case R.id.now_playing_bar:
-                uiManager.openNowPlayingBar();
+            case R.id.toolbar_icon:
+                uiManager.toggleNavigationDrawer(true);
                 break;
 
-            case R.id.now_playing_navigation:
-                uiManager.toggleNavigationDrawer(true);
+            case R.id.toolbar_menu:
+                fragmentManager.songListFragment.menu(v);
+                break;
+
+            case R.id.toolbar_sort:
+                fragmentManager.songListFragment.sortOptions(v);
+
+            case R.id.now_playing_bar:
+                uiManager.openNowPlayingBar();
                 break;
         }
     }
