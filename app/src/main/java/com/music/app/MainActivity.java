@@ -138,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onDestroy();
         stopService(serviceIntent);
         unbindService(connection);
+        player.stop();
     }
 
     //    private void temp()
@@ -362,9 +363,6 @@ public class MainActivity extends AppCompatActivity implements
             uiManager.initUI(data, player, MainActivity.this);
             uiManager.setClickListeners(MainActivity.this, MainActivity.this);
             fragmentManager = uiManager.fragmentManager();
-
-            if(data.currentSongIsNotNull())
-                uiManager.updateNowPlayingBar(data.currentSong(MainActivity.this));
         }
 
         @Override

@@ -148,6 +148,7 @@ public class Player extends Service
     {
         player.pause();
         player.seekTo(0);
+        player.release();
         serviceListener.onStopAudio();
         data.updateIsPlaying(false);
     }

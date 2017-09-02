@@ -1,13 +1,15 @@
 package com.music.app.utils;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
@@ -25,10 +27,12 @@ public class UIManager
 {
     private Context context;
     private FragmentManager fragmentManager;
+    private Player player;
 
-    private Toolbar toolbar;
     private ImageButton playButton, previousButton, nextButton;
     private NavigationView navigationDrawer;
+    private TextView title, artist, currentTime;
+    private ImageView cover;
 
     public UIManager(Context context)
     {
@@ -42,22 +46,32 @@ public class UIManager
 
     public void initUI(Data data, Player player, QueueListener queueListener)
     {
+        this.player = player;
+
         fragmentManager = new FragmentManager(context);
         fragmentManager.nowPlayingFragment.initialize(data, player, this, queueListener);
         fragmentManager.playQueueFragment.initialize(data, player, queueListener);
 
         //Initialize Now Playing Bar
-        toolbar = (Toolbar) ((MainActivity) context).findViewById(R.id.toolbar);
-        toolbar.setTitle(greetings());
-        toolbar.setSubtitle("Select a song to play.");
+        title = (TextView) ((MainActivity) context).findViewById(R.id.now_playing_bar_title);
+        artist = (TextView) ((MainActivity) context).findViewById(R.id.now_playing_bar_artist);
+        cover = (ImageView)  ((MainActivity) context).findViewById(R.id.now_playing_bar_cover);
+        currentTime = (TextView)
+                ((MainActivity) context).findViewById(R.id.now_playing_bar_current_time);
+
+        updateNowPlayingBar(data.currentSong(context));
 
         //Initialize control buttons
-        previousButton = (ImageButton) ((MainActivity) context).findViewById(R.id.previous_button);
-        nextButton = (ImageButton) ((MainActivity) context).findViewById(R.id.next_button);
-        playButton = (ImageButton) ((MainActivity) context).findViewById(R.id.play_button);
+        previousButton = (ImageButton)
+                ((MainActivity) context).findViewById(R.id.previous_button);
+        nextButton = (ImageButton)
+                ((MainActivity) context).findViewById(R.id.next_button);
+        playButton = (ImageButton)
+                ((MainActivity) context).findViewById(R.id.play_button);
 
         //Initialize Navigation Drawer
-        navigationDrawer = ((NavigationView) ((MainActivity) context).findViewById(R.id.navigation_drawer));
+        navigationDrawer = ((NavigationView)
+                ((MainActivity) context).findViewById(R.id.navigation_drawer));
         navigationDrawer.setItemIconTintList(null);
         navigationDrawer.setNavigationItemSelectedListener((MainActivity) context);
         navigationDrawer.setTag(((MainActivity) context).findViewById(R.id.drawer_layout));
@@ -95,32 +109,75 @@ public class UIManager
 
     public void updateNowPlayingBar(Song song)
     {
-        ImageView nowPlayingCover = (ImageView) ((MainActivity) context).findViewById(R.id.now_playing_bar_cover);
-
         if (song != null)
         {
-            nowPlayingCover.setVisibility(View.VISIBLE);
+            cover.setVisibility(View.VISIBLE);
 
             if(song.getCover() != null)
-                nowPlayingCover.setImageDrawable(song.getCover());
+                cover.setImageDrawable(song.getCover());
             else
             {
                 Glide.with(context)
                         .load((song.getCoverPath() != null)?
                                 new File(song.getCoverPath()) :
                                 R.drawable.library_music_48dp)
-                        .into(nowPlayingCover);
+                        .into(cover);
             }
 
-            toolbar.setTitle(song.getTitle());
-            toolbar.setSubtitle(song.getArtist());
+            title.setText(song.getTitle());
+            artist.setText(song.getArtist());
         }
         else
         {
-            nowPlayingCover.setVisibility(View.INVISIBLE);
-            toolbar.setTitle(greetings());
-            toolbar.setSubtitle("Select a song to play.");
+            cover.setVisibility(View.INVISIBLE);
+            title.setText(greetings());
+            artist.setText("Select a song to play.");
         }
+
+        timeUpdater = new Handler();
+        updateCurrentTime();
+    }
+
+    private Handler timeUpdater;
+
+    private void updateCurrentTime()
+    {
+        this.currentTime.setText(getDuration(player.getPlayer().getCurrentPosition()));
+        timeUpdater.postDelayed(timeUpdaterRunnable, 1000);
+    }
+
+    private Runnable timeUpdaterRunnable = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            updateCurrentTime();
+        }
+    };
+
+    private String getDuration(long milliseconds)
+    {
+        String duration = "";
+        String secondsString;
+
+        // Convert total duration into time
+        int hours = (int) (milliseconds / (1000 * 60 * 60));
+        int minutes = (int) (milliseconds % (1000 * 60 * 60)) / (1000 * 60);
+        int seconds = (int) ((milliseconds % (1000 * 60 * 60)) % (1000 * 60) / 1000);
+
+        // Add hours if there
+        if(hours > 0)
+            duration = hours + ":";
+
+        // Prepending 0 to seconds if it is ONE digit
+        if(seconds < 10)
+            secondsString = "0" + seconds;
+        else
+            secondsString = "" + seconds;
+
+        duration += minutes + ":" + secondsString;
+
+        return duration;
     }
 
     public void updateNowPlayingFragment(Song song)

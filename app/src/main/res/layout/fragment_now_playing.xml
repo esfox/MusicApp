@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/background_secondary"
-        app:navigationIcon="@drawable/expand_more_36dp"
+        app:navigationIcon="@drawable/expand_more_6dp"
         app:popupTheme="@style/AppTheme.PopupOverlay"
         app:theme="@style/ToolbarStyle"
         app:title="Now Playing"/>
@@ -36,23 +36,6 @@
 
         <!--TODO: Scrolling Text-->
 
-        <TextView
-            android:id="@+id/now_playing_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginStart="20dp"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
-            android:gravity="center"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="20sp"
-            android:singleLine="true"
-            tools:text="Title of the Song is so very long, it's so unrealistically not awesome to do everything is so nice."/>
-
         <!--TODO Long App Marquee-->
 
         <TextView
@@ -63,13 +46,14 @@
             android:layout_alignLeft="@+id/now_playing_title"
             android:layout_alignRight="@+id/now_playing_title"
             android:layout_alignStart="@+id/now_playing_title"
-            android:layout_below="@+id/now_playing_title"
             android:layout_marginTop="5dp"
+            android:layout_below="@+id/now_playing_title"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:singleLine="true"
             android:ellipsize="marquee"
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
-            android:gravity="center"
-            android:singleLine="true"
             tools:text="Artist of the Song"/>
 
         <android.support.v7.widget.CardView
@@ -145,6 +129,23 @@
             android:layout_alignRight="@+id/now_playing_progress_bar"
             android:layout_below="@+id/now_playing_progress_bar"
             tools:text="0:00:00"/>
+
+        <TextView
+            android:id="@+id/now_playing_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignLeft="@+id/now_playing_album"
+            android:layout_alignStart="@+id/now_playing_album"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="22sp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            tools:text="Title of the Song is so very long, it's so unrealistically not awesome to do everything is so nice."/>
+
     </RelativeLayout>
 
     <RelativeLayout

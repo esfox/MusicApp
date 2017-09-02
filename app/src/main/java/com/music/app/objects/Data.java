@@ -20,16 +20,19 @@ public class Data
 
     private ArrayList<Song> songs;
     private Queue queue;
+    private Drawable currentAlbumArt;
 
     public ArrayList<Song> songs() { return songs; }
     public void setSongs(ArrayList<Song> songs) { this.songs = songs; }
     public Queue queue() { return queue; }
     public void setQueue(Queue queue) { this.queue = queue; }
+    public Drawable currentAlbumArt() { return currentAlbumArt; }
+    public void updateCurrentAlbumArt(Drawable albumArt) { currentAlbumArt = albumArt; }
 
-    private Drawable currentAlbumArt;
 
     private final String currentSongIDKey = "currentSongID";
     private final String currentSongIsNotNullKey = "currentSongIsNotNull";
+    private final String currentTimeKey = "currentTimeKey";
     private final String currentQueueIndexKey = "currentSongQueueIndex";
     private final String isShuffledKey = "isShuffled";
     private final String repeatStateKey = "repeatState";
@@ -66,14 +69,14 @@ public class Data
         return sharedPreferences.getBoolean(currentSongIsNotNullKey, false);
     }
 
+    public String currentTime()
+    {
+        return sharedPreferences.getString(currentTimeKey, "0:00");
+    }
+
     public int currentQueueIndex()
     {
         return sharedPreferences.getInt(currentQueueIndexKey, -1);
-    }
-
-    public Drawable currentAlbumArt()
-    {
-        return currentAlbumArt;
     }
 
     public boolean isShuffled()
@@ -125,16 +128,18 @@ public class Data
         editor.apply();
     }
 
+    public void updateCurrentTime(String currentTime)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(currentTimeKey, currentTime);
+        editor.apply();
+    }
+
     public void updateCurrentQueueIndex(int index)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(currentQueueIndexKey, index);
         editor.apply();
-    }
-
-    public void updateCurrentAlbumArt(Drawable albumArt)
-    {
-        currentAlbumArt = albumArt;
     }
 
     public void updateIsShuffled(boolean isShuffled)

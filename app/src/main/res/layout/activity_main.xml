@@ -52,11 +52,10 @@
                 android:layout_above="@+id/control_buttons"
                 android:background="@drawable/toolbar_shadow_upside_down"/>
 
-            <!--Height set to 0dp temporarily-->
             <include
                 android:id="@+id/now_playing_bar_layout"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/now_playing_bar_height"
                 android:layout_alignParentBottom="true"
                 layout="@layout/now_playing_bar"/>
 
@@ -64,7 +63,7 @@
                 android:id="@+id/control_buttons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="6dp"
+                android:padding="5dp"
                 android:background="@color/background_material"
                 android:layout_above="@+id/now_playing_bar_layout"
                 android:layout_alignParentLeft="true"
@@ -72,8 +71,8 @@
 
                 <ImageButton
                     android:id="@+id/previous_button"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     android:layout_centerVertical="true"
                     android:layout_toLeftOf="@+id/play_button"
                     android:layout_toStartOf="@+id/play_button"
@@ -82,8 +81,8 @@
 
                 <ImageButton
                     android:id="@+id/play_button"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
                     android:layout_centerHorizontal="true"
                     android:layout_marginLeft="15dp"
                     android:layout_marginStart="15dp"
@@ -94,43 +93,13 @@
 
                 <ImageButton
                     android:id="@+id/next_button"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/play_button"
                     android:layout_toEndOf="@+id/play_button"
                     android:background="@drawable/fab"
                     android:src="@drawable/fast_forward_24dp"/>
-
-                <!--<android.support.design.widget.FloatingActionButton-->
-                <!--android:id="@+id/play_button"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_centerHorizontal="true"-->
-                <!--app:useCompatPadding="true"-->
-                <!--app:srcCompat="@drawable/play_36dp"/>-->
-
-                <!--<android.support.design.widget.FloatingActionButton-->
-                <!--android:id="@+id/previous_button"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_centerVertical="true"-->
-                <!--android:layout_toLeftOf="@+id/play_button"-->
-                <!--android:layout_toStartOf="@+id/play_button"-->
-                <!--app:fabSize="mini"-->
-                <!--app:useCompatPadding="true"-->
-                <!--app:srcCompat="@drawable/fast_rewind_24dp"/>-->
-
-                <!--<android.support.design.widget.FloatingActionButton-->
-                <!--android:id="@+id/next_button"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_centerVertical="true"-->
-                <!--android:layout_toEndOf="@+id/play_button"-->
-                <!--android:layout_toRightOf="@+id/play_button"-->
-                <!--app:fabSize="mini"-->
-                <!--app:useCompatPadding="true"-->
-                <!--app:srcCompat="@drawable/fast_forward_24dp"/>-->
 
             </RelativeLayout>
 

@@ -108,7 +108,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
         updater = new Handler();
 
-
         return view;
 
     }
@@ -192,8 +191,9 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     {
         if(data.currentSongIsNotNull())
         {
-            progress.setProgress(player.getPlayer().getCurrentPosition());
-            time.setText(getDuration(player.getPlayer().getCurrentPosition()));
+            int currentPosition = player.getPlayer().getCurrentPosition();
+            progress.setProgress(currentPosition);
+            time.setText(getDuration(currentPosition));
         }
         updater.postDelayed(update, 1000);
     }
@@ -211,10 +211,14 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     {
         if(song != null)
         {
-            ((TextView) getView().findViewById(R.id.now_playing_title)).setText(song.getTitle());
-            ((TextView) getView().findViewById(R.id.now_playing_artist)).setText(song.getArtist());
-            ((TextView) getView().findViewById(R.id.now_playing_album)).setText(song.getAlbum());
-            ((TextView) getView().findViewById(R.id.now_playing_end_time)).setText(song.getDuration());
+            ((TextView) getView()
+                    .findViewById(R.id.now_playing_title)).setText(song.getTitle());
+            ((TextView) getView()
+                    .findViewById(R.id.now_playing_artist)).setText(song.getArtist());
+            ((TextView) getView()
+                    .findViewById(R.id.now_playing_album)).setText(song.getAlbum());
+            ((TextView) getView()
+                    .findViewById(R.id.now_playing_end_time)).setText(song.getDuration());
 
             ImageView cover = ((ImageView) getView().findViewById(R.id.now_playing_cover));
             Drawable currentAlbumArt = data.currentAlbumArt();
@@ -318,9 +322,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
         // Add hours if there
         if(hours > 0)
-        {
             duration = hours + ":";
-        }
 
         // Prepending 0 to seconds if it is ONE digit
         if(seconds < 10)
@@ -328,7 +330,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         else
             secondsString = "" + seconds;
 
-        duration = duration + minutes + ":" + secondsString;
+        duration += minutes + ":" + secondsString;
 
         return duration;
     }
