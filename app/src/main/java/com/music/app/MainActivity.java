@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 TODO CURRENT ACTIVITY
 
-Saving player current time
+Saving and loading player current time (Change currenTime() from String to int)
 
 TODO: Remember to do these
 Modify NowPlayingFragment layout (Put album name under cover)
@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements
     {
         super.onStop();
         queue.save(this);
+        data.updateCurrentTime(player.getCurrenTimestamp());
     }
 
     @Override

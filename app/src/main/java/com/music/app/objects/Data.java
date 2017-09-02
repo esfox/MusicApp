@@ -71,7 +71,7 @@ public class Data
 
     public String currentTime()
     {
-        return sharedPreferences.getString(currentTimeKey, "0:00");
+        return sharedPreferences.getString(currentTimeKey, "-1");
     }
 
     public int currentQueueIndex()
