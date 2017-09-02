@@ -29,14 +29,13 @@ import com.music.app.utils.interfaces.ServiceListener;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 /*
 
 TODO CURRENT ACTIVITY
 
-Transfer SongListFragment top bar to activity_main layout
+Saving player current time
 
 TODO: Remember to do these
 Modify NowPlayingFragment layout (Put album name under cover)
