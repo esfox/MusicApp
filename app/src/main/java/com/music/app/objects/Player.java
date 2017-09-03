@@ -11,6 +11,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.music.app.R;
 import com.music.app.utils.interfaces.ServiceListener;
@@ -50,12 +51,35 @@ public class Player extends Service
         this.path = song.getPath();
         this.title = song.getTitle();
         this.artist = song.getArtist();
+    }
 
-        String currentTime = data.currentTime();
-        if(!currentTime.equals("") || !currentTime.equals("-1"))
+    public void resumeSong(Context context)
+    {
+        Song song = data.currentSong(context);
+        setSong(song);
+
+        try
         {
-//            player.seekTo();
+            player.reset();
+            player.setDataSource(path);
+            player.prepare();
+            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
+            {
+                @Override
+                public void onCompletion(MediaPlayer mp)
+                {
+                    onFinish();
+                }
+            });
         }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        long currentTime = data.currentTime();
+        if(currentTime != -1)
+            player.seekTo((int) currentTime);
     }
 
     @Override
@@ -90,11 +114,11 @@ public class Player extends Service
                     .setContentTitle(title)
                     .setContentText(artist)
                     .setSmallIcon(R.drawable.play_36dp)
-                    //                    .setContentIntent(pendingIntent)
+//                    .setContentIntent(pendingIntent)
                     .setOngoing(true);
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
-                builder.setPriority(Notification.PRIORITY_HIGH);
+                builder.setPriority(Notification.PRIORITY_MAX);
 
             startForeground(1, builder.build());
         }
@@ -138,6 +162,7 @@ public class Player extends Service
     public void play()
     {
         if(data.currentSongIsNotNull())
+        {
             if(!player.isPlaying())
             {
                 player.start();
@@ -148,13 +173,13 @@ public class Player extends Service
                 player.pause();
                 data.updateIsPlaying(false);
             }
+        }
     }
 
     public void stop()
     {
         player.pause();
         player.seekTo(0);
-        player.release();
         serviceListener.onStopAudio();
         data.updateIsPlaying(false);
     }
@@ -233,32 +258,5 @@ public class Player extends Service
     public MediaPlayer getPlayer()
     {
         return player;
-    }
-
-    public String getCurrenTimestamp()
-    {
-        long milliseconds = player.getCurrentPosition();
-
-        String duration = "";
-        String secondsString;
-
-        // Convert total duration into time
-        int hours = (int) (milliseconds / (1000 * 60 * 60));
-        int minutes = (int) (milliseconds % (1000 * 60 * 60)) / (1000 * 60);
-        int seconds = (int) ((milliseconds % (1000 * 60 * 60)) % (1000 * 60) / 1000);
-
-        // Add hours if there
-        if(hours > 0)
-            duration = hours + ":";
-
-        // Prepending 0 to seconds if it is ONE digit
-        if(seconds < 10)
-            secondsString = "0" + seconds;
-        else
-            secondsString = "" + seconds;
-
-        duration += minutes + ":" + secondsString;
-
-        return duration;
     }
 }

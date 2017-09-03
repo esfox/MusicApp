@@ -69,9 +69,9 @@ public class Data
         return sharedPreferences.getBoolean(currentSongIsNotNullKey, false);
     }
 
-    public String currentTime()
+    public long currentTime()
     {
-        return sharedPreferences.getString(currentTimeKey, "-1");
+        return sharedPreferences.getLong(currentTimeKey, -1);
     }
 
     public int currentQueueIndex()
@@ -128,10 +128,10 @@ public class Data
         editor.apply();
     }
 
-    public void updateCurrentTime(String currentTime)
+    public void updateCurrentTime(long currentTime)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(currentTimeKey, currentTime);
+        editor.putLong(currentTimeKey, currentTime);
         editor.apply();
     }
 

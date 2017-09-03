@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -58,7 +59,8 @@ public class UIManager
         currentTime = (TextView)
                 ((MainActivity) context).findViewById(R.id.now_playing_bar_current_time);
 
-        updateNowPlayingBar(data.currentSong(context));
+        timeUpdater = new Handler();
+        updateNowPlayingBar(data.currentSong(context), data.currentSongIsNotNull());
 
         //Initialize control buttons
         previousButton = (ImageButton)
@@ -74,9 +76,8 @@ public class UIManager
         navigationDrawer.setItemIconTintList(null);
         navigationDrawer.setNavigationItemSelectedListener((MainActivity) context);
         navigationDrawer.setTag(((MainActivity) context).findViewById(R.id.drawer_layout));
-        updateNavigationDrawer();
 
-        //Set Click Listeners
+        updateNavigationDrawer();
     }
 
     public void setClickListeners(View.OnClickListener onClickListener,
@@ -106,11 +107,12 @@ public class UIManager
 //        toggleControlButtons(false);
     }
 
-    public void updateNowPlayingBar(Song song)
+    public void updateNowPlayingBar(Song song, boolean currentSongIsNotNull)
     {
-        if (song != null)
+        if (currentSongIsNotNull)
         {
-            cover.setVisibility(View.VISIBLE);
+            if(cover.getVisibility() == View.GONE)
+                cover.setVisibility(View.VISIBLE);
 
             if(song.getCover() != null)
                 cover.setImageDrawable(song.getCover());
@@ -128,21 +130,29 @@ public class UIManager
         }
         else
         {
-            cover.setVisibility(View.INVISIBLE);
+            cover.setVisibility(View.GONE);
             title.setText(greetings());
             artist.setText("Select a song to play.");
         }
 
-        timeUpdater = new Handler();
-        updateCurrentTime();
+        updateCurrentTime(!currentSongIsNotNull);
     }
 
     private Handler timeUpdater;
 
-    private void updateCurrentTime()
+    private void updateCurrentTime(boolean isNew)
     {
-        this.currentTime.setText(player.getCurrenTimestamp());
-        timeUpdater.postDelayed(timeUpdaterRunnable, 1000);
+        if(!isNew)
+        {
+            currentTime.setText
+                    (Timestamper.getTimestamp(player.getPlayer().getCurrentPosition()));
+            timeUpdater.postDelayed(timeUpdaterRunnable, 1000);
+
+            if(currentTime.getVisibility() == View.GONE)
+                currentTime.setVisibility(View.VISIBLE);
+        }
+        else
+            currentTime.setVisibility(View.GONE);
     }
 
     private Runnable timeUpdaterRunnable = new Runnable()
@@ -150,7 +160,7 @@ public class UIManager
         @Override
         public void run()
         {
-            updateCurrentTime();
+            updateCurrentTime(false);
         }
     };
 

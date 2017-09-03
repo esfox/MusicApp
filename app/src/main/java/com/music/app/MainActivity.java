@@ -57,6 +57,31 @@ public class MainActivity extends AppCompatActivity implements
     private FragmentManager fragmentManager;
 
     private Intent serviceIntent;
+    private ServiceConnection connection = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service)
+        {
+            Player.ServiceBinder binder = (Player.ServiceBinder) service;
+            player = binder.getService();
+            player.initialize(data, queue);
+            player.setServiceListener(MainActivity.this);
+
+            if(data.currentSongIsNotNull())
+                player.resumeSong(MainActivity.this);
+
+            uiManager = new UIManager(MainActivity.this);
+            uiManager.initUI(data, player, MainActivity.this);
+            uiManager.setClickListeners(MainActivity.this, MainActivity.this);
+            fragmentManager = uiManager.fragmentManager();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name)
+        {
+
+        }
+    };
 
 //      TODO: IMPLEMENT PERMISSION REQUESTS
 //    @Override
@@ -129,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements
     {
         super.onStop();
         queue.save(this);
-        data.updateCurrentTime(player.getCurrenTimestamp());
+        data.updateCurrentTime(player.getPlayer().getCurrentPosition());
     }
 
     @Override
@@ -138,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onDestroy();
         stopService(serviceIntent);
         unbindService(connection);
-        player.stop();
     }
 
     //    private void temp()
@@ -190,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements
 
         uiManager.togglePlayButtonIcon(true);
         uiManager.updateNowPlayingFragment(song);
-        uiManager.updateNowPlayingBar(song);
+        uiManager.updateNowPlayingBar(song, true);
         uiManager.updatePlayQueueFragmentNowPlaying(song);
         uiManager.updatePlayQueueAdapter();
 
@@ -348,29 +372,6 @@ public class MainActivity extends AppCompatActivity implements
 //            ((FloatingActionButton) controlButtons.findViewById(R.id.next_button)).show();
 //        }
     }
-
-    private ServiceConnection connection = new ServiceConnection()
-    {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service)
-        {
-            Player.ServiceBinder binder = (Player.ServiceBinder) service;
-            player = binder.getService();
-            player.initialize(data, queue);
-            player.setServiceListener(MainActivity.this);
-
-            uiManager = new UIManager(MainActivity.this);
-            uiManager.initUI(data, player, MainActivity.this);
-            uiManager.setClickListeners(MainActivity.this, MainActivity.this);
-            fragmentManager = uiManager.fragmentManager();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name)
-        {
-
-        }
-    };
 
     private class CurrentAlbumArtScanner extends AsyncTask<Void, Void, Void>
     {

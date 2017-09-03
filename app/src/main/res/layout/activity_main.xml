@@ -49,15 +49,26 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="10dp"
-                android:layout_above="@+id/now_playing_bar_with_controls"
+                android:layout_above="@+id/now_playing_bar"
                 android:background="@drawable/toolbar_shadow_upside_down"/>
 
+            <!--<View-->
+                <!--android:id="@+id/now_playing_bar"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentLeft="true"-->
+                <!--android:layout_alignParentStart="true"-->
+                <!--android:layout_alignTop="@+id/now_playing_bar"-->
+                <!--android:focusable="true"/>-->
+
             <LinearLayout
-                android:id="@+id/now_playing_bar_with_controls"
+                android:id="@+id/now_playing_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true">
 
                 <include
                     android:layout_width="match_parent"
@@ -71,18 +82,6 @@
                     layout="@layout/now_playing_bar"/>
 
             </LinearLayout>
-
-            <View
-                android:id="@+id/now_playing_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:layout_alignTop="@+id/now_playing_bar_with_controls"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"/>
-
         </RelativeLayout>
     </android.support.design.widget.CoordinatorLayout>
 

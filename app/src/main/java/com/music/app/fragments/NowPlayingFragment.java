@@ -23,6 +23,7 @@ import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
+import com.music.app.utils.Timestamper;
 import com.music.app.utils.UIManager;
 import com.music.app.utils.interfaces.QueueListener;
 
@@ -151,6 +152,8 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                     Log.d("Duration", String.valueOf(mediaPlayer.getDuration()));
                     Log.d("Progress", String.valueOf(progress));
 
+                    updater.removeCallbacks(update);
+
                     if(progress >= mediaPlayer.getDuration())
                         mediaPlayer.seekTo(mediaPlayer.getDuration());
                     else
@@ -172,18 +175,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             }
         });
 
-        int currentPosition = 0;
-        try
-        {
-            currentPosition = mediaPlayer.getCurrentPosition();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        progress.setProgress(currentPosition);
-
         updateProgress();
     }
 
@@ -191,13 +182,26 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     {
         if(data.currentSongIsNotNull())
         {
-            progress.setProgress(player.getPlayer().getCurrentPosition());
-            time.setText(player.getCurrenTimestamp());
+            if(!player.getPlayer().isPlaying())
+            {
+                long currentTime = data.currentTime();
+                int currentPosition = (currentTime != -1) ? (int) currentTime : 0;
+
+                progress.setProgress(currentPosition);
+                time.setText(Timestamper.getTimestamp(currentPosition));
+
+            }
+            else
+            {
+                progress.setProgress(player.getPlayer().getCurrentPosition());
+                time.setText
+                        (Timestamper.getTimestamp(player.getPlayer().getCurrentPosition()));
+            }
         }
         updater.postDelayed(update, 1000);
     }
 
-    Runnable update = new Runnable()
+    private Runnable update = new Runnable()
     {
         @Override
         public void run()

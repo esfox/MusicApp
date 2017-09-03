@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
@@ -43,9 +44,7 @@ public class AudioFileScanner
         if(!data.stored())
             new BackgroundScanner().execute();
         else
-        {
             new BackgroundQuery().execute();
-        }
     }
 
     /*
@@ -339,9 +338,15 @@ public class AudioFileScanner
             store();
             return null;
         }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
+            Log.d("Database", "Stored");
+        }
     }
 
-    @SuppressLint("StaticFieldLeak")
     private class BackgroundQuery extends AsyncTask<Void, Void, Void>
     {
         SongDatabaseHelper sd;
