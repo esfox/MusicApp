@@ -11,16 +11,6 @@
     tools:showIn="@layout/now_playing_bar">
 
     <ImageButton
-        android:id="@+id/previous_button"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/play_button"
-        android:layout_toStartOf="@+id/play_button"
-        android:background="@drawable/fab"
-        android:src="@drawable/fast_rewind_24dp"/>
-
-    <ImageButton
         android:id="@+id/play_button"
         android:layout_width="42dp"
         android:layout_height="42dp"
@@ -33,13 +23,47 @@
         android:src="@drawable/play_24dp"/>
 
     <ImageButton
+        android:id="@+id/previous_button"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/play_button"
+        android:layout_toStartOf="@+id/play_button"
+        android:background="@drawable/fab"
+        android:src="@drawable/previous_24dp"/>
+
+    <ImageButton
         android:id="@+id/next_button"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/play_button"
         android:layout_toEndOf="@+id/play_button"
         android:background="@drawable/fab"
+        android:src="@drawable/next_24dp"/>
+
+    <ImageButton
+        android:id="@+id/scrub_backward_button"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/previous_button"
+        android:layout_toStartOf="@+id/previous_button"
+        android:layout_marginRight="7dp"
+        android:layout_marginEnd="7dp"
+        android:background="?attr/selectableItemBackground"
+        android:src="@drawable/fast_rewind_24dp"/>
+
+    <ImageButton
+        android:id="@+id/scrub_forward_button"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/next_button"
+        android:layout_toEndOf="@+id/next_button"
+        android:layout_marginLeft="7dp"
+        android:layout_marginStart="7dp"
+        android:background="?attr/selectableItemBackground"
         android:src="@drawable/fast_forward_24dp"/>
 
     <!--TODO: Implement action (Could be more options for current song)-->

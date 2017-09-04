@@ -11,6 +11,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.music.app.R;
 import com.music.app.utils.interfaces.ServiceListener;
@@ -173,6 +174,11 @@ public class Player extends Service
         data.updateIsPlaying(false);
     }
 
+    public void next()
+    {
+        change(true, true);
+    }
+
     public boolean previous()
     {
         if(player.getCurrentPosition() > 3000)
@@ -187,9 +193,14 @@ public class Player extends Service
         }
     }
 
-    public void next()
+    public void scrub(boolean forward)
     {
-        change(true, true);
+        int scrubAmount = (forward)? data.scrubAmount() : -data.scrubAmount();
+        int scrubTo = player.getCurrentPosition() + (scrubAmount * 1000);
+        if(scrubTo < 0)
+            scrubTo = 0;
+
+        player.seekTo(scrubTo);
     }
 
     private void change(boolean next, boolean fromUser)

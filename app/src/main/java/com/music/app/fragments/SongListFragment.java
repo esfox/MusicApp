@@ -2,6 +2,7 @@ package com.music.app.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -28,6 +29,8 @@ public class SongListFragment extends Fragment implements View.OnClickListener
     private ListView songList;
     private Sorter.SortBy sort;
     private ArrayList<Song> songs;
+
+    private FloatingActionButton done;
 
     private FragmentManager fragmentManager;
 
@@ -79,11 +82,14 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         //TODO: Add Swipe Actions
 
         //TODO: Add menu onClick listener
+        done = (FloatingActionButton) getView().findViewById(R.id.song_list_done);
+        done.hide();
+        done.setOnClickListener(this);
         getView().findViewById(R.id.selection_toolbar_close).setOnClickListener(this);
         getView().findViewById(R.id.selection_toolbar_menu).setOnClickListener(this);
 
         //TODO: Adapter toggle selection mode OFF on close button click
-        Toolbar toolbar = (Toolbar) getView().findViewById(R.id.songlist_toolbar);
+        Toolbar toolbar = (Toolbar) getView().findViewById(R.id.song_list_toolbar);
         toolbar.setTag(getView().findViewById(R.id.selection_toolbar_title));
         songList.setTag(toolbar);
     }
@@ -104,10 +110,18 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         {
             case R.id.selection_toolbar_close:
                 ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(false);
+                ((SongListAdapter) songList.getAdapter()).toggleMultiQueueMode(false);
+                done.hide();
                 break;
 
             case R.id.selection_toolbar_menu:
                 selectionMenu(v);
+                break;
+
+            case R.id.song_list_done:
+                ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(false);
+                ((SongListAdapter) songList.getAdapter()).toggleMultiQueueMode(false);
+                done.hide();
                 break;
         }
     }
@@ -128,6 +142,8 @@ public class SongListFragment extends Fragment implements View.OnClickListener
 
                 case R.id.multi_queue:
                     ((SongListAdapter) songList.getAdapter()).toggleMultiQueueMode(true);
+
+                    done.show();
                     return true;
 
                 default:

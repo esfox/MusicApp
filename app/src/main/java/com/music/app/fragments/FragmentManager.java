@@ -25,6 +25,7 @@ public class FragmentManager
     {
         fragmentManager = ((MainActivity) context).getSupportFragmentManager();
 
+        songListFragment = new SongListFragment();
         nowPlayingFragment = new NowPlayingFragment();
         playQueueFragment = new PlayQueueFragment();
         playlistsFragment = new PlaylistsFragment();
@@ -98,7 +99,7 @@ public class FragmentManager
                         R.anim.slide_in_left, R.anim.slide_out_left,
                         R.anim.slide_in_right, R.anim.slide_out_right
                     )
-                .add(R.id.fragment_area_parent, playQueueFragment, "Play Queue")
+                .replace(R.id.fragment_area_parent, playQueueFragment, "Play Queue")
                 .addToBackStack("Play Queue")
                 .commit();
     }

@@ -29,16 +29,16 @@ public class Data
     public Drawable currentAlbumArt() { return currentAlbumArt; }
     public void updateCurrentAlbumArt(Drawable albumArt) { currentAlbumArt = albumArt; }
 
-
     private final String currentSongIDKey = "currentSongID";
     private final String currentSongIsNotNullKey = "currentSongIsNotNull";
     private final String currentTimeKey = "currentTimeKey";
     private final String currentQueueIndexKey = "currentSongQueueIndex";
+    private final String isPlayingKey = "isPlaying";
     private final String isShuffledKey = "isShuffled";
     private final String repeatStateKey = "repeatState";
-    private final String isPlayingKey = "isPlaying";
-    private final String storedKey = "stored";
+    private final String scrubAmountKey = "scrubAmount";
     private final String queueIsSavedKey = "queueIsSaved";
+    private final String storedKey = "stored";
 
     @SuppressWarnings("WeakerAccess")
     public enum RepeatState
@@ -79,6 +79,12 @@ public class Data
         return sharedPreferences.getInt(currentQueueIndexKey, -1);
     }
 
+    public boolean isPlaying()
+    {
+        return sharedPreferences
+                .getBoolean(isPlayingKey, false);
+    }
+
     public boolean isShuffled()
     {
         return sharedPreferences
@@ -96,22 +102,21 @@ public class Data
             return RepeatState.OFF;
     }
 
-    public boolean isPlaying()
+    public int scrubAmount()
     {
-        return sharedPreferences
-                .getBoolean(isPlayingKey, false);
-    }
-
-    public boolean stored()
-    {
-        return sharedPreferences
-                .getBoolean(storedKey, false);
+        return sharedPreferences.getInt(scrubAmountKey, 5000);
     }
 
     public boolean queueIsSaved()
     {
         return sharedPreferences
                 .getBoolean(queueIsSavedKey, false);
+    }
+
+    public boolean stored()
+    {
+        return sharedPreferences
+                .getBoolean(storedKey, false);
     }
 
     public void updateCurrentSong(long id)
@@ -142,17 +147,17 @@ public class Data
         editor.apply();
     }
 
-    public void updateIsShuffled(boolean isShuffled)
-    {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(isShuffledKey, isShuffled);
-        editor.apply();
-    }
-
     public void updateIsPlaying(boolean isPlaying)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(isPlayingKey, isPlaying);
+        editor.apply();
+    }
+
+    public void updateIsShuffled(boolean isShuffled)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(isShuffledKey, isShuffled);
         editor.apply();
     }
 
@@ -181,10 +186,10 @@ public class Data
         editor.apply();
     }
 
-    public void updateStored(boolean stored)
+    public void updateScrubAmount(int amount)
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(storedKey, stored);
+        editor.putInt(scrubAmountKey, amount);
         editor.apply();
     }
 
@@ -192,6 +197,13 @@ public class Data
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(queueIsSavedKey, queueIsSaved);
+        editor.apply();
+    }
+
+    public void updateStored(boolean stored)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(storedKey, stored);
         editor.apply();
     }
 }

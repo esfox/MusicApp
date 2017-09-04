@@ -7,6 +7,8 @@
                 tools:context=".fragments.NowPlayingFragment"
                 tools:ignore="ContentDescription,Deprecated">
 
+    <!--TODO: Redesign-->
+
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,12 +33,30 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/now_playing_controls"
         android:layout_below="@+id/header"
         android:layout_marginTop="20dp">
 
         <!--TODO: Scrolling Text-->
 
         <!--TODO Long App Marquee-->
+        <TextView
+            android:id="@+id/now_playing_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginStart="20dp"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="22sp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            tools:text="Title of the Song is so very long, it's so unrealistically not awesome to do everything is so nice."/>
 
         <TextView
             android:id="@+id/now_playing_artist"
@@ -127,29 +147,13 @@
             android:layout_marginBottom="5dp"
             android:layout_alignEnd="@+id/now_playing_progress_bar"
             android:layout_alignRight="@+id/now_playing_progress_bar"
-            android:layout_below="@+id/now_playing_progress_bar"
+            android:layout_alignTop="@+id/now_playing_start_time"
             tools:text="0:00:00"/>
-
-        <TextView
-            android:id="@+id/now_playing_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignLeft="@+id/now_playing_album"
-            android:layout_alignStart="@+id/now_playing_album"
-            android:gravity="center"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
-            tools:text="Title of the Song is so very long, it's so unrealistically not awesome to do everything is so nice."/>
 
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/now_playing_bar"
+        android:id="@+id/now_playing_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">

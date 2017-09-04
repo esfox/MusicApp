@@ -1,5 +1,6 @@
 package com.music.app;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +17,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
-import com.music.app.fragments.SongListFragment;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Queue;
@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 
 TODO CURRENT ACTIVITY
 
-Fixing Now Playing Bar touch feedback (Selectable Item Background)
+Remove SongListAdapter casting on SongListFragment
 
 TODO: Remember to do these
 Modify NowPlayingFragment layout (Put album name under cover)
@@ -69,7 +69,14 @@ public class MainActivity extends AppCompatActivity implements
             player.setServiceListener(MainActivity.this);
 
             uiManager = new UIManager(MainActivity.this);
-            uiManager.initUI(data, player, MainActivity.this);
+            uiManager.initUI
+                    (
+                        MainActivity.this,
+                        data,
+                        player,
+                        MainActivity.this,
+                        MainActivity.this
+                    );
             uiManager.setClickListeners(MainActivity.this, MainActivity.this);
             fragmentManager = uiManager.fragmentManager();
 
@@ -87,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
-//      TODO: IMPLEMENT PERMISSION REQUESTS
+    //      TODO: IMPLEMENT PERMISSION REQUESTS
 //    @Override
 //    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
 //    {
@@ -170,44 +177,44 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     //    private void temp()
-//    {
-//        TempSongs tempSong = new TempSongs();
-//        ArrayList<TempSongs.TempSong> tempsongs = tempSong.getSongs();
-//
-//        ArrayList<Song> queue = new ArrayList<>();
-//
-//        for(int i = 1; i <= tempsongs.size(); i++)
-//        {
-//            String n = String.valueOf(i);
-//
-//            Song s = new Song();
-////            s.setTitle(letters[i - 1] + " Song " + n);
-////            s.setArtist("Artist " + n);
-////            s.setAlbum("Album " + n);
-//            s.setTitle(tempsongs.get(i - 1).getTitle());
-//            s.setArtist(tempsongs.get(i - 1).getArtist());
-//            s.setAlbum(tempsongs.get(i - 1).getAlbum());
-//
-//            s.setUUID(UUID.randomUUID().toString());
-//            s.setId((long) i);
-//            s.setPath("Path " + n);
-//            s.setFilename("song" + n + ".mp3");
-//            s.setAlbumArtist("Album Artist " + n);
-//            s.setReleaseYear(String.valueOf(2000 + i));
-//            s.setGenre("Genre " + n);
-//            s.setDuration(n);
-//            s.setAlbumID((long) 10000 + i);
-//            queue.add(s);
-//        }
-//
-//        songListFragment = new SongListFragment();
-//        songListFragment.initialize(queue);
-//        fragmentManager.beginTransaction()
-//                .add(R.id.fragment_area, songListFragment, "Song List")
-//                .commit();
-//
-//        new PlayQueue(queue);
-//    }
+    //    {
+    //        TempSongs tempSong = new TempSongs();
+    //        ArrayList<TempSongs.TempSong> tempsongs = tempSong.getSongs();
+    //
+    //        ArrayList<Song> queue = new ArrayList<>();
+    //
+    //        for(int i = 1; i <= tempsongs.size(); i++)
+    //        {
+    //            String n = String.valueOf(i);
+    //
+    //            Song s = new Song();
+    ////            s.setTitle(letters[i - 1] + " Song " + n);
+    ////            s.setArtist("Artist " + n);
+    ////            s.setAlbum("Album " + n);
+    //            s.setTitle(tempsongs.get(i - 1).getTitle());
+    //            s.setArtist(tempsongs.get(i - 1).getArtist());
+    //            s.setAlbum(tempsongs.get(i - 1).getAlbum());
+    //
+    //            s.setUUID(UUID.randomUUID().toString());
+    //            s.setId((long) i);
+    //            s.setPath("Path " + n);
+    //            s.setFilename("song" + n + ".mp3");
+    //            s.setAlbumArtist("Album Artist " + n);
+    //            s.setReleaseYear(String.valueOf(2000 + i));
+    //            s.setGenre("Genre " + n);
+    //            s.setDuration(n);
+    //            s.setAlbumID((long) 10000 + i);
+    //            queue.add(s);
+    //        }
+    //
+    //        songListFragment = new SongListFragment();
+    //        songListFragment.initialize(queue);
+    //        fragmentManager.beginTransaction()
+    //                .add(R.id.fragment_area, songListFragment, "Song List")
+    //                .commit();
+    //
+    //        new PlayQueue(queue);
+    //    }
 
     @Override
     public void onStartAudio(Song song, boolean newSong, boolean resume)
@@ -220,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements
 
         uiManager.togglePlayButtonIcon(!resume);
         uiManager.updateNowPlayingFragment(song);
-        uiManager.updateNowPlayingBar(song, true);
+        uiManager.updateNowPlayingBar(this, song, true);
         uiManager.updatePlayQueueFragmentNowPlaying(song);
         uiManager.updatePlayQueueAdapter();
 
@@ -231,8 +238,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onStopAudio()
     {
-        stopService(serviceIntent);
-        player.stopForeground(true);
+//        stopService(serviceIntent);
+//        player.stopForeground(true);
         uiManager.togglePlayButtonIcon(false);
     }
 
@@ -274,7 +281,6 @@ public class MainActivity extends AppCompatActivity implements
 
         data.setQueue(queue);
 
-        fragmentManager.songListFragment = new SongListFragment();
         fragmentManager.songListFragment.setSongs(songs);
         fragmentManager.songListFragment.initialize(this, this, fragmentManager);
         fragmentManager.songList();
@@ -297,12 +303,24 @@ public class MainActivity extends AppCompatActivity implements
                 uiManager.togglePlayButtonIcon(data.isPlaying());
                 break;
 
-            case R.id.previous_button:
-                player.previous();
-                break;
-
             case R.id.next_button:
                 player.next();
+                uiManager.updateCurrentTime(false);
+                break;
+
+            case R.id.previous_button:
+                player.previous();
+                uiManager.updateCurrentTime(false);
+                break;
+
+            case R.id.scrub_forward_button:
+                player.scrub(true);
+                uiManager.updateCurrentTime(false);
+                break;
+
+            case R.id.scrub_backward_button:
+                player.scrub(false);
+                uiManager.updateCurrentTime(false);
                 break;
 
             case R.id.play_queue_button:
@@ -330,11 +348,22 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public boolean onLongClick(View v)
     {
-        player.stop();
-        onStopAudio();
+        switch(v.getId())
+        {
+            case R.id.play_button:
+                player.stop();
+                break;
+
+            //TODO: Change setting scrub amount
+            case R.id.scrub_forward_button:
+            case R.id.scrub_backward_button:
+                uiManager.setScrubAmount(this, data);
+                break;
+        }
         return true;
     }
 

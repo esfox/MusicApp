@@ -128,85 +128,8 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     public void onResume()
     {
         super.onResume();
-        togglePlayButtonIcon(data.isPlaying());
+        togglePlayButtonIcon();
     }
-
-    private void initProgress()
-    {
-        //TODO: Better progressbar performance
-
-        final MediaPlayer mediaPlayer = player.getPlayer();
-
-        progress = (SeekBar) getView().findViewById(R.id.now_playing_progress_bar);
-        time = (TextView) getView().findViewById(R.id.now_playing_start_time);
-
-        progress.setPadding(0,0,0,0);
-        progress.setMax(mediaPlayer.getDuration());
-        progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-        {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
-                if(fromUser)
-                {
-                    Log.d("Duration", String.valueOf(mediaPlayer.getDuration()));
-                    Log.d("Progress", String.valueOf(progress));
-
-                    if(progress >= mediaPlayer.getDuration())
-                        mediaPlayer.seekTo(mediaPlayer.getDuration());
-                    else
-                        mediaPlayer.seekTo(progress);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar)
-            {
-                player.play();
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
-                player.play();
-                updateProgress();
-            }
-        });
-
-        updateProgress();
-    }
-
-    private void updateProgress()
-    {
-        if(data.currentSongIsNotNull())
-        {
-            if(!player.getPlayer().isPlaying())
-            {
-                long currentTime = data.currentTime();
-                int currentPosition = (currentTime != -1) ? (int) currentTime : 0;
-
-                progress.setProgress(currentPosition);
-                time.setText(Timestamper.getTimestamp(currentPosition));
-
-            }
-            else
-            {
-                progress.setProgress(player.getPlayer().getCurrentPosition());
-                time.setText
-                        (Timestamper.getTimestamp(player.getPlayer().getCurrentPosition()));
-            }
-        }
-        updater.postDelayed(update, 1000);
-    }
-
-    private Runnable update = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            updateProgress();
-        }
-    };
 
     public void update(Song song, boolean updateProgress)
     {
@@ -226,19 +149,90 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             if(currentAlbumArt != null)
                 cover.setImageDrawable(currentAlbumArt);
             else Glide.with(getContext())
-                      .load((song.getCoverPath() != null)?
-                              new File(song.getCoverPath()) :
-                              R.drawable.library_music_48dp)
-                      .into(cover);
+                    .load((song.getCoverPath() != null)?
+                            new File(song.getCoverPath()) :
+                            R.drawable.library_music_48dp)
+                    .into(cover);
 
             if(updateProgress)
-            {
-                progress.setMax(player.getPlayer().getDuration());
-                updater.removeCallbacks(this.update);
-                updateProgress();
-            }
+                resetProgress();
         }
     }
+
+    private void initProgress()
+    {
+        //TODO: Better progressbar performance
+
+        final MediaPlayer mediaPlayer = player.getPlayer();
+
+        progress = (SeekBar) getView().findViewById(R.id.now_playing_progress_bar);
+        time = (TextView) getView().findViewById(R.id.now_playing_start_time);
+
+        progress.setPadding(0,0,0,0);
+        progress.setProgress(0);
+        progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+        {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
+                if(fromUser)
+                {
+                    Log.d("Duration", String.valueOf(mediaPlayer.getDuration()));
+                    Log.d("Progress", String.valueOf(progress));
+
+
+                    if(progress >= mediaPlayer.getDuration())
+                        mediaPlayer.seekTo(mediaPlayer.getDuration());
+                    else
+                        mediaPlayer.seekTo(progress);
+
+                    updateProgress();
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar)
+            {
+                player.play();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar)
+            {
+                player.play();
+                updateProgress();
+            }
+        });
+    }
+
+    private void updateProgress()
+    {
+        if(data.currentSongIsNotNull())
+        {
+            int currentTime = player.getPlayer().getCurrentPosition();
+            progress.setProgress(currentTime);
+            time.setText(Timestamper.getTimestamp(currentTime));
+        }
+        updater.postDelayed(update, 100);
+    }
+
+    private void resetProgress()
+    {
+        progress.setMax(player.getPlayer().getDuration());
+        progress.setProgress(0);
+        time.setText(Timestamper.getTimestamp(0));
+        updater.removeCallbacks(update);
+        updateProgress();
+    }
+
+    private Runnable update = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            updateProgress();
+        }
+    };
 
     @Override
     public void onClick(View v)
@@ -247,16 +241,18 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         {
             case R.id.now_playing_play:
                 player.play();
-                togglePlayButtonIcon(data.isPlaying());
+                togglePlayButtonIcon();
                 uiManager.togglePlayButtonIcon(data.isPlaying());
                 break;
 
             case R.id.now_playing_next:
                 player.next();
+                resetProgress();
                 break;
 
             case R.id.now_playing_previous:
                 player.previous();
+                resetProgress();
                 break;
 
             case R.id.now_playing_shuffle:
@@ -303,9 +299,9 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    public void togglePlayButtonIcon(boolean isPlaying)
+    public void togglePlayButtonIcon()
     {
-        if(isPlaying)
+        if(data.isPlaying())
             play.setImageResource(R.drawable.pause_36dp);
         else
             play.setImageResource(R.drawable.play_36dp);

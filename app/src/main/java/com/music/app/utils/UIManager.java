@@ -1,17 +1,20 @@
 package com.music.app.utils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.objects.Data;
@@ -24,18 +27,18 @@ import java.util.Calendar;
 
 public class UIManager
 {
-    private Context context;
+    private Activity views;
     private FragmentManager fragmentManager;
     private Player player;
 
-    private ImageButton playButton, previousButton, nextButton;
+    private ImageButton playButton;
     private NavigationView navigationDrawer;
     private TextView title, artist, currentTime;
     private ImageView cover;
 
-    public UIManager(Context context)
+    public UIManager(Activity activity)
     {
-        this.context = context;
+        views = activity;
     }
 
     public FragmentManager fragmentManager()
@@ -43,7 +46,12 @@ public class UIManager
         return fragmentManager;
     }
 
-    public void initUI(Data data, Player player, QueueListener queueListener)
+    public void initUI(
+            Context context,
+            Data data,
+            Player player,
+            NavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener,
+            QueueListener queueListener)
     {
         this.player = player;
 
@@ -52,29 +60,24 @@ public class UIManager
         fragmentManager.playQueueFragment.initialize(data, player, queueListener);
 
         //Initialize Now Playing Bar
-        title = (TextView) ((MainActivity) context).findViewById(R.id.now_playing_bar_title);
-        artist = (TextView) ((MainActivity) context).findViewById(R.id.now_playing_bar_artist);
-        cover = (ImageView)  ((MainActivity) context).findViewById(R.id.now_playing_bar_cover);
+        title = (TextView) views.findViewById(R.id.now_playing_bar_title);
+        artist = (TextView) views.findViewById(R.id.now_playing_bar_artist);
+        cover = (ImageView)  views.findViewById(R.id.now_playing_bar_cover);
         currentTime = (TextView)
-                ((MainActivity) context).findViewById(R.id.now_playing_bar_current_time);
+                views.findViewById(R.id.now_playing_bar_current_time);
 
         timeUpdater = new Handler();
-        updateNowPlayingBar(data.currentSong(context), data.currentSongIsNotNull());
+        updateNowPlayingBar(context, data.currentSong(context), data.currentSongIsNotNull());
 
-        //Initialize control buttons
-        previousButton = (ImageButton)
-                ((MainActivity) context).findViewById(R.id.previous_button);
-        nextButton = (ImageButton)
-                ((MainActivity) context).findViewById(R.id.next_button);
         playButton = (ImageButton)
-                ((MainActivity) context).findViewById(R.id.play_button);
+                views.findViewById(R.id.play_button);
 
         //Initialize Navigation Drawer
         navigationDrawer = ((NavigationView)
-                ((MainActivity) context).findViewById(R.id.navigation_drawer));
+                views.findViewById(R.id.navigation_drawer));
         navigationDrawer.setItemIconTintList(null);
-        navigationDrawer.setNavigationItemSelectedListener((MainActivity) context);
-        navigationDrawer.setTag(((MainActivity) context).findViewById(R.id.drawer_layout));
+        navigationDrawer.setNavigationItemSelectedListener(navigationItemSelectedListener);
+        navigationDrawer.setTag(views.findViewById(R.id.drawer_layout));
 
         updateNavigationDrawer();
     }
@@ -82,28 +85,25 @@ public class UIManager
     public void setClickListeners(View.OnClickListener onClickListener,
                                   View.OnLongClickListener onLongClickListener)
     {
-        ((MainActivity) context)
-                .findViewById(R.id.now_playing_bar)
-                .setOnClickListener(onClickListener);
-        ((MainActivity) context)
-                .findViewById(R.id.toolbar_icon)
-                .setOnClickListener(onClickListener);
-        ((MainActivity) context)
-                .findViewById(R.id.toolbar_menu)
-                .setOnClickListener(onClickListener);
-        ((MainActivity) context)
-                .findViewById(R.id.toolbar_sort)
-                .setOnClickListener(onClickListener);
-        previousButton.setOnClickListener(onClickListener);
-        nextButton.setOnClickListener(onClickListener);
         playButton.setOnClickListener(onClickListener);
         playButton.setOnLongClickListener(onLongClickListener);
-        ((MainActivity) context)
-                .findViewById(R.id.play_queue_button)
-                .setOnClickListener(onClickListener);
-        ((MainActivity) context)
-                .findViewById(R.id.no_action_yet)
-                .setOnClickListener(onClickListener);
+        views.findViewById(R.id.next_button).setOnClickListener(onClickListener);
+        views.findViewById(R.id.previous_button).setOnClickListener(onClickListener);
+
+        View scrubForward = views.findViewById(R.id.scrub_forward_button);
+        View scrubBackward = views.findViewById(R.id.scrub_backward_button);
+        scrubForward.setOnClickListener(onClickListener);
+        scrubForward.setOnLongClickListener(onLongClickListener);
+        scrubBackward.setOnClickListener(onClickListener);
+        scrubBackward.setOnLongClickListener(onLongClickListener);
+
+        views.findViewById(R.id.toolbar_icon).setOnClickListener(onClickListener);
+        views.findViewById(R.id.toolbar_menu).setOnClickListener(onClickListener);
+        views.findViewById(R.id.toolbar_sort).setOnClickListener(onClickListener);
+
+        views.findViewById(R.id.now_playing_bar).setOnClickListener(onClickListener);
+        views.findViewById(R.id.play_queue_button).setOnClickListener(onClickListener);
+        views.findViewById(R.id.no_action_yet).setOnClickListener(onClickListener);
     }
 
     public void openNowPlayingBar()
@@ -112,7 +112,7 @@ public class UIManager
 //        toggleControlButtons(false);
     }
 
-    public void updateNowPlayingBar(Song song, boolean currentSongIsNotNull)
+    public void updateNowPlayingBar(Context context, Song song, boolean currentSongIsNotNull)
     {
         if (currentSongIsNotNull)
         {
@@ -150,7 +150,7 @@ public class UIManager
         currentTime.setText(Timestamper.getTimestamp(time));
     }
 
-    private void updateCurrentTime(boolean isNew)
+    public void updateCurrentTime(boolean isNew)
     {
         if(!isNew)
         {
@@ -210,31 +210,39 @@ public class UIManager
         navigationDrawer.getMenu().findItem(fragmentManager.activeFragment).setChecked(true);
     }
 
-//    public void toggleControlButtons(boolean toggle)
-//    {
-//        if(toggle)
-//        {
-//            playButton.show();
-//            previousButton.show();
-//            nextButton.show();
-//        }
-//        else
-//        {
-//            playButton.hide();
-//            previousButton.hide();
-//            nextButton.hide();
-//        }
-//    }
-
     public void togglePlayButtonIcon(boolean isPlaying)
     {
         if(fragmentManager.nowPlayingFragment.isVisible())
-            fragmentManager.nowPlayingFragment.togglePlayButtonIcon(isPlaying);
+            fragmentManager.nowPlayingFragment.togglePlayButtonIcon();
 
         if (isPlaying)
             playButton.setImageResource(R.drawable.pause_24dp);
         else
             playButton.setImageResource(R.drawable.play_24dp);
+    }
+
+    public void setScrubAmount(Context context, final Data data)
+    {
+        AlertDialog.Builder dialog = Dialoger.getDialogBuilder(context);
+        dialog.setTitle("Scrub Amount");
+        dialog.setMessage("Fast forward or rewind by how many seconds?");
+
+        final NumberPicker numberPicker = new NumberPicker(context);
+        numberPicker.setWrapSelectorWheel(true);
+        numberPicker.setMinValue(1);
+        numberPicker.setMaxValue(30);
+        numberPicker.setValue(data.scrubAmount());
+        dialog.setView(numberPicker);
+        dialog.setPositiveButton("Okay", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                data.updateScrubAmount(numberPicker.getValue());
+            }
+        });
+        dialog.setNegativeButton("Cancel", null);
+        dialog.show();
     }
 
     private String greetings()

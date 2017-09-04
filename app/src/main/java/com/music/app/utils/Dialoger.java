@@ -36,7 +36,7 @@ public class Dialoger
               .show();
     }
 
-    private static AlertDialog.Builder getDialogBuilder(Context context)
+    public static AlertDialog.Builder getDialogBuilder(Context context)
     {
         AlertDialog.Builder dialog;
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
