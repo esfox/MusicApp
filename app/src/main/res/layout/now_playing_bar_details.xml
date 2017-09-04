@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/now_playing_bar_details_height"
+    tools:ignore="ContentDescription"
+    tools:showIn="@layout/now_playing_bar">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_toLeftOf="@+id/now_playing_bar_current_time"
+        android:layout_toStartOf="@+id/now_playing_bar_current_time"
+        android:layout_toRightOf="@+id/now_playing_bar_cover"
+        android:layout_toEndOf="@+id/now_playing_bar_cover"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/now_playing_bar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryLight"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="21sp"
+            android:maxLines="1"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            tools:text="What A Beautiful Name It Is What A Beautiful"/>
+
+        <TextView
+            android:id="@+id/now_playing_bar_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="16sp"
+            android:maxLines="1"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            tools:text="Hillsong"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/now_playing_bar_cover"
+        android:layout_width="@dimen/now_playing_bar_details_height"
+        android:layout_height="@dimen/now_playing_bar_details_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        tools:background="@drawable/temp_square"/>
+
+    <TextView
+        android:id="@+id/now_playing_bar_current_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="15dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="18sp"
+        android:textColor="@color/text_secondary"
+        tools:text="3:45"/>
+</RelativeLayout>

@@ -12,6 +12,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
@@ -35,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 
 TODO CURRENT ACTIVITY
 
-Saving and loading player current time (Change currenTime() from String to int)
+Fixing Now Playing Bar touch feedback (Selectable Item Background)
 
 TODO: Remember to do these
 Modify NowPlayingFragment layout (Put album name under cover)
@@ -67,13 +68,16 @@ public class MainActivity extends AppCompatActivity implements
             player.initialize(data, queue);
             player.setServiceListener(MainActivity.this);
 
-            if(data.currentSongIsNotNull())
-                player.resumeSong(MainActivity.this);
-
             uiManager = new UIManager(MainActivity.this);
             uiManager.initUI(data, player, MainActivity.this);
             uiManager.setClickListeners(MainActivity.this, MainActivity.this);
             fragmentManager = uiManager.fragmentManager();
+
+            if(data.currentSongIsNotNull())
+            {
+                player.resumeSong(MainActivity.this);
+                uiManager.initializeCurrentTime(data.currentTime());
+            }
         }
 
         @Override
@@ -206,13 +210,15 @@ public class MainActivity extends AppCompatActivity implements
 //    }
 
     @Override
-    public void onStartAudio(Song song, boolean newSong)
+    public void onStartAudio(Song song, boolean newSong, boolean resume)
     {
+        player.toggleResumed(resume);
+
         player.setSong(song);
         startService(serviceIntent);
         player.updateCurrentSong(song, newSong);
 
-        uiManager.togglePlayButtonIcon(true);
+        uiManager.togglePlayButtonIcon(!resume);
         uiManager.updateNowPlayingFragment(song);
         uiManager.updateNowPlayingBar(song, true);
         uiManager.updatePlayQueueFragmentNowPlaying(song);
@@ -299,6 +305,18 @@ public class MainActivity extends AppCompatActivity implements
                 player.next();
                 break;
 
+            case R.id.play_queue_button:
+                fragmentManager.playQueue();
+                break;
+
+            case R.id.no_action_yet:
+                Toast.makeText(this, "Add Action Here", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.now_playing_bar:
+                uiManager.openNowPlayingBar();
+                break;
+
             case R.id.toolbar_icon:
                 uiManager.toggleNavigationDrawer(true);
                 break;
@@ -309,10 +327,6 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.toolbar_sort:
                 fragmentManager.songListFragment.sortOptions(v);
-
-            case R.id.now_playing_bar:
-                uiManager.openNowPlayingBar();
-                break;
         }
     }
 

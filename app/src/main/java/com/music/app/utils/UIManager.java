@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -99,6 +98,12 @@ public class UIManager
         nextButton.setOnClickListener(onClickListener);
         playButton.setOnClickListener(onClickListener);
         playButton.setOnLongClickListener(onLongClickListener);
+        ((MainActivity) context)
+                .findViewById(R.id.play_queue_button)
+                .setOnClickListener(onClickListener);
+        ((MainActivity) context)
+                .findViewById(R.id.no_action_yet)
+                .setOnClickListener(onClickListener);
     }
 
     public void openNowPlayingBar()
@@ -140,12 +145,17 @@ public class UIManager
 
     private Handler timeUpdater;
 
+    public void initializeCurrentTime(long time)
+    {
+        currentTime.setText(Timestamper.getTimestamp(time));
+    }
+
     private void updateCurrentTime(boolean isNew)
     {
         if(!isNew)
         {
-            currentTime.setText
-                    (Timestamper.getTimestamp(player.getPlayer().getCurrentPosition()));
+            currentTime.setText(Timestamper
+                    .getTimestamp(player.getPlayer().getCurrentPosition()));
             timeUpdater.postDelayed(timeUpdaterRunnable, 1000);
 
             if(currentTime.getVisibility() == View.GONE)

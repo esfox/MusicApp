@@ -219,7 +219,7 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
             viewHolder.setBackgroundColor(index, itemIsSelected(index));
         }
         else
-            serviceListener.onStartAudio(song, true);
+            serviceListener.onStartAudio(song, true, false);
     }
 
     @Override

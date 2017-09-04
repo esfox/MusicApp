@@ -152,8 +152,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                     Log.d("Duration", String.valueOf(mediaPlayer.getDuration()));
                     Log.d("Progress", String.valueOf(progress));
 
-                    updater.removeCallbacks(update);
-
                     if(progress >= mediaPlayer.getDuration())
                         mediaPlayer.seekTo(mediaPlayer.getDuration());
                     else

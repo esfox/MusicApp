@@ -11,7 +11,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.music.app.R;
 import com.music.app.utils.interfaces.ServiceListener;
@@ -26,6 +25,7 @@ public class Player extends Service
     private Data data;
     private Queue queue;
     private String path, title, artist;
+    private boolean resumed;
 
     public class ServiceBinder extends Binder
     {
@@ -53,33 +53,14 @@ public class Player extends Service
         this.artist = song.getArtist();
     }
 
+    public void toggleResumed(boolean resume)
+    {
+        resumed = resume;
+    }
+
     public void resumeSong(Context context)
     {
-        Song song = data.currentSong(context);
-        setSong(song);
-
-        try
-        {
-            player.reset();
-            player.setDataSource(path);
-            player.prepare();
-            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
-            {
-                @Override
-                public void onCompletion(MediaPlayer mp)
-                {
-                    onFinish();
-                }
-            });
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-        long currentTime = data.currentTime();
-        if(currentTime != -1)
-            player.seekTo((int) currentTime);
+        serviceListener.onStartAudio(data.currentSong(context), false, true);
     }
 
     @Override
@@ -100,7 +81,15 @@ public class Player extends Service
                         onFinish();
                     }
                 });
-                play();
+
+                if(resumed)
+                {
+                    long currentTime = data.currentTime();
+                    if(currentTime != -1)
+                        player.seekTo((int) currentTime);
+                }
+                else
+                    play();
             }
             catch (IOException e)
             {
@@ -238,7 +227,7 @@ public class Player extends Service
 //        PlayQueue.updateCurrentSongIndex(true, next);
 //        PlayQueue.updateQueueStack(next);
         if(song != null)
-            serviceListener.onStartAudio(song, false);
+            serviceListener.onStartAudio(song, false, false);
     }
 
     private Song getSongByID(long id)
