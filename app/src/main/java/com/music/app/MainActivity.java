@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -70,20 +71,21 @@ public class MainActivity extends AppCompatActivity implements
 
             uiManager = new UIManager(MainActivity.this);
             uiManager.initUI
-                    (
-                        MainActivity.this,
-                        data,
-                        player,
-                        MainActivity.this,
-                        MainActivity.this
-                    );
+                (
+                    MainActivity.this,
+                    data,
+                    player,
+                    MainActivity.this,
+                    MainActivity.this
+                );
             uiManager.setClickListeners(MainActivity.this, MainActivity.this);
             fragmentManager = uiManager.fragmentManager();
 
-            if(data.currentSongIsNotNull())
+            boolean currentSongIsNotNull = data.currentSongIsNotNull();
+            if(currentSongIsNotNull)
             {
                 player.resumeSong(MainActivity.this);
-                uiManager.initializeCurrentTime(data.currentTime());
+                uiManager.initializeCurrentTime(data.currentTime(), !currentSongIsNotNull);
             }
         }
 
@@ -161,9 +163,18 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(player != null)
+            player.toggleTimeUpdater(true);
+    }
+
+    @Override
     protected void onStop()
     {
         super.onStop();
+        player.toggleTimeUpdater(false);
         queue.save(this);
         data.updateCurrentTime(player.getPlayer().getCurrentPosition());
     }
@@ -244,6 +255,13 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onCurrentTimeUpdate(int time)
+    {
+        uiManager.updateCurrentTime(time);
+        uiManager.updateNowPlayingFragmentCurrentTime(time);
+    }
+
+    @Override
     public void onQueue(long id)
     {
         queue.queue(id);
@@ -281,16 +299,26 @@ public class MainActivity extends AppCompatActivity implements
 
         data.setQueue(queue);
 
-        fragmentManager.songListFragment.setSongs(songs);
-        fragmentManager.songListFragment.initialize(this, this, fragmentManager);
-        fragmentManager.songList();
+        if(fragmentManager != null)
+        {
+            fragmentManager.songListFragment.setSongs(songs);
+            fragmentManager.songListFragment.initialize(this, this, fragmentManager);
+            fragmentManager.songList();
+        }
     }
 
     @Override
     public void onUpdate()
     {
-        ((SongListAdapter) fragmentManager.songListFragment
-                .getSongList().getAdapter()).notifyDataSetChanged();
+        try
+        {
+            ((SongListAdapter) fragmentManager.songListFragment
+                    .getSongList().getAdapter()).notifyDataSetChanged();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -305,22 +333,28 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.next_button:
                 player.next();
-                uiManager.updateCurrentTime(false);
                 break;
 
             case R.id.previous_button:
                 player.previous();
-                uiManager.updateCurrentTime(false);
                 break;
 
-            case R.id.scrub_forward_button:
-                player.scrub(true);
-                uiManager.updateCurrentTime(false);
+//            case R.id.scrub_forward_button:
+//                player.scrub(true);
+//                uiManager.updateCurrentTime(false);
+//                break;
+//
+//            case R.id.scrub_backward_button:
+//                player.scrub(false);
+//                uiManager.updateCurrentTime(false);
+//                break;
+
+            case R.id.shuffle:
+                uiManager.shuffle(this, true, this, data);
                 break;
 
-            case R.id.scrub_backward_button:
-                player.scrub(false);
-                uiManager.updateCurrentTime(false);
+            case R.id.repeat:
+                uiManager.repeat(this, true, data);
                 break;
 
             case R.id.play_queue_button:
@@ -358,11 +392,10 @@ public class MainActivity extends AppCompatActivity implements
                 player.stop();
                 break;
 
-            //TODO: Change setting scrub amount
-            case R.id.scrub_forward_button:
-            case R.id.scrub_backward_button:
-                uiManager.setScrubAmount(this, data);
-                break;
+//            case R.id.scrub_forward_button:
+//            case R.id.scrub_backward_button:
+//                uiManager.setScrubAmount(this, data);
+//                break;
         }
         return true;
     }
@@ -402,11 +435,27 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onBackPressed()
+    public boolean onKeyDown(int keyCode, KeyEvent event)
     {
-        super.onBackPressed();
-        //TODO: Manage backstack
+        if(keyCode == KeyEvent.KEYCODE_BACK)
+        {
+            if(getSupportFragmentManager().getBackStackEntryCount() == 0)
+                moveTaskToBack(true);
+            else
+                super.onBackPressed();
 
+            return true;
+        }
+        else
+            return super.onKeyDown(keyCode, event);
+    }
+
+//    @Override
+//    public void onBackPressed()
+//    {
+//        super.onBackPressed();
+        //TODO: Manage backstack
+//
 //        if (!nowPlayingFragment.isVisible())
 //        {
 //            togglePlayButtonIcon(Player.getPlayer().isPlaying());
@@ -414,7 +463,7 @@ public class MainActivity extends AppCompatActivity implements
 //            ((FloatingActionButton) controlButtons.findViewById(R.id.previous_button)).show();
 //            ((FloatingActionButton) controlButtons.findViewById(R.id.next_button)).show();
 //        }
-    }
+//    }
 
     private class CurrentAlbumArtScanner extends AsyncTask<Void, Void, Void>
     {

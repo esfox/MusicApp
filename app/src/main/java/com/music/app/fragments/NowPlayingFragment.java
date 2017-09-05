@@ -4,12 +4,10 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,7 +35,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
     private SeekBar progress;
     private TextView time;
-    private Handler updater;
     private ImageView shuffle, repeat;
     private FloatingActionButton play;
 
@@ -73,8 +70,8 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         view.findViewById(R.id.now_playing_artist).setSelected(true);
         view.findViewById(R.id.now_playing_album).setSelected(true);
 
-        shuffle(false);
-        repeat(false);
+        shuffle();
+        repeat();
 
         Toolbar header = ((Toolbar) view.findViewById(R.id.header));
         header.setNavigationOnClickListener(new View.OnClickListener()
@@ -106,8 +103,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         play.setOnClickListener(this);
         next.setOnClickListener(this);
         previous.setOnClickListener(this);
-
-        updater = new Handler();
 
         return view;
 
@@ -170,6 +165,8 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
         progress.setPadding(0,0,0,0);
         progress.setProgress(0);
+        progress.setMax(player.getPlayer().getDuration());
+        progress.setProgress(0);
         progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
             @Override
@@ -177,16 +174,10 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             {
                 if(fromUser)
                 {
-                    Log.d("Duration", String.valueOf(mediaPlayer.getDuration()));
-                    Log.d("Progress", String.valueOf(progress));
-
-
                     if(progress >= mediaPlayer.getDuration())
                         mediaPlayer.seekTo(mediaPlayer.getDuration());
                     else
                         mediaPlayer.seekTo(progress);
-
-                    updateProgress();
                 }
             }
 
@@ -200,20 +191,14 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             public void onStopTrackingTouch(SeekBar seekBar)
             {
                 player.play();
-                updateProgress();
             }
         });
     }
 
-    private void updateProgress()
+    public void updateProgress(int currentTime)
     {
-        if(data.currentSongIsNotNull())
-        {
-            int currentTime = player.getPlayer().getCurrentPosition();
-            progress.setProgress(currentTime);
-            time.setText(Timestamper.getTimestamp(currentTime));
-        }
-        updater.postDelayed(update, 100);
+        progress.setProgress(currentTime);
+        time.setText(Timestamper.getTimestamp(currentTime));
     }
 
     private void resetProgress()
@@ -221,18 +206,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         progress.setMax(player.getPlayer().getDuration());
         progress.setProgress(0);
         time.setText(Timestamper.getTimestamp(0));
-        updater.removeCallbacks(update);
-        updateProgress();
     }
-
-    private Runnable update = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            updateProgress();
-        }
-    };
 
     @Override
     public void onClick(View v)
@@ -256,31 +230,37 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                 break;
 
             case R.id.now_playing_shuffle:
-                shuffle(true);
+                uiManager.shuffle(getContext(), true, queueListener, data);
+                shuffle();
                 break;
 
             case R.id.now_playing_repeat:
-                repeat(true);
+                uiManager.repeat(getContext(), true, data);
+                repeat();
                 break;
         }
     }
 
-    public void shuffle(boolean toggle)
+    private void shuffle()
     {
-        if(toggle)
-            queueListener.onShuffle();
-
         if(data.isShuffled())
-            shuffle.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+            shuffle.setColorFilter
+                (
+                    ContextCompat.getColor(getContext(),
+                    R.color.toggle_on),
+                    PorterDuff.Mode.SRC_ATOP
+                );
         else
-            shuffle.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
+            shuffle.setColorFilter
+                (
+                    ContextCompat.getColor(getContext(),
+                    R.color.toggle_off),
+                    PorterDuff.Mode.SRC_ATOP
+                );
     }
 
-    public void repeat(boolean toggle)
+    private void repeat()
     {
-        if(toggle)
-            data.updateRepeatState();
-
         switch(data.repeatState())
         {
             case OFF:

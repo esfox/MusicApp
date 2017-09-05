@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
-import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
@@ -250,14 +249,11 @@ public class AudioFileScanner
 
     private void store()
     {
-        if(!data.stored())
-        {
-            SongDatabaseHelper databaseHelper = new SongDatabaseHelper(context);
-            for (Song song : songs)
-                databaseHelper.add(song);
+        SongDatabaseHelper databaseHelper = new SongDatabaseHelper(context);
+        for (Song song : songs)
+            databaseHelper.add(song);
 
-            data.updateStored(true);
-        }
+        data.updateStored(true);
     }
 
     private String getDuration(String value)
@@ -325,7 +321,8 @@ public class AudioFileScanner
             snackbar.dismiss();
             audioScanListener.onUpdate();
 
-            new Store().execute();
+            if(!data.stored())
+                new Store().execute();
         }
     }
 
@@ -337,13 +334,6 @@ public class AudioFileScanner
         {
             store();
             return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            super.onPostExecute(aVoid);
-            Log.d("Database", "Stored");
         }
     }
 

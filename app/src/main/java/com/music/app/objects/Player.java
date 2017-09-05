@@ -8,10 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.music.app.R;
 import com.music.app.utils.interfaces.ServiceListener;
@@ -21,10 +20,14 @@ import java.io.IOException;
 public class Player extends Service
 {
     private IBinder binder = new ServiceBinder();
+
     private ServiceListener serviceListener;
+
+
     private MediaPlayer player;
     private Data data;
     private Queue queue;
+
     private String path, title, artist;
     private boolean resumed;
 
@@ -45,6 +48,8 @@ public class Player extends Service
     {
         this.data = data;
         this.queue = queue;
+
+        timeUpdater = new Handler();
     }
 
     public void setSong(Song song)
@@ -117,9 +122,15 @@ public class Player extends Service
     }
 
     @Override
-    public void onDestroy()
+    public IBinder onBind(Intent intent)
     {
-        super.onDestroy();
+        player = new MediaPlayer();
+        return binder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent)
+    {
         if(player != null)
         {
             player.stop();
@@ -127,21 +138,13 @@ public class Player extends Service
         }
 
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent)
-    {
-        player = new MediaPlayer();
-        return binder;
+        return super.onUnbind(intent);
     }
 
     public void updateCurrentSong(Song song, boolean fromUser)
     {
         if(fromUser)
             queue.newSong(song.getId());
-//            PlayQueue.newSongPlayed(song);
 
         data.updateCurrentSong(song.getId());
 
@@ -153,7 +156,8 @@ public class Player extends Service
     {
         if(data.currentSongIsNotNull())
         {
-            if(!player.isPlaying())
+            boolean isPlaying = player.isPlaying();
+            if(!isPlaying)
             {
                 player.start();
                 data.updateIsPlaying(true);
@@ -163,6 +167,8 @@ public class Player extends Service
                 player.pause();
                 data.updateIsPlaying(false);
             }
+
+            toggleTimeUpdater(!isPlaying);
         }
     }
 
@@ -174,9 +180,35 @@ public class Player extends Service
         data.updateIsPlaying(false);
     }
 
+    private Handler timeUpdater;
+
+    private Runnable timeUpdaterRunnable = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            timeUpdate();
+        }
+    };
+
+    private void timeUpdate()
+    {
+        serviceListener.onCurrentTimeUpdate(player.getCurrentPosition());
+        timeUpdater.postDelayed(timeUpdaterRunnable, 100);
+    }
+
+    public void toggleTimeUpdater(boolean toggle)
+    {
+        if(toggle)
+            timeUpdate();
+        else
+            timeUpdater.removeCallbacks(timeUpdaterRunnable);
+    }
+
     public void next()
     {
         change(true, true);
+        timeUpdate();
     }
 
     public boolean previous()
@@ -184,24 +216,28 @@ public class Player extends Service
         if(player.getCurrentPosition() > 3000)
         {
             player.seekTo(0);
+            timeUpdate();
             return false;
         }
         else
         {
             change(false, true);
+            timeUpdate();
             return true;
         }
     }
 
-    public void scrub(boolean forward)
-    {
-        int scrubAmount = (forward)? data.scrubAmount() : -data.scrubAmount();
-        int scrubTo = player.getCurrentPosition() + (scrubAmount * 1000);
-        if(scrubTo < 0)
-            scrubTo = 0;
-
-        player.seekTo(scrubTo);
-    }
+//    public void scrub(boolean forward)
+//    {
+//        int scrubAmount = (forward)? data.scrubAmount() : -data.scrubAmount();
+//        int scrubTo = player.getCurrentPosition() + (scrubAmount * 1000);
+//        if(scrubTo < 0)
+//            scrubTo = 0;
+//        else if(scrubTo >= player.getDuration())
+//            scrubTo = player.getDuration();
+//
+//        player.seekTo(scrubTo);
+//    }
 
     private void change(boolean next, boolean fromUser)
     {
@@ -210,7 +246,6 @@ public class Player extends Service
         {
             if(fromUser)
                 song = getSongByID(queue.update(next));
-//                song = PlayQueue.getNextSong();
             else
             {
                 if(data.repeatState() == Data.RepeatState.ONE)
@@ -219,24 +254,23 @@ public class Player extends Service
                 {
                     if(data.repeatState() == Data.RepeatState.OFF)
                     {
-                        if(queue.update(next) != queue.getQueue().get(0))
-                            song = getSongByID(queue.update(next));
-//                            song = PlayQueue.getNextSong();
+                        long nextID = queue.update(next);
+                        if(nextID != queue.getQueue().get(0))
+                            song = getSongByID(nextID);
                         else
+                        {
+                            data.updateCurrentQueueIndex(queue.getQueue().size() - 1);
                             stop();
+                        }
                     }
                     else if(data.repeatState() == Data.RepeatState.ALL)
                         song = getSongByID(queue.update(next));
-//                        song = PlayQueue.getNextSong();
                 }
             }
         }
         else
             song = getSongByID(queue.update(next));
-//            song = PlayQueue.getPreviousSong();
 
-//        PlayQueue.updateCurrentSongIndex(true, next);
-//        PlayQueue.updateQueueStack(next);
         if(song != null)
             serviceListener.onStartAudio(song, false, false);
     }

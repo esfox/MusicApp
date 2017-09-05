@@ -58,6 +58,7 @@ public class Queue
 
         data.updateCurrentQueueIndex(index);
         updateQueueStack(isNext);
+
         return queue.get(index);
     }
 

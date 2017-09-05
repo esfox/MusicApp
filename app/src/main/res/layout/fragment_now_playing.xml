@@ -163,8 +163,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/now_playing_previous"
-            android:layout_toStartOf="@+id/now_playing_previous"
+            android:layout_toRightOf="@+id/now_playing_next"
+            android:layout_toEndOf="@+id/now_playing_next"
             android:layout_marginRight="5dp"
             android:layout_marginEnd="5dp"
             android:background="?attr/selectableItemBackground"
@@ -175,8 +175,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/now_playing_next"
-            android:layout_toEndOf="@+id/now_playing_next"
+            android:layout_toLeftOf="@+id/now_playing_previous"
+            android:layout_toStartOf="@+id/now_playing_previous"
             android:layout_marginLeft="5dp"
             android:layout_marginStart="5dp"
             android:background="?attr/selectableItemBackground"
@@ -199,7 +199,7 @@
             android:layout_toStartOf="@+id/now_playing_play"
             app:fabSize="mini"
             app:useCompatPadding="true"
-            app:srcCompat="@drawable/fast_rewind_24dp"/>
+            app:srcCompat="@drawable/previous_24dp"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/now_playing_next"
@@ -210,7 +210,7 @@
             android:layout_toRightOf="@+id/now_playing_play"
             app:fabSize="mini"
             app:useCompatPadding="true"
-            app:srcCompat="@drawable/fast_forward_24dp"/>
+            app:srcCompat="@drawable/next_24dp"/>
 
     </RelativeLayout>
 </RelativeLayout>

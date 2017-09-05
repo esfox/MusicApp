@@ -9,3 +9,11 @@ Dev
 * Create a Player class
 	- receives a Song object
 	- has methods that return Song details
+
+THEMING
+
+Drawable background = view.getBackground();
+background.setColorFilter(*load color from SharedPrefs*, PorterDuff.Mode.SRC_ATOP);
+view.setBackground(background);
+
+- do this for everything onCreate

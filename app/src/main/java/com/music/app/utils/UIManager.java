@@ -2,16 +2,14 @@ package com.music.app.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Handler;
+import android.graphics.PorterDuff;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -29,9 +27,8 @@ public class UIManager
 {
     private Activity views;
     private FragmentManager fragmentManager;
-    private Player player;
 
-    private ImageButton playButton;
+    private ImageButton playButton, shuffle, repeat;
     private NavigationView navigationDrawer;
     private TextView title, artist, currentTime;
     private ImageView cover;
@@ -53,8 +50,6 @@ public class UIManager
             NavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener,
             QueueListener queueListener)
     {
-        this.player = player;
-
         fragmentManager = new FragmentManager(context);
         fragmentManager.nowPlayingFragment.initialize(data, player, this, queueListener);
         fragmentManager.playQueueFragment.initialize(data, player, queueListener);
@@ -66,11 +61,17 @@ public class UIManager
         currentTime = (TextView)
                 views.findViewById(R.id.now_playing_bar_current_time);
 
-        timeUpdater = new Handler();
         updateNowPlayingBar(context, data.currentSong(context), data.currentSongIsNotNull());
 
         playButton = (ImageButton)
                 views.findViewById(R.id.play_button);
+        shuffle = (ImageButton)
+                views.findViewById(R.id.shuffle);
+        repeat = (ImageButton)
+                views.findViewById(R.id.repeat);
+
+        shuffle(context, false, queueListener, data);
+        repeat(context, false, data);
 
         //Initialize Navigation Drawer
         navigationDrawer = ((NavigationView)
@@ -90,12 +91,17 @@ public class UIManager
         views.findViewById(R.id.next_button).setOnClickListener(onClickListener);
         views.findViewById(R.id.previous_button).setOnClickListener(onClickListener);
 
-        View scrubForward = views.findViewById(R.id.scrub_forward_button);
-        View scrubBackward = views.findViewById(R.id.scrub_backward_button);
-        scrubForward.setOnClickListener(onClickListener);
-        scrubForward.setOnLongClickListener(onLongClickListener);
-        scrubBackward.setOnClickListener(onClickListener);
-        scrubBackward.setOnLongClickListener(onLongClickListener);
+//        View scrubForward = views.findViewById(R.id.scrub_forward_button);
+//        View scrubBackward = views.findViewById(R.id.scrub_backward_button);
+//        scrubForward.setOnClickListener(onClickListener);
+//        scrubForward.setOnLongClickListener(onLongClickListener);
+//        scrubBackward.setOnClickListener(onClickListener);
+//        scrubBackward.setOnLongClickListener(onLongClickListener);
+
+        shuffle.setOnClickListener(onClickListener);
+        repeat.setOnClickListener(onClickListener);
+
+        views.findViewById(R.id.no_action_yet).setOnClickListener(onClickListener);
 
         views.findViewById(R.id.toolbar_icon).setOnClickListener(onClickListener);
         views.findViewById(R.id.toolbar_menu).setOnClickListener(onClickListener);
@@ -139,45 +145,36 @@ public class UIManager
             title.setText(greetings());
             artist.setText("Select a song to play.");
         }
-
-        updateCurrentTime(!currentSongIsNotNull);
     }
 
-    private Handler timeUpdater;
-
-    public void initializeCurrentTime(long time)
-    {
-        currentTime.setText(Timestamper.getTimestamp(time));
-    }
-
-    public void updateCurrentTime(boolean isNew)
+    public void initializeCurrentTime(long time, boolean isNew)
     {
         if(!isNew)
         {
-            currentTime.setText(Timestamper
-                    .getTimestamp(player.getPlayer().getCurrentPosition()));
-            timeUpdater.postDelayed(timeUpdaterRunnable, 1000);
-
             if(currentTime.getVisibility() == View.GONE)
                 currentTime.setVisibility(View.VISIBLE);
+
+            currentTime.setText(Timestamper.getTimestamp(time));
         }
         else
             currentTime.setVisibility(View.GONE);
     }
 
-    private Runnable timeUpdaterRunnable = new Runnable()
+    public void updateCurrentTime(int time)
     {
-        @Override
-        public void run()
-        {
-            updateCurrentTime(false);
-        }
-    };
+        currentTime.setText(Timestamper.getTimestamp(time));
+    }
 
     public void updateNowPlayingFragment(Song song)
     {
         if (fragmentManager.nowPlayingFragment.isVisible())
             fragmentManager.nowPlayingFragment.update(song, true);
+    }
+
+    public void updateNowPlayingFragmentCurrentTime(int time)
+    {
+        if (fragmentManager.nowPlayingFragment.isVisible())
+            fragmentManager.nowPlayingFragment.updateProgress(time);
     }
 
     public void updatePlayQueueAdapter()
@@ -221,29 +218,73 @@ public class UIManager
             playButton.setImageResource(R.drawable.play_24dp);
     }
 
-    public void setScrubAmount(Context context, final Data data)
+    public void shuffle(Context context, boolean toggle, QueueListener queueListener, Data data)
     {
-        AlertDialog.Builder dialog = Dialoger.getDialogBuilder(context);
-        dialog.setTitle("Scrub Amount");
-        dialog.setMessage("Fast forward or rewind by how many seconds?");
+        if(toggle)
+            queueListener.onShuffle();
 
-        final NumberPicker numberPicker = new NumberPicker(context);
-        numberPicker.setWrapSelectorWheel(true);
-        numberPicker.setMinValue(1);
-        numberPicker.setMaxValue(30);
-        numberPicker.setValue(data.scrubAmount());
-        dialog.setView(numberPicker);
-        dialog.setPositiveButton("Okay", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                data.updateScrubAmount(numberPicker.getValue());
-            }
-        });
-        dialog.setNegativeButton("Cancel", null);
-        dialog.show();
+        if(data.isShuffled())
+            shuffle.setColorFilter
+                (
+                    ContextCompat.getColor(context,
+                            R.color.toggle_on),
+                    PorterDuff.Mode.SRC_ATOP
+                );
+        else
+            shuffle.setColorFilter
+                (
+                    ContextCompat.getColor(context,
+                            R.color.toggle_off),
+                    PorterDuff.Mode.SRC_ATOP
+                );
     }
+
+    public void repeat(Context context, boolean toggle, Data data)
+    {
+    if(toggle)
+        data.updateRepeatState();
+
+    switch(data.repeatState())
+    {
+        case OFF:
+            repeat.setImageResource(R.drawable.repeat_24dp);
+            repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
+            break;
+
+        case ALL:
+            repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+            break;
+
+        case ONE:
+            repeat.setImageResource(R.drawable.repeat_one_24dp);
+            repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+            break;
+    }
+}
+
+//    public void setScrubAmount(Context context, final Data data)
+//    {
+//        AlertDialog.Builder dialog = Dialoger.getDialogBuilder(context);
+//        dialog.setTitle("Scrub Amount");
+//        dialog.setMessage("Fast forward or rewind by how many seconds?");
+//
+//        final NumberPicker numberPicker = new NumberPicker(context);
+//        numberPicker.setWrapSelectorWheel(true);
+//        numberPicker.setMinValue(1);
+//        numberPicker.setMaxValue(30);
+//        numberPicker.setValue(data.scrubAmount());
+//        dialog.setView(numberPicker);
+//        dialog.setPositiveButton("Okay", new DialogInterface.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which)
+//            {
+//                data.updateScrubAmount(numberPicker.getValue());
+//            }
+//        });
+//        dialog.setNegativeButton("Cancel", null);
+//        dialog.show();
+//    }
 
     private String greetings()
     {

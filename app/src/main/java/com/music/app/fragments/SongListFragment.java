@@ -30,6 +30,8 @@ public class SongListFragment extends Fragment implements View.OnClickListener
     private Sorter.SortBy sort;
     private ArrayList<Song> songs;
 
+    private SongListAdapter adapter;
+
     private FloatingActionButton done;
 
     private FragmentManager fragmentManager;
@@ -109,8 +111,8 @@ public class SongListFragment extends Fragment implements View.OnClickListener
         switch (v.getId())
         {
             case R.id.selection_toolbar_close:
-                ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(false);
-                ((SongListAdapter) songList.getAdapter()).toggleMultiQueueMode(false);
+                adapter.toggleSelectionMode(false);
+                adapter.toggleMultiQueueMode(false);
                 done.hide();
                 break;
 
@@ -119,8 +121,8 @@ public class SongListFragment extends Fragment implements View.OnClickListener
                 break;
 
             case R.id.song_list_done:
-                ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(false);
-                ((SongListAdapter) songList.getAdapter()).toggleMultiQueueMode(false);
+                adapter.toggleSelectionMode(false);
+                adapter.toggleMultiQueueMode(false);
                 done.hide();
                 break;
         }
@@ -137,11 +139,11 @@ public class SongListFragment extends Fragment implements View.OnClickListener
             switch (item.getItemId())
             {
                 case R.id.multi_select:
-                    ((SongListAdapter) songList.getAdapter()).toggleSelectionMode(true);
+                    adapter.toggleSelectionMode(true);
                     return true;
 
                 case R.id.multi_queue:
-                    ((SongListAdapter) songList.getAdapter()).toggleMultiQueueMode(true);
+                    adapter.toggleMultiQueueMode(true);
 
                     done.show();
                     return true;
@@ -165,7 +167,7 @@ public class SongListFragment extends Fragment implements View.OnClickListener
                 switch (item.getItemId())
                 {
                     case R.id.delete:
-                        ((SongListAdapter) songList.getAdapter()).deleteSelectedItems();
+                        adapter.deleteSelectedItems();
                         return true;
 
                     default:
@@ -234,6 +236,8 @@ public class SongListFragment extends Fragment implements View.OnClickListener
 
         songList.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+        
+        this.adapter = adapter;
         this.sort = sort;
     }
 

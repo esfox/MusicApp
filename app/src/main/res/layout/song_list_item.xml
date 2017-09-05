@@ -42,9 +42,9 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:paddingEnd="20dp"
+                android:paddingEnd="15dp"
                 android:paddingLeft="5dp"
-                android:paddingRight="20dp"
+                android:paddingRight="15dp"
                 android:paddingStart="5dp"
                 android:src="@drawable/more_vertical_24dp"
                 android:tint="@color/button_tint"/>
@@ -95,7 +95,7 @@
                 android:layout_toLeftOf="@+id/options"
                 android:layout_toStartOf="@+id/options"
                 android:layout_centerVertical="true"
-                tools:src="@drawable/temp_square"/>
+                android:src="@drawable/library_music_48dp"/>
         </RelativeLayout>
     </RelativeLayout>
 </RelativeLayout>

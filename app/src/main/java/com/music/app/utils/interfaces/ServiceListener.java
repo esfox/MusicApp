@@ -6,4 +6,5 @@ public interface ServiceListener
 {
     public void onStartAudio(Song song, boolean fromUser, boolean resume);
     public void onStopAudio();
+    public void onCurrentTimeUpdate(int time);
 }

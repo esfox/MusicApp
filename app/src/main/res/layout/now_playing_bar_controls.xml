@@ -43,7 +43,7 @@
         android:src="@drawable/next_24dp"/>
 
     <ImageButton
-        android:id="@+id/scrub_backward_button"
+        android:id="@+id/repeat"
         android:layout_width="38dp"
         android:layout_height="38dp"
         android:layout_centerVertical="true"
@@ -52,10 +52,10 @@
         android:layout_marginRight="7dp"
         android:layout_marginEnd="7dp"
         android:background="?attr/selectableItemBackground"
-        android:src="@drawable/fast_rewind_24dp"/>
+        android:src="@drawable/repeat_24dp"/>
 
     <ImageButton
-        android:id="@+id/scrub_forward_button"
+        android:id="@+id/shuffle"
         android:layout_width="38dp"
         android:layout_height="38dp"
         android:layout_centerVertical="true"
@@ -64,7 +64,31 @@
         android:layout_marginLeft="7dp"
         android:layout_marginStart="7dp"
         android:background="?attr/selectableItemBackground"
-        android:src="@drawable/fast_forward_24dp"/>
+        android:src="@drawable/shuffle_24dp"/>
+
+    <!--<ImageButton-->
+        <!--android:id="@+id/scrub_backward_button"-->
+        <!--android:layout_width="38dp"-->
+        <!--android:layout_height="38dp"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_toLeftOf="@+id/previous_button"-->
+        <!--android:layout_toStartOf="@+id/previous_button"-->
+        <!--android:layout_marginRight="7dp"-->
+        <!--android:layout_marginEnd="7dp"-->
+        <!--android:background="?attr/selectableItemBackground"-->
+        <!--android:src="@drawable/fast_rewind_24dp"/>-->
+
+    <!--<ImageButton-->
+        <!--android:id="@+id/scrub_forward_button"-->
+        <!--android:layout_width="38dp"-->
+        <!--android:layout_height="38dp"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_toRightOf="@+id/next_button"-->
+        <!--android:layout_toEndOf="@+id/next_button"-->
+        <!--android:layout_marginLeft="7dp"-->
+        <!--android:layout_marginStart="7dp"-->
+        <!--android:background="?attr/selectableItemBackground"-->
+        <!--android:src="@drawable/fast_forward_24dp"/>-->
 
     <!--TODO: Implement action (Could be more options for current song)-->
     <ImageButton
