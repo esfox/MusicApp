@@ -11,10 +11,10 @@ import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
@@ -37,10 +37,16 @@ import java.util.concurrent.ExecutionException;
 
 TODO CURRENT ACTIVITY
 
-Remove SongListAdapter casting on SongListFragment
+Custom Toast
 
 TODO: Remember to do these
+Showcase Multi-Queue Button
 Modify NowPlayingFragment layout (Put album name under cover)
+MediaSession, MediaBrowserCompat blabla
+
+REMEMBER:
+Timer onResume (When no playing song)
+
 */
 
 public class MainActivity extends AppCompatActivity implements
@@ -83,10 +89,7 @@ public class MainActivity extends AppCompatActivity implements
 
             boolean currentSongIsNotNull = data.currentSongIsNotNull();
             if(currentSongIsNotNull)
-            {
                 player.resumeSong(MainActivity.this);
-                uiManager.initializeCurrentTime(data.currentTime(), !currentSongIsNotNull);
-            }
         }
 
         @Override
@@ -150,6 +153,15 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+//        {
+//            ActivityCompat.requestPermissions(this, new String[]
+//                {
+//                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+//                }, 2562);
+//        }
+
         data = new Data(this);
 
         serviceIntent = new Intent(this, Player.class);
@@ -166,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume()
     {
         super.onResume();
-        if(player != null)
+        if(player != null && data.currentSongIsNotNull())
             player.toggleTimeUpdater(true);
     }
 
@@ -174,7 +186,8 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStop()
     {
         super.onStop();
-        player.toggleTimeUpdater(false);
+        if(player != null)
+            player.toggleTimeUpdater(false);
         queue.save(this);
         data.updateCurrentTime(player.getPlayer().getCurrentPosition());
     }
@@ -238,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements
 
         uiManager.togglePlayButtonIcon(!resume);
         uiManager.updateNowPlayingFragment(song);
-        uiManager.updateNowPlayingBar(this, song, true);
+        uiManager.updateNowPlayingBar(this, data);
         uiManager.updatePlayQueueFragmentNowPlaying(song);
         uiManager.updatePlayQueueAdapter();
 
@@ -302,7 +315,15 @@ public class MainActivity extends AppCompatActivity implements
         if(fragmentManager != null)
         {
             fragmentManager.songListFragment.setSongs(songs);
-            fragmentManager.songListFragment.initialize(this, this, fragmentManager);
+            fragmentManager.songListFragment.initialize(data, this, this, fragmentManager);
+            fragmentManager.songList();
+        }
+        else
+        {
+            Log.d("Music App", "FragmentManager was null. (onScanComplete)");
+            fragmentManager = uiManager.fragmentManager();
+            fragmentManager.songListFragment.setSongs(songs);
+            fragmentManager.songListFragment.initialize(data, this, this, fragmentManager);
             fragmentManager.songList();
         }
     }
@@ -318,6 +339,10 @@ public class MainActivity extends AppCompatActivity implements
         catch (Exception e)
         {
             e.printStackTrace();
+            Log.d("Music App", "FragmentManager was null. (onUpdate)");
+            fragmentManager = uiManager.fragmentManager();
+            ((SongListAdapter) fragmentManager.songListFragment
+                    .getSongList().getAdapter()).notifyDataSetChanged();
         }
     }
 
@@ -357,12 +382,15 @@ public class MainActivity extends AppCompatActivity implements
                 uiManager.repeat(this, true, data);
                 break;
 
-            case R.id.play_queue_button:
-                fragmentManager.playQueue();
+            case R.id.multi_queue:
+                SongListAdapter adapter = (SongListAdapter) fragmentManager.songListFragment
+                        .getSongList().getAdapter();
+
+                adapter.toggleMultiQueueMode(!adapter.isInMultiQueueMode());
                 break;
 
             case R.id.no_action_yet:
-                Toast.makeText(this, "Add Action Here", Toast.LENGTH_SHORT).show();
+
                 break;
 
             case R.id.now_playing_bar:

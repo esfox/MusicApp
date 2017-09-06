@@ -23,6 +23,14 @@
 
     <style name="AppTheme.AlertDialog" parent="Theme.AppCompat.Dialog.Alert">
         <item name="android:windowTitleStyle">@style/AlertDialogTitleStyle</item>
+        <item name="colorPrimary">@color/colorPrimaryLight</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
+    </style>
+
+    <style name="AppTheme.ProgressDialog" parent="Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/colorPrimaryLight</item>
+        <item name="android:textColorPrimary">@color/colorPrimaryLight</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <style name="ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
@@ -35,6 +43,7 @@
 
     <style name="AlertDialogTitleStyle" parent="@style/TextAppearance.AppCompat.Title">
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorPrimaryLight</item>
     </style>
 
     <style name="NavigationViewStyle">

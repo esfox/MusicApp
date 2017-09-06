@@ -105,7 +105,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         previous.setOnClickListener(this);
 
         return view;
-
     }
 
     @Override
@@ -114,9 +113,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         super.onActivityCreated(savedInstanceState);
         initProgress();
 
-        update(data.currentSong(getContext()), true);
-
-//        Data.setNowPlayingFragment(this);
+        update(data.currentSong(getContext()));
     }
 
     @Override
@@ -126,7 +123,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         togglePlayButtonIcon();
     }
 
-    public void update(Song song, boolean updateProgress)
+    public void update(Song song)
     {
         if(song != null)
         {
@@ -148,25 +145,24 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                             new File(song.getCoverPath()) :
                             R.drawable.library_music_48dp)
                     .into(cover);
-
-            if(updateProgress)
-                resetProgress();
         }
     }
 
     private void initProgress()
     {
-        //TODO: Better progressbar performance
-
         final MediaPlayer mediaPlayer = player.getPlayer();
 
         progress = (SeekBar) getView().findViewById(R.id.now_playing_progress_bar);
         time = (TextView) getView().findViewById(R.id.now_playing_start_time);
 
         progress.setPadding(0,0,0,0);
-        progress.setProgress(0);
         progress.setMax(player.getPlayer().getDuration());
-        progress.setProgress(0);
+
+        int currentTime = (int) data.currentTime();
+        boolean isNotNew = (currentTime != -1);
+        progress.setProgress((isNotNew)? currentTime : 0);
+        time.setText(Timestamper.getTimestamp((isNotNew)? currentTime : 0));
+
         progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
             @Override

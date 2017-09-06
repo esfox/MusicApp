@@ -5,10 +5,10 @@
 
     <item
         android:id="@+id/multi_select"
-        android:title="Multi-select"/>
+        android:title="Multi-Select"/>
 
     <item
         android:id="@+id/multi_queue"
-        android:title="Multi Queue"/>
+        android:title="Multi-Queue"/>
 
 </menu>

@@ -102,13 +102,13 @@
         android:src="@drawable/more_horizontal_24dp"/>
 
     <ImageButton
-        android:id="@+id/play_queue_button"
+        android:id="@+id/multi_queue"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:background="@drawable/fab"
-        android:src="@drawable/all_songs_24dp"/>
+        android:src="@drawable/playlist_add_24dp"/>
 
 </RelativeLayout>

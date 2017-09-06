@@ -37,6 +37,7 @@ public class Data
     private final String isShuffledKey = "isShuffled";
     private final String repeatStateKey = "repeatState";
     private final String scrubAmountKey = "scrubAmount";
+    private final String promptQueueKey = "queuePrompt";
     private final String queueIsSavedKey = "queueIsSaved";
     private final String storedKey = "stored";
 
@@ -106,6 +107,8 @@ public class Data
     {
         return sharedPreferences.getInt(scrubAmountKey, 5000);
     }
+
+    public boolean queuePrompt() { return sharedPreferences.getBoolean(promptQueueKey, true); }
 
     public boolean queueIsSaved()
     {
@@ -190,6 +193,13 @@ public class Data
     {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(scrubAmountKey, amount);
+        editor.apply();
+    }
+
+    public void updateQueuePrompt(boolean prompt)
+    {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(promptQueueKey, prompt);
         editor.apply();
     }
 

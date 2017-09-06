@@ -9,5 +9,4 @@ public interface SongListViewHolderListener
     public void onPlayNext(int index);
     public void onOptions(int index, boolean isOpened, SongListViewHolder viewHolder);
     public void onMoreOptions(int index, SongListViewHolder viewHolder);
-
 }

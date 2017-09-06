@@ -7,6 +7,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -61,7 +62,7 @@ public class UIManager
         currentTime = (TextView)
                 views.findViewById(R.id.now_playing_bar_current_time);
 
-        updateNowPlayingBar(context, data.currentSong(context), data.currentSongIsNotNull());
+        updateNowPlayingBar(context, data);
 
         playButton = (ImageButton)
                 views.findViewById(R.id.play_button);
@@ -108,7 +109,7 @@ public class UIManager
         views.findViewById(R.id.toolbar_sort).setOnClickListener(onClickListener);
 
         views.findViewById(R.id.now_playing_bar).setOnClickListener(onClickListener);
-        views.findViewById(R.id.play_queue_button).setOnClickListener(onClickListener);
+        views.findViewById(R.id.multi_queue).setOnClickListener(onClickListener);
         views.findViewById(R.id.no_action_yet).setOnClickListener(onClickListener);
     }
 
@@ -118,22 +119,25 @@ public class UIManager
 //        toggleControlButtons(false);
     }
 
-    public void updateNowPlayingBar(Context context, Song song, boolean currentSongIsNotNull)
+    public void updateNowPlayingBar(Context context, Data data)
     {
-        if (currentSongIsNotNull)
+        Song song = data.currentSong(context);
+
+        if (data.currentSongIsNotNull())
         {
-            if(cover.getVisibility() == View.GONE)
-                cover.setVisibility(View.VISIBLE);
+            cover.setVisibility(View.VISIBLE);
+            currentTime.setVisibility(View.VISIBLE);
+            currentTime.setText(Timestamper.getTimestamp(data.currentTime()));
 
             if(song.getCover() != null)
                 cover.setImageDrawable(song.getCover());
             else
             {
                 Glide.with(context)
-                        .load((song.getCoverPath() != null)?
-                                new File(song.getCoverPath()) :
-                                R.drawable.library_music_48dp)
-                        .into(cover);
+                    .load((song.getCoverPath() != null)?
+                            new File(song.getCoverPath()) :
+                            R.drawable.library_music_48dp)
+                    .into(cover);
             }
 
             title.setText(song.getTitle());
@@ -141,23 +145,11 @@ public class UIManager
         }
         else
         {
-            cover.setVisibility(View.GONE);
             title.setText(greetings());
             artist.setText("Select a song to play.");
-        }
-    }
-
-    public void initializeCurrentTime(long time, boolean isNew)
-    {
-        if(!isNew)
-        {
-            if(currentTime.getVisibility() == View.GONE)
-                currentTime.setVisibility(View.VISIBLE);
-
-            currentTime.setText(Timestamper.getTimestamp(time));
-        }
-        else
+            cover.setVisibility(View.GONE);
             currentTime.setVisibility(View.GONE);
+        }
     }
 
     public void updateCurrentTime(int time)
@@ -168,7 +160,7 @@ public class UIManager
     public void updateNowPlayingFragment(Song song)
     {
         if (fragmentManager.nowPlayingFragment.isVisible())
-            fragmentManager.nowPlayingFragment.update(song, true);
+            fragmentManager.nowPlayingFragment.update(song);
     }
 
     public void updateNowPlayingFragmentCurrentTime(int time)
@@ -268,7 +260,8 @@ public class UIManager
 //        dialog.setTitle("Scrub Amount");
 //        dialog.setMessage("Fast forward or rewind by how many seconds?");
 //
-//        final NumberPicker numberPicker = new NumberPicker(context);
+//        final NumberPicker numberPicker = new NumberPicker
+//                (new ContextThemeWrapper(context, R.style.AppTheme));
 //        numberPicker.setWrapSelectorWheel(true);
 //        numberPicker.setMinValue(1);
 //        numberPicker.setMaxValue(30);

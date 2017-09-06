@@ -7,6 +7,14 @@
     tools:ignore="ContentDescription"
     tools:showIn="@layout/now_playing_bar">
 
+    <ImageView
+        android:id="@+id/now_playing_bar_cover"
+        android:layout_width="@dimen/now_playing_bar_details_height"
+        android:layout_height="@dimen/now_playing_bar_details_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        tools:background="@drawable/temp_square"/>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,7 +25,8 @@
         android:layout_toRightOf="@+id/now_playing_bar_cover"
         android:layout_toEndOf="@+id/now_playing_bar_cover"
         android:layout_centerVertical="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="RtlSymmetry">
 
         <TextView
             android:id="@+id/now_playing_bar_title"
@@ -43,16 +52,7 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
             tools:text="Hillsong"/>
-
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/now_playing_bar_cover"
-        android:layout_width="@dimen/now_playing_bar_details_height"
-        android:layout_height="@dimen/now_playing_bar_details_height"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        tools:background="@drawable/temp_square"/>
 
     <TextView
         android:id="@+id/now_playing_bar_current_time"
@@ -66,4 +66,5 @@
         android:textSize="18sp"
         android:textColor="@color/text_secondary"
         tools:text="3:45"/>
+
 </RelativeLayout>

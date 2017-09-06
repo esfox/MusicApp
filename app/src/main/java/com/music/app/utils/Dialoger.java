@@ -9,7 +9,13 @@ import com.music.app.R;
 
 public class Dialoger
 {
-    public static void createDialog(Context context, String title, int itemsID, DialogInterface.OnClickListener onClickListener)
+    public static void createDialog
+        (
+            Context context,
+            String title,
+            int itemsID,
+            DialogInterface.OnClickListener onClickListener
+        )
     {
         AlertDialog.Builder dialog = getDialogBuilder(context);
         dialog.setTitle(title).setItems(itemsID, onClickListener);

@@ -266,7 +266,8 @@ public class AudioFileScanner
     @SuppressLint("StaticFieldLeak")
     private class BackgroundScanner extends AsyncTask<Void, Void, Void>
     {
-        private ProgressDialog progressDialog = new ProgressDialog(context);
+        private ProgressDialog progressDialog =
+                new ProgressDialog(context, R.style.AppTheme_ProgressDialog);
 
         @Override
         protected void onPreExecute()
@@ -292,7 +293,6 @@ public class AudioFileScanner
         }
     }
 
-    @SuppressLint("StaticFieldLeak")
     private class AlbumCoverScanner extends AsyncTask<Void, Void, Void>
     {
         private Snackbar snackbar;

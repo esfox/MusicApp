@@ -102,14 +102,11 @@ public class Player extends Service
                 e.printStackTrace();
             }
 
-//            Intent notifIntent = new Intent(Data.getInstance().getContext(), MainActivity.class);
-//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setContentTitle(title)
                     .setContentText(artist)
                     .setSmallIcon(R.drawable.play_36dp)
-//                    .setContentIntent(pendingIntent)
                     .setOngoing(true);
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
