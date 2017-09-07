@@ -59,10 +59,9 @@ public class Data
 //                    s = song;
 //        }
 //        else s = null;
-
         return new SongDatabaseHelper(context)
                 .getCurrentSong(sharedPreferences
-                        .getLong(currentSongIDKey, 0));
+                        .getLong(currentSongIDKey, -1));
     }
 
     public boolean currentSongIsNotNull()

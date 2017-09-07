@@ -8,16 +8,15 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 
 import com.bumptech.glide.Glide;
-import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.database.SongDatabaseHelper;
 import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 import com.music.app.utils.interfaces.AudioScanListener;
+import com.music.app.views.Notice;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -295,16 +294,17 @@ public class AudioFileScanner
 
     private class AlbumCoverScanner extends AsyncTask<Void, Void, Void>
     {
-        private Snackbar snackbar;
+        private Notice notice;
 
         @Override
         protected void onPreExecute()
         {
             super.onPreExecute();
-            snackbar = Snackbar.make(((MainActivity) context)
-                    .getWindow().getDecorView().getRootView(),
-                    "Loading album covers...", Snackbar.LENGTH_INDEFINITE);
-            snackbar.show();
+            notice = new Notice(context);
+            notice.setNoticeText("Loading album covers...");
+            notice.setNotClickable();
+            notice.doNotDismiss();
+            notice.show();
         }
 
         @Override
@@ -318,7 +318,7 @@ public class AudioFileScanner
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
-            snackbar.dismiss();
+            notice.dismiss();
             audioScanListener.onUpdate();
 
             if(!data.stored())

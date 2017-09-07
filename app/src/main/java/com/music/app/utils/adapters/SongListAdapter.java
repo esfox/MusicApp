@@ -1,17 +1,21 @@
 package com.music.app.utils.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
+import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
@@ -19,10 +23,14 @@ import com.music.app.utils.interfaces.QueueListener;
 import com.music.app.utils.interfaces.ServiceListener;
 import com.music.app.utils.interfaces.SongListAdapterListener;
 import com.music.app.utils.interfaces.SongListViewHolderListener;
+import com.music.app.views.Notice;
 import com.music.app.views.SongListViewHolder;
+import com.wooplr.spotlight.SpotlightView;
+import com.wooplr.spotlight.utils.SpotlightListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 //TODO: Extract logic from ViewHolder to here
 
@@ -30,6 +38,8 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
 {
     private Context context;
     private ListView songList;
+
+    private Data data;
 
     private ArrayList<Song> songs;
     private Sorter.SortBy sort;
@@ -89,11 +99,13 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
         Context context,
         ListView songList,
         ArrayList<Song> songs,
+        Data data,
         Sorter.SortBy sort
     )
     {
         this.context = context;
         this.songList = songList;
+        this.data = data;
         this.songs = songs;
         this.sort = sort;
 
@@ -213,38 +225,114 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
     public void onClick(int index, SongListViewHolder viewHolder)
     {
         Song song = getSongByIndex(index);
-        if(inMultiQueueMode)
+        if (inMultiQueueMode)
         {
-            queueListener.onQueue(song.getId());
-            Toast.makeText(context, song.getTitle() + " queued",
-                    Toast.LENGTH_SHORT).show();
+            if(data.currentSongIsNotNull())
+                queue(index);
+            else
+                noPlayingSongNotice(true);
         }
-        else if(inSelectionMode)
+        else if (inSelectionMode)
         {
             selectItem(index);
             viewHolder.setBackgroundColor(index, itemIsSelected(index));
-        }
-        else
+        } else
             serviceListener.onStartAudio(song, true, false);
     }
 
     @Override
-    public void onQueue(int index)
+    public void onQueue(final int index)
     {
-        songListAdapterListener.onQueuePrompt(index);
+        if(data.currentSongIsNotNull())
+        {
+            if(data.queuePrompt())
+            {
+                AlertDialog.Builder dialog = Dialoger.getDialogBuilder(context);
+                dialog.setTitle("Multi-Queue");
+                dialog.setMessage("It looks like you are trying to queue a song.\n" +
+                        "I suggest you try the Multi-Queue mode.\n" +
+                        "In Multi-Queue, you can just tap on the " +
+                        "song to queue it immediately.\n\n" +
+                        "You can turn on Multi-Queue automatically when you queue a song " +
+                        "by enabling it in the settings." +
+                        "\n(SETTINGS NOT YET MADE.)");
+                dialog.setPositiveButton("Got It", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        data.updateQueuePrompt(false);
+                        new SpotlightView.Builder((Activity) context)
+                                .introAnimationDuration(300)
+                                .enableRevealAnimation(true)
+                                .fadeinTextDuration(200)
+                                .headingTvText("Multi-Queue")
+                                .headingTvSize(30)
+                                .headingTvColor(Color.parseColor("#FF6060"))
+                                .subHeadingTvText("Press this button to enable Multi-Queue. " +
+                                        "If you press it again while Multi-Queue is enabled," +
+                                        " it will disable Multi-Queue.")
+                                .subHeadingTvSize(15)
+                                .subHeadingTvColor(Color.WHITE)
+                                .maskColor(Color.parseColor("#dc000000"))
+                                .lineAnimDuration(200)
+                                .lineAndArcColor(Color.parseColor("#F44336"))
+                                .dismissOnBackPress(true)
+                                .dismissOnTouch(true)
+                                .enableDismissAfterShown(true)
+                                .performClick(true)
+                                .target(((Activity) context).findViewById(R.id.multi_queue))
+                                .usageId(String.valueOf(UUID.randomUUID()))
+                                .setListener(new SpotlightListener()
+                                {
+                                    @Override
+                                    public void onUserClicked(String s)
+                                    {
+                                        queue(index);
+                                    }
+                                })
+                                .show();
+                    }
+                });
+                dialog.show();
+            }
+            else
+                queue(index);
+        }
+        else
+            noPlayingSongNotice(false);
+    }
+
+    public void queue(int index)
+    {
+        Song song = getSongByIndex(index);
+        queueListener.onQueue(song.getId());
+
+        Notice notice = new Notice(context);
+        notice.setNoticeText(song.getTitle() + " queued");
+        notice.setNoticeIcon(R.drawable.queue_24dp);
+
+        if(inMultiQueueMode)
+            notice.setAbove();
+
+        notice.show();
     }
 
     @Override
     public void onPlayNext(int index)
     {
-        Song song = getSongByIndex(index);
-        queueListener.onPlayNext(song.getId());
-        Toast.makeText
-        (
-            context,
-            song.getTitle() + " to play next",
-            Toast.LENGTH_SHORT
-        ).show();
+        if(data.currentSongIsNotNull())
+        {
+            Song song = getSongByIndex(index);
+            queueListener.onPlayNext(song.getId());
+
+            Notice notice = new Notice(context);
+            notice.setNoticeText(song.getTitle() + " to play next");
+            notice.setNoticeIcon(R.drawable.play_next_24dp);
+            notice.show();
+        }
+        else
+            noPlayingSongNotice(false);
     }
 
     @Override
@@ -386,7 +474,10 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
 //
 //        notifyDataSetChanged();
 
-        Toast.makeText(context, "Delete Selected Items", Toast.LENGTH_SHORT).show();
+
+        Notice notice = new Notice(context);
+        notice.setNoticeText("Delete Selected Items");
+        notice.show();
 
         toggleSelectionMode(false);
     }
@@ -414,18 +505,6 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
             viewHolder.toggleOptionsVisibility(true);
     }
 
-    public void queue(int index)
-    {
-        Song song = getSongByIndex(index);
-        queueListener.onQueue(song.getId());
-        Toast.makeText
-            (
-                context,
-                song.getTitle() + " queued",
-                Toast.LENGTH_SHORT
-            ).show();
-    }
-
     public boolean isInMultiQueueMode() { return inMultiQueueMode; }
 
     public void toggleMultiQueueMode(boolean toggleMultiQueueMode)
@@ -433,6 +512,8 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
         //TODO: Untoggle when going to other fragments (Do after managing fragment navigation)
 
         inMultiQueueMode = toggleMultiQueueMode;
+        toggleOptions(!toggleMultiQueueMode);
+
         songListAdapterListener.onToggleToolbar(toggleMultiQueueMode, true,  "Multi-Queue");
     }
 
@@ -443,19 +524,9 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
         //TODO: Fix entering into selection mode on other sort
 
         inSelectionMode = toggleSelectionMode;
+        toggleOptions(!toggleSelectionMode);
 
-        if(inSelectionMode)
-        {
-            for(int i = 0;
-                i <= songList.getLastVisiblePosition() - songList.getFirstVisiblePosition();
-                i++)
-            {
-                if(items.get(i).isItem())
-                    ((SongListViewHolder) songList.getChildAt(i).getTag())
-                            .toggleOptionsVisibility(false);
-            }
-        }
-        else
+        if(!inSelectionMode)
         {
             if(sort == Sorter.SortBy.title)
             {
@@ -468,10 +539,8 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
                     i <= songList.getLastVisiblePosition() - songList.getFirstVisiblePosition();
                     i++)
                 {
-                    SongListViewHolder viewHolder = (SongListViewHolder)
-                            songList.getChildAt(i).getTag();
-                    viewHolder.setBackgroundColor(i, false);
-                    viewHolder.toggleOptionsVisibility(true);
+                    ((SongListViewHolder) songList.getChildAt(i).getTag())
+                            .setBackgroundColor(i, false);
                 }
             }
             else
@@ -481,12 +550,25 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
                         context,
                         songs,
                         songList,
+                        data,
                         sort
                     )
                 );
         }
 
         songListAdapterListener.onToggleToolbar(toggleSelectionMode, false, "0 items selected");
+    }
+
+    private void toggleOptions(boolean toggle)
+    {
+        for(int i = 0;
+            i <= songList.getLastVisiblePosition() - songList.getFirstVisiblePosition();
+            i++)
+        {
+            if(items.get(i).isItem())
+                ((SongListViewHolder) songList.getChildAt(i).getTag())
+                        .toggleOptionsVisibility(toggle);
+        }
     }
 
     private void selectItem(int position)
@@ -504,6 +586,17 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
     private boolean itemIsSelected(int position)
     {
         return selectedFlags.get(position);
+    }
+
+    private void noPlayingSongNotice(boolean inMultiQueueMode)
+    {
+        Notice notice = new Notice(context);
+        notice.setNoticeText("There is no currently playing song.");
+
+        if(inMultiQueueMode)
+            notice.setAbove();
+
+        notice.show();
     }
 
     ArrayList<Item> getItems()

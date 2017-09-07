@@ -15,7 +15,7 @@
         android:clickable="true"/>
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/header"
+        android:id="@+id/now_playing_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/background_secondary"
@@ -24,17 +24,11 @@
         app:theme="@style/ToolbarStyle"
         app:title="Now Playing"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:layout_below="@id/header"
-        android:background="@drawable/toolbar_shadow"/>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/now_playing_controls"
-        android:layout_below="@+id/header"
+        android:layout_below="@+id/now_playing_toolbar"
         android:layout_marginTop="20dp">
 
         <!--TODO: Scrolling Text-->
@@ -213,4 +207,51 @@
             app:srcCompat="@drawable/next_24dp"/>
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/now_playing_start_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/now_playing_toolbar"
+        android:layout_above="@+id/now_playing_controls"
+        android:background="@color/background_primary"
+        android:visibility="gone"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:text="Yow"
+            android:textSize="75sp"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAlignment="center"
+            android:text="Nothing is playing yet."
+            android:textSize="20sp"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="25dp"
+            android:textSize="150sp"
+            android:rotation="90"
+            android:text=":v"
+            android:textColor="#44FFFFFF"
+            tools:ignore="HardcodedText"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@id/now_playing_toolbar"
+        android:background="@drawable/toolbar_shadow"/>
+
 </RelativeLayout>

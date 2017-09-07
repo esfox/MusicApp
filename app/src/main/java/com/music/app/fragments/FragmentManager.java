@@ -82,7 +82,7 @@ public class FragmentManager
                         R.anim.slide_up, R.anim.slide_down,
                         R.anim.slide_up, R.anim.slide_down
                     )
-                .replace(R.id.fragment_area_parent, nowPlayingFragment,
+                .replace(R.id.parent, nowPlayingFragment,
                         "Now Playing")
                 .addToBackStack(null)
                 .commit();
@@ -99,7 +99,7 @@ public class FragmentManager
                         R.anim.slide_in_left, R.anim.slide_out_left,
                         R.anim.slide_in_right, R.anim.slide_out_right
                     )
-                .replace(R.id.fragment_area_parent, playQueueFragment, "Play Queue")
+                .replace(R.id.parent, playQueueFragment, "Play Queue")
                 .addToBackStack("Play Queue")
                 .commit();
     }

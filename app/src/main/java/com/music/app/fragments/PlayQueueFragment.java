@@ -88,7 +88,7 @@ public class PlayQueueFragment extends Fragment /*implements OnStartDragListener
                         // Data.updateNowPlayingFragment();
                         break;
                     case R.id.action_repeat:
-                        data.updateRepeatState();
+                        queueListener.onRepeat();
                         repeat();
                         //TODO: Update NowPlayingFragment
                         //Data.updateNowPlayingFragment();
@@ -144,7 +144,7 @@ public class PlayQueueFragment extends Fragment /*implements OnStartDragListener
         scrollToPlaying();
     }
 
-    public void updateNowPlaying(Song song)
+    private void updateNowPlaying(Song song)
     {
         if(song != null)
         {
@@ -162,7 +162,7 @@ public class PlayQueueFragment extends Fragment /*implements OnStartDragListener
         }
     }
 
-    public void updateAdapter()
+    private void updateAdapter()
     {
         if(playQueueAdapterOld != null)
             playQueueAdapterOld.update();

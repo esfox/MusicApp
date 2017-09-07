@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.music.app.R;
 import com.music.app.objects.Data;
@@ -28,6 +27,7 @@ import com.music.app.utils.adapters.SongListFastScrollAdapter;
 import com.music.app.utils.interfaces.QueueListener;
 import com.music.app.utils.interfaces.ServiceListener;
 import com.music.app.utils.interfaces.SongListAdapterListener;
+import com.music.app.views.Notice;
 import com.wooplr.spotlight.SpotlightView;
 import com.wooplr.spotlight.utils.SpotlightListener;
 
@@ -144,22 +144,28 @@ public class SongListFragment extends Fragment implements
             @Override
             public boolean onMenuItemClick(MenuItem item)
             {
+                boolean handled = false;
 
-            switch (item.getItemId())
-            {
-                case R.id.multi_select:
-                    adapter.toggleSelectionMode(true);
-                    done.setVisibility(View.VISIBLE);
-                    return true;
+                switch (item.getItemId())
+                {
+                    case R.id.multi_select:
+                        adapter.toggleSelectionMode(true);
+                        done.setVisibility(View.VISIBLE);
+                        handled = true;
+                        break;
 
-                case R.id.multi_queue:
-                    adapter.toggleMultiQueueMode(true);
-                    done.setVisibility(View.VISIBLE);
-                    return true;
+                    case R.id.multi_queue:
+                        adapter.toggleMultiQueueMode(true);
+                        done.setVisibility(View.VISIBLE);
+                        handled = true;
+                        break;
 
-                default:
-                    return false;
-            }
+                    default:
+                        handled = false;
+                        break;
+                }
+
+                return handled;
             }
         };
 
@@ -183,73 +189,6 @@ public class SongListFragment extends Fragment implements
         if(toggleMultiQueue)
             toolbar.findViewById(R.id.song_list_toolbar_menu)
                     .setVisibility((toggle)? View.GONE : View.VISIBLE);
-    }
-
-    @Override
-    public void onQueuePrompt(final int index)
-    {
-        if(data.currentSongIsNotNull())
-        {
-            if(data.queuePrompt())
-            {
-                AlertDialog.Builder dialog = Dialoger.getDialogBuilder(getContext());
-                dialog.setTitle("Multi-Queue");
-                dialog.setMessage("It looks like you are trying to queue a song.\n" +
-                        "I suggest you try the Multi-Queue mode.\n" +
-                        "In Multi-Queue, you can just tap on the song to queue it immediately.\n\n" +
-                        "You can turn on Multi-Queue automatically when you queue a song " +
-                        "by enabling it in the settings." +
-                        "\n(SETTINGS NOT YET MADE.)");
-                dialog.setPositiveButton("Got It", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        data.updateQueuePrompt(false);
-                        new SpotlightView.Builder((Activity) getContext())
-                                .introAnimationDuration(300)
-                                .enableRevealAnimation(true)
-                                .fadeinTextDuration(200)
-                                .headingTvText("Multi-Queue")
-                                .headingTvSize(30)
-                                .headingTvColor(Color.parseColor("#FF6060"))
-                                .subHeadingTvText("Press this button to enable Multi-Queue. " +
-                                        "If you press it again while Multi-Queue is enabled," +
-                                        " it will disable Multi-Queue.")
-                                .subHeadingTvSize(15)
-                                .subHeadingTvColor(Color.WHITE)
-                                .maskColor(Color.parseColor("#dc000000"))
-                                .lineAnimDuration(200)
-                                .lineAndArcColor(Color.parseColor("#F44336"))
-                                .dismissOnBackPress(true)
-                                .dismissOnTouch(true)
-                                .enableDismissAfterShown(true)
-                                .performClick(true)
-                                .target(((Activity) getContext()).findViewById(R.id.multi_queue))
-                                .usageId(String.valueOf(UUID.randomUUID()))
-                                .setListener(new SpotlightListener()
-                                {
-                                    @Override
-                                    public void onUserClicked(String s)
-                                    {
-                                        adapter.queue(index);
-                                    }
-                                })
-                                .show();
-                    }
-                });
-                dialog.show();
-            }
-            else
-                adapter.queue(index);
-        }
-        else
-            Toast.makeText
-                (
-                    getContext(),
-                    "There is no currently playing song.",
-                    Toast.LENGTH_SHORT
-                ).show();
     }
 
     private void selectionMenu(View view)
@@ -283,7 +222,10 @@ public class SongListFragment extends Fragment implements
             @Override
             public boolean onMenuItemClick(MenuItem item)
             {
-                Toast.makeText(getContext(), "Debug this", Toast.LENGTH_SHORT).show();
+
+                Notice notice = new Notice(getContext());
+                notice.setNoticeText("Debug this!");
+                notice.show();
 
                 switch (item.getItemId())
                 {
@@ -320,10 +262,11 @@ public class SongListFragment extends Fragment implements
                     getContext(),
                     Sorter.sort(songs, sort),
                     songList,
+                    data,
                     sort
                 );
         else
-            adapter = new SongListAdapter(getContext(), songList, songs, sort);
+            adapter = new SongListAdapter(getContext(), songList, songs, data, sort);
 
         adapter.setSongListAdapterListener(this);
         adapter.setServiceListener(serviceListener);

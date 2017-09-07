@@ -7,7 +7,6 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -71,8 +70,8 @@ public class UIManager
         repeat = (ImageButton)
                 views.findViewById(R.id.repeat);
 
-        shuffle(context, false, queueListener, data);
-        repeat(context, false, data);
+        shuffle(context, data.isShuffled());
+        repeat(context, data);
 
         //Initialize Navigation Drawer
         navigationDrawer = ((NavigationView)
@@ -142,6 +141,8 @@ public class UIManager
 
             title.setText(song.getTitle());
             artist.setText(song.getArtist());
+
+//            shuffle(context, data.isShuffled(), );
         }
         else
         {
@@ -167,17 +168,6 @@ public class UIManager
     {
         if (fragmentManager.nowPlayingFragment.isVisible())
             fragmentManager.nowPlayingFragment.updateProgress(time);
-    }
-
-    public void updatePlayQueueAdapter()
-    {
-        fragmentManager.playQueueFragment.updateAdapter();
-    }
-
-    public void updatePlayQueueFragmentNowPlaying(Song song)
-    {
-        if (fragmentManager.playQueueFragment.isVisible())
-            fragmentManager.playQueueFragment.updateNowPlaying(song);
     }
 
     public void toggleNavigationDrawer(boolean open)
@@ -210,12 +200,9 @@ public class UIManager
             playButton.setImageResource(R.drawable.play_24dp);
     }
 
-    public void shuffle(Context context, boolean toggle, QueueListener queueListener, Data data)
+    public void shuffle(Context context, boolean toggle)
     {
         if(toggle)
-            queueListener.onShuffle();
-
-        if(data.isShuffled())
             shuffle.setColorFilter
                 (
                     ContextCompat.getColor(context,
@@ -231,28 +218,25 @@ public class UIManager
                 );
     }
 
-    public void repeat(Context context, boolean toggle, Data data)
+    public void repeat(Context context, Data data)
     {
-    if(toggle)
-        data.updateRepeatState();
+        switch(data.repeatState())
+        {
+            case OFF:
+                repeat.setImageResource(R.drawable.repeat_24dp);
+                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
+                break;
 
-    switch(data.repeatState())
-    {
-        case OFF:
-            repeat.setImageResource(R.drawable.repeat_24dp);
-            repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
-            break;
+            case ALL:
+                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                break;
 
-        case ALL:
-            repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
-            break;
-
-        case ONE:
-            repeat.setImageResource(R.drawable.repeat_one_24dp);
-            repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
-            break;
+            case ONE:
+                repeat.setImageResource(R.drawable.repeat_one_24dp);
+                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                break;
+        }
     }
-}
 
 //    public void setScrubAmount(Context context, final Data data)
 //    {

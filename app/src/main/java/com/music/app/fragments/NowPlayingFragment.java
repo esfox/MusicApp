@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,7 +74,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         shuffle();
         repeat();
 
-        Toolbar header = ((Toolbar) view.findViewById(R.id.header));
+        Toolbar header = ((Toolbar) view.findViewById(R.id.now_playing_toolbar));
         header.setNavigationOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -111,7 +112,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        initProgress();
 
         update(data.currentSong(getContext()));
     }
@@ -125,8 +125,11 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
     public void update(Song song)
     {
-        if(song != null)
+        if(data.currentSongIsNotNull())
         {
+            ((ViewGroup) getView()).removeView(getView()
+                    .findViewById(R.id.now_playing_start_message));
+
             ((TextView) getView()
                     .findViewById(R.id.now_playing_title)).setText(song.getTitle());
             ((TextView) getView()
@@ -145,50 +148,49 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                             new File(song.getCoverPath()) :
                             R.drawable.library_music_48dp)
                     .into(cover);
-        }
-    }
 
-    private void initProgress()
-    {
-        final MediaPlayer mediaPlayer = player.getPlayer();
+            final MediaPlayer mediaPlayer = player.getPlayer();
 
-        progress = (SeekBar) getView().findViewById(R.id.now_playing_progress_bar);
-        time = (TextView) getView().findViewById(R.id.now_playing_start_time);
+            progress = (SeekBar) getView().findViewById(R.id.now_playing_progress_bar);
+            time = (TextView) getView().findViewById(R.id.now_playing_start_time);
 
-        progress.setPadding(0,0,0,0);
-        progress.setMax(player.getPlayer().getDuration());
+            progress.setPadding(0,0,0,0);
+            progress.setMax(player.getPlayer().getDuration());
 
-        int currentTime = (int) data.currentTime();
-        boolean isNotNew = (currentTime != -1);
-        progress.setProgress((isNotNew)? currentTime : 0);
-        time.setText(Timestamper.getTimestamp((isNotNew)? currentTime : 0));
+            int currentTime = (int) data.currentTime();
+            boolean currentTimeIsNotNull = currentTime != -1;
+            progress.setProgress((currentTimeIsNotNull) ? currentTime : 0);
+            time.setText(Timestamper.getTimestamp((currentTimeIsNotNull) ? currentTime : 0));
 
-        progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-        {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
             {
-                if(fromUser)
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
                 {
-                    if(progress >= mediaPlayer.getDuration())
-                        mediaPlayer.seekTo(mediaPlayer.getDuration());
-                    else
-                        mediaPlayer.seekTo(progress);
+                    if(fromUser)
+                    {
+                        if(progress >= mediaPlayer.getDuration())
+                            mediaPlayer.seekTo(mediaPlayer.getDuration());
+                        else
+                            mediaPlayer.seekTo(progress);
+                    }
                 }
-            }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar)
-            {
-                player.play();
-            }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar)
+                {
+                    player.play();
+                }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
-                player.play();
-            }
-        });
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar)
+                {
+                    player.play();
+                }
+            });
+        }
+        else
+            getView().findViewById(R.id.now_playing_start_message).setVisibility(View.VISIBLE);
     }
 
     public void updateProgress(int currentTime)
@@ -226,12 +228,12 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                 break;
 
             case R.id.now_playing_shuffle:
-                uiManager.shuffle(getContext(), true, queueListener, data);
+                queueListener.onShuffle();
                 shuffle();
                 break;
 
             case R.id.now_playing_repeat:
-                uiManager.repeat(getContext(), true, data);
+                queueListener.onRepeat();
                 repeat();
                 break;
         }

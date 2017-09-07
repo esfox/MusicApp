@@ -8,53 +8,47 @@
     android:layout_height="match_parent"
     tools:ignore="ContentDescription">
 
-    <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/parent_view"
+    <RelativeLayout
+        android:id="@+id/parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background_primary"
         tools:context="com.music.app.MainActivity">
 
-        <RelativeLayout
-            android:id="@+id/fragment_area_parent"
+        <include
+            layout="@layout/app_bar"
+            android:id="@+id/app_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"/>
+
+        <include
+            layout="@layout/content_main"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_below="@+id/app_bar"
+            android:layout_above="@+id/now_playing_bar_layout"/>
 
-            <include
-                layout="@layout/app_bar"
-                android:id="@+id/app_bar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_below="@id/app_bar"
+            android:background="@drawable/toolbar_shadow"/>
 
-            <include
-                layout="@layout/content_main"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/app_bar"
-                android:layout_above="@+id/now_playing_bar_layout"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_above="@+id/now_playing_bar_layout"
+            android:background="@drawable/toolbar_shadow_upside_down"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_below="@id/app_bar"
-                android:background="@drawable/toolbar_shadow"/>
+        <include
+            layout="@layout/now_playing_bar"
+            android:id="@+id/now_playing_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/now_playing_bar_height"
+            android:layout_alignParentBottom="true"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_above="@+id/now_playing_bar_layout"
-                android:background="@drawable/toolbar_shadow_upside_down"/>
-
-            <include
-                layout="@layout/now_playing_bar"
-                android:id="@+id/now_playing_bar_layout"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/now_playing_bar_height"
-                android:layout_alignParentBottom="true"/>
-
-        </RelativeLayout>
-    </android.support.design.widget.CoordinatorLayout>
+    </RelativeLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/navigation_drawer"

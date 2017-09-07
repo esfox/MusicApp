@@ -11,6 +11,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.music.app.R;
 import com.music.app.utils.interfaces.ServiceListener;
@@ -22,7 +23,6 @@ public class Player extends Service
     private IBinder binder = new ServiceBinder();
 
     private ServiceListener serviceListener;
-
 
     private MediaPlayer player;
     private Data data;
@@ -205,7 +205,6 @@ public class Player extends Service
     public void next()
     {
         change(true, true);
-        timeUpdate();
     }
 
     public boolean previous()
@@ -219,7 +218,6 @@ public class Player extends Service
         else
         {
             change(false, true);
-            timeUpdate();
             return true;
         }
     }
@@ -239,37 +237,37 @@ public class Player extends Service
     private void change(boolean next, boolean fromUser)
     {
         Song song = null;
-        if(next)
+        if (next)
         {
-            if(fromUser)
+            if (fromUser)
                 song = getSongByID(queue.update(next));
             else
             {
-                if(data.repeatState() == Data.RepeatState.ONE)
+                if (data.repeatState() == Data.RepeatState.ONE)
                     song = data.currentSong(this);
                 else
                 {
-                    if(data.repeatState() == Data.RepeatState.OFF)
+                    if (data.repeatState() == Data.RepeatState.OFF)
                     {
                         long nextID = queue.update(next);
-                        if(nextID != queue.getQueue().get(0))
+                        if (nextID != queue.getQueue().get(0))
                             song = getSongByID(nextID);
                         else
                         {
                             data.updateCurrentQueueIndex(queue.getQueue().size() - 1);
                             stop();
                         }
-                    }
-                    else if(data.repeatState() == Data.RepeatState.ALL)
+                    } else if (data.repeatState() == Data.RepeatState.ALL)
                         song = getSongByID(queue.update(next));
                 }
             }
-        }
-        else
+        } else
             song = getSongByID(queue.update(next));
 
-        if(song != null)
+        if (song != null)
             serviceListener.onStartAudio(song, false, false);
+
+        timeUpdate();
     }
 
     private Song getSongByID(long id)
