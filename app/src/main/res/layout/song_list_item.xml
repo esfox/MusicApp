@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    android:id="@+id/song_list_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:ignore="ContentDescription">
 
-    <include layout="@layout/song_list_options"
+    <include layout="@layout/song_list_options_layout"
              android:layout_width="180dp"
              android:layout_height="60dp"
              android:layout_alignParentRight="true"
              android:layout_alignParentEnd="true"/>
 
     <RelativeLayout
-        android:id="@+id/background"
+        android:id="@+id/song_list_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/background_alternate">
 
         <RelativeLayout
-            android:id="@+id/container"
+            android:id="@+id/song_list_clickable"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="?attr/selectableItemBackground"
@@ -32,7 +31,7 @@
             android:paddingEnd="0dp">
 
             <ImageView
-                android:id="@+id/options"
+                android:id="@+id/song_list_options"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -49,8 +48,7 @@
                 android:src="@drawable/more_vertical_24dp"
                 android:tint="@color/button_tint"/>
 
-            <RelativeLayout
-                android:id="@+id/info"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_centerVertical="true"
@@ -61,11 +59,12 @@
                 android:layout_marginStart="15dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_toLeftOf="@+id/cover"
-                android:layout_toStartOf="@+id/cover">
+                android:layout_toLeftOf="@+id/song_list_cover"
+                android:layout_toStartOf="@+id/song_list_cover"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/title"
+                    android:id="@+id/song_list_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -76,26 +75,25 @@
                     tools:text="For Your Purpose"/>
 
                 <TextView
-                    android:id="@+id/artist"
+                    android:id="@+id/song_list_artist"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/title"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textSize="15sp"
                     tools:text="Victory Worship"/>
 
-            </RelativeLayout>
+            </LinearLayout>
 
             <ImageView
-                android:id="@+id/cover"
+                android:id="@+id/song_list_cover"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-                android:layout_toLeftOf="@+id/options"
-                android:layout_toStartOf="@+id/options"
+                android:layout_toLeftOf="@+id/song_list_options"
+                android:layout_toStartOf="@+id/song_list_options"
                 android:layout_centerVertical="true"
-                android:src="@drawable/library_music_48dp"/>
+                android:src="@drawable/album_art_placeholder"/>
         </RelativeLayout>
     </RelativeLayout>
 </RelativeLayout>

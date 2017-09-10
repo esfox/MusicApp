@@ -3,7 +3,6 @@ package com.music.app;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
@@ -11,7 +10,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -20,32 +18,31 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
+import com.music.app.interfaces.AudioScanListener;
+import com.music.app.interfaces.QueueListener;
+import com.music.app.interfaces.ServiceListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Queue;
 import com.music.app.objects.Song;
 import com.music.app.utils.AudioFileScanner;
-import com.music.app.utils.Dialoger;
 import com.music.app.utils.UIManager;
 import com.music.app.utils.adapters.SongListAdapter;
-import com.music.app.utils.interfaces.AudioScanListener;
-import com.music.app.utils.interfaces.QueueListener;
-import com.music.app.utils.interfaces.ServiceListener;
-import com.music.app.views.Notice;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 /*
 
 TODO CURRENT ACTIVITY
 
-Now Playing Fragment
+Play Queue Frag bment on song changed
+SongListAdapter implement OnItemClickListener
+
+RESTRUCTURE CODE!!!!!
 
 TODO: Remember to do these
-Showcase Multi-Queue Button
-Modify NowPlayingFragment layout (Put album name under cover)
+NowPlayingFragment Seek Value bug
 MediaSession, MediaBrowserCompat blabla
 
 REMEMBER:
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements
         {
             Player.ServiceBinder binder = (Player.ServiceBinder) service;
             player = binder.getService();
-            player.initialize(data, queue);
+            player.initialize(serviceIntent, data, queue);
             player.setServiceListener(MainActivity.this);
 
             uiManager = new UIManager(MainActivity.this);
@@ -86,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements
                     data,
                     player,
                     MainActivity.this,
+                    MainActivity.this,
                     MainActivity.this
                 );
             uiManager.setClickListeners(MainActivity.this, MainActivity.this);
@@ -93,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements
 
             boolean currentSongIsNotNull = data.currentSongIsNotNull();
             if(currentSongIsNotNull)
-                player.resumeSong(MainActivity.this);
+                player.resumeSong();
         }
 
         @Override
@@ -246,16 +244,13 @@ public class MainActivity extends AppCompatActivity implements
     //    }
 
     @Override
-    public void onStartAudio(Song song, boolean newSong, boolean resume)
+    public void onStartAudio(final Song song, final boolean newSong)
     {
-        player.toggleResumed(resume);
+        player.startSong(song, newSong);
 
-        player.setSong(song);
-        startService(serviceIntent);
-        player.updateCurrentSong(song, newSong);
-
-        uiManager.togglePlayButtonIcon(!resume);
-        uiManager.updateNowPlayingBar(this, data);
+        uiManager.togglePlayButtonIcon(true);
+        uiManager.updateNowPlayingBar(MainActivity.this, data);
+        uiManager.updateQueueFragment();
 
         //TODO: More efficient current art loading
         new CurrentAlbumArtScanner().execute();
@@ -341,6 +336,7 @@ public class MainActivity extends AppCompatActivity implements
         {
             ((SongListAdapter) fragmentManager.songListFragment
                     .getSongList().getAdapter()).notifyDataSetChanged();
+
         }
         catch (Exception e)
         {
@@ -395,9 +391,6 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.no_action_yet:
-                Notice testNotice = new Notice(this);
-                testNotice.setNoticeText("Test Notice");
-                testNotice.show();
                 break;
 
             case R.id.now_playing_bar:
@@ -456,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.navigation_drawer_play_queue:
-                fragmentManager.playQueue();
+                fragmentManager.queue();
                 break;
 
             case R.id.navigation_drawer_settings:
@@ -474,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements
     {
         if(keyCode == KeyEvent.KEYCODE_BACK)
         {
-            if(getSupportFragmentManager().getBackStackEntryCount() == 0)
+            if(getSupportFragmentManager().getBackStackEntryCount() <= 1)
                 moveTaskToBack(true);
             else
                 super.onBackPressed();
@@ -507,15 +500,19 @@ public class MainActivity extends AppCompatActivity implements
         {
             try
             {
+//                data.updateCurrentAlbumArt
+//                        (Drawable.createFromPath(data.currentSong(MainActivity.this)
+//                                .getCoverPath()));
+
                 data.updateCurrentAlbumArt(Glide
                         .with(MainActivity.this)
                         .load(new File(data.currentSong(MainActivity.this).getCoverPath()))
-                        .into(500, 500).get());
+                        .into(700, 700).get());
             }
-            catch (NullPointerException | InterruptedException | ExecutionException e)
+            catch (Exception e)
             {
                 data.updateCurrentAlbumArt(ResourcesCompat
-                        .getDrawable(getResources(), R.drawable.library_music_48dp, null));
+                        .getDrawable(getResources(), R.drawable.album_art_placeholder, null));
             }
             return null;
         }
@@ -524,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
-            uiManager.updateNowPlayingFragment(data.currentSong(MainActivity.this));
+            uiManager.updateNowPlayingFragment();
         }
     }
 

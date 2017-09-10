@@ -57,7 +57,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
             song.setAlbum(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM)));
             song.setReleaseYear(cursor.getString(cursor.getColumnIndex(DB.SONG_RELEASE_YEAR)));
             song.setGenre(cursor.getString(cursor.getColumnIndex(DB.SONG_GENRE)));
-            song.setDuration(cursor.getString(cursor.getColumnIndex(DB.SONG_DURATION)));
+            song.setDuration(cursor.getLong(cursor.getColumnIndex(DB.SONG_DURATION)));
             song.setAlbumID(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM_ID))));
             song.setCoverPath(cursor.getString(cursor.getColumnIndex(DB.SONG_COVER_PATH)));
         }
@@ -91,7 +91,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
                     song.setAlbum(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM)));
                     song.setReleaseYear(cursor.getString(cursor.getColumnIndex(DB.SONG_RELEASE_YEAR)));
                     song.setGenre(cursor.getString(cursor.getColumnIndex(DB.SONG_GENRE)));
-                    song.setDuration(cursor.getString(cursor.getColumnIndex(DB.SONG_DURATION)));
+                    song.setDuration(cursor.getLong(cursor.getColumnIndex(DB.SONG_DURATION)));
                     song.setAlbumID(Long.parseLong(cursor.getString(cursor.getColumnIndex(DB.SONG_ALBUM_ID))));
 
 //                    byte[] coverBytes = cursor.getBlob(cursor.getColumnIndex(DB.SONG_COVER_PATH));

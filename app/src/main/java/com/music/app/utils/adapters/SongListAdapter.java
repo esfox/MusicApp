@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +18,12 @@ import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
-import com.music.app.utils.interfaces.QueueListener;
-import com.music.app.utils.interfaces.ServiceListener;
-import com.music.app.utils.interfaces.SongListAdapterListener;
-import com.music.app.utils.interfaces.SongListViewHolderListener;
+import com.music.app.utils.adapters.viewholders.SongListViewHolder;
+import com.music.app.interfaces.QueueListener;
+import com.music.app.interfaces.ServiceListener;
+import com.music.app.interfaces.SongListAdapterListener;
+import com.music.app.interfaces.SongListListener;
 import com.music.app.views.Notice;
-import com.music.app.views.SongListViewHolder;
 import com.wooplr.spotlight.SpotlightView;
 import com.wooplr.spotlight.utils.SpotlightListener;
 
@@ -32,28 +31,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-//TODO: Extract logic from ViewHolder to here
+//TODO: Improve (Use getItem)
 
-public class SongListAdapter extends BaseAdapter implements SongListViewHolderListener
+public class SongListAdapter extends BaseAdapter implements SongListListener
 {
     private Context context;
     private ListView songList;
 
     private Data data;
+    private Sorter.SortBy sort;
 
     private ArrayList<Song> songs;
-    private Sorter.SortBy sort;
     private ArrayList<Item> items;
-
-    public static final int type_item = 0;
-    private static final int type_section = 1;
-
-    private int openedOptionsPosition = -1;
-    private boolean inMultiQueueMode = false;
-    private boolean inSelectionMode = false;
-
     private ArrayList<Boolean> selectedFlags;
-    private int selectedCount = 0;
+
+    @SuppressWarnings("WeakerAccess")
+    public static final int type_item = 0,
+                            type_section = 1;
+
+    private int openedOptionsPosition = -1,
+                selectedCount = 0;
+    private boolean inMultiQueueMode = false,
+                    inSelectionMode = false;
+
 
     private SongListAdapterListener songListAdapterListener;
     private ServiceListener serviceListener;
@@ -201,7 +201,7 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
             view.setTag(viewHolder);
 
             if(type == type_item)
-                viewHolder.setClickListeners();
+                viewHolder.makeClickable();
         }
         else
             viewHolder = (SongListViewHolder) view.getTag();
@@ -222,7 +222,7 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
     }
 
     @Override
-    public void onClick(int index, SongListViewHolder viewHolder)
+    public void onPlay(int index, SongListViewHolder viewHolder)
     {
         Song song = getSongByIndex(index);
         if (inMultiQueueMode)
@@ -230,14 +230,14 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
             if(data.currentSongIsNotNull())
                 queue(index);
             else
-                noPlayingSongNotice(true);
+                noPlayingSongNotice();
         }
         else if (inSelectionMode)
         {
             selectItem(index);
             viewHolder.setBackgroundColor(index, itemIsSelected(index));
         } else
-            serviceListener.onStartAudio(song, true, false);
+            serviceListener.onStartAudio(song, true);
     }
 
     @Override
@@ -300,7 +300,7 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
                 queue(index);
         }
         else
-            noPlayingSongNotice(false);
+            noPlayingSongNotice();
     }
 
     public void queue(int index)
@@ -311,10 +311,6 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
         Notice notice = new Notice(context);
         notice.setNoticeText(song.getTitle() + " queued");
         notice.setNoticeIcon(R.drawable.queue_24dp);
-
-        if(inMultiQueueMode)
-            notice.setAbove();
-
         notice.show();
     }
 
@@ -332,7 +328,7 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
             notice.show();
         }
         else
-            noPlayingSongNotice(false);
+            noPlayingSongNotice();
     }
 
     @Override
@@ -588,14 +584,10 @@ public class SongListAdapter extends BaseAdapter implements SongListViewHolderLi
         return selectedFlags.get(position);
     }
 
-    private void noPlayingSongNotice(boolean inMultiQueueMode)
+    private void noPlayingSongNotice()
     {
         Notice notice = new Notice(context);
         notice.setNoticeText("There is no currently playing song.");
-
-        if(inMultiQueueMode)
-            notice.setAbove();
-
         notice.show();
     }
 

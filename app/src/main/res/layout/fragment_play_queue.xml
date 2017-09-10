@@ -4,7 +4,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/background_secondary"
-                tools:context=".fragments.PlayQueueFragment">
+                tools:context=".unused.PlayQueueFragment">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/play_queue_toolbar"
@@ -76,10 +76,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
-                android:singleLine="true"
                 android:textAppearance="?android:textAppearanceMedium"
                 android:textColor="@color/colorPrimaryLight"
-                tools:text="Sample Title That is So Very Long"/>
+                tools:text="Sample Title That is So Very Long"
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/play_queue_artist"
@@ -87,10 +87,10 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/play_queue_title"
                 android:ellipsize="marquee"
-                android:singleLine="true"
                 android:textAppearance="?android:textAppearanceSmall"
                 android:textColor="@color/text_primary"
-                tools:text="Sample Title"/>
+                tools:text="Sample Title"
+                android:maxLines="1"/>
 
         </RelativeLayout>
     </RelativeLayout>
@@ -114,7 +114,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        app:srcCompat="@drawable/play_36dp"
+        android:src="@drawable/play_36dp"
         app:useCompatPadding="true"
         tools:ignore="RelativeOverlap"/>
 

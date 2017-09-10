@@ -6,6 +6,10 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Handler;
@@ -13,13 +17,16 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.bumptech.glide.Glide;
 import com.music.app.R;
-import com.music.app.utils.interfaces.ServiceListener;
+import com.music.app.interfaces.ServiceListener;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public class Player extends Service
 {
+    private Intent intent;
     private IBinder binder = new ServiceBinder();
 
     private ServiceListener serviceListener;
@@ -28,7 +35,8 @@ public class Player extends Service
     private Data data;
     private Queue queue;
 
-    private String path, title, artist;
+    private Song songToPlay;
+
     private boolean resumed;
 
     public class ServiceBinder extends Binder
@@ -44,29 +52,29 @@ public class Player extends Service
         this.serviceListener = serviceListener;
     }
 
-    public void initialize(Data data, Queue queue)
+    public void initialize(Intent intent, Data data, Queue queue)
     {
+        this.intent = intent;
         this.data = data;
         this.queue = queue;
 
         timeUpdater = new Handler();
     }
 
-    public void setSong(Song song)
+    public void startSong(Song song, boolean fromUser)
     {
-        this.path = song.getPath();
-        this.title = song.getTitle();
-        this.artist = song.getArtist();
+        resumed = false;
+        songToPlay = song;
+        startService(intent);
+        updateCurrentSong(song, fromUser);
     }
 
-    public void toggleResumed(boolean resume)
+    public void resumeSong()
     {
-        resumed = resume;
-    }
-
-    public void resumeSong(Context context)
-    {
-        serviceListener.onStartAudio(data.currentSong(context), false, true);
+        resumed = true;
+        songToPlay = data.currentSong(this);
+        startService(intent);
+        updateCurrentSong(songToPlay, false);
     }
 
     @Override
@@ -77,8 +85,9 @@ public class Player extends Service
             try
             {
                 player.reset();
-                player.setDataSource(path);
+                player.setDataSource(songToPlay.getPath());
                 player.prepare();
+                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
                 {
                     @Override
@@ -102,10 +111,9 @@ public class Player extends Service
                 e.printStackTrace();
             }
 
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setContentTitle(title)
-                    .setContentText(artist)
+            final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                    .setContentTitle(songToPlay.getTitle())
+                    .setContentText(songToPlay.getArtist())
                     .setSmallIcon(R.drawable.play_36dp)
                     .setOngoing(true);
 
@@ -154,16 +162,11 @@ public class Player extends Service
         if(data.currentSongIsNotNull())
         {
             boolean isPlaying = player.isPlaying();
-            if(!isPlaying)
-            {
-                player.start();
-                data.updateIsPlaying(true);
-            }
-            else
-            {
-                player.pause();
-                data.updateIsPlaying(false);
-            }
+            if(!isPlaying) player.start();
+            else player.pause();
+
+            data.updateIsPlaying(!isPlaying);
+            data.updateCurrentTime(player.getCurrentPosition());
 
             toggleTimeUpdater(!isPlaying);
         }
@@ -265,7 +268,10 @@ public class Player extends Service
             song = getSongByID(queue.update(next));
 
         if (song != null)
-            serviceListener.onStartAudio(song, false, false);
+        {
+            resumed = false;
+            serviceListener.onStartAudio(song, false);
+        }
 
         timeUpdate();
     }

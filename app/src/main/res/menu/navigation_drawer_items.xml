@@ -10,19 +10,19 @@
             <menu>
                 <item
                     android:id="@+id/navigation_drawer_songs"
-                    android:icon="@drawable/tempicon"
+                    android:icon="@drawable/all_songs_36dp"
                     android:title="Songs"
                     android:checkable="true"/>
 
                 <item
                     android:id="@+id/navigation_drawer_playlists"
-                    android:icon="@drawable/tempicon"
+                    android:icon="@drawable/playlist_36dp"
                     android:title="Playlists"
                     android:checkable="true"/>
 
                 <item
                     android:id="@+id/navigation_drawer_favorites"
-                    android:icon="@drawable/tempicon"
+                    android:icon="@drawable/favorite_36dp"
                     android:title="Favorites"
                     android:checkable="true"/>
             </menu>
@@ -30,7 +30,7 @@
 
         <item
             android:id="@+id/navigation_drawer_play_queue"
-            android:icon="@drawable/tempicon"
+            android:icon="@drawable/queue_list_36dp"
             android:title="Play Queue"
             android:checkable="true"/>
 
@@ -38,18 +38,18 @@
             <menu>
                 <item
                     android:id="@+id/navigation_drawer_settings"
-                    android:icon="@drawable/tempicon"
+                    android:icon="@drawable/settings_36dp"
                     android:title="Settings"
                     android:checkable="true"/>
 
                 <item
                     android:id="@+id/navigation_drawer_help"
-                    android:icon="@drawable/tempicon"
+                    android:icon="@drawable/help_36dp"
                     android:title="Help"
                     android:checkable="true"/>
                 <item
                     android:id="@+id/navigation_drawer_about"
-                    android:icon="@drawable/tempicon"
+                    android:icon="@drawable/info_36dp"
                     android:title="About"
                     android:checkable="true"/>
             </menu>

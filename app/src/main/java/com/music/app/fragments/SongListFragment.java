@@ -1,13 +1,9 @@
 package com.music.app.fragments;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,19 +16,15 @@ import com.music.app.R;
 import com.music.app.objects.Data;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
-import com.music.app.utils.Dialoger;
 import com.music.app.utils.Menuer;
 import com.music.app.utils.adapters.SongListAdapter;
 import com.music.app.utils.adapters.SongListFastScrollAdapter;
-import com.music.app.utils.interfaces.QueueListener;
-import com.music.app.utils.interfaces.ServiceListener;
-import com.music.app.utils.interfaces.SongListAdapterListener;
+import com.music.app.interfaces.QueueListener;
+import com.music.app.interfaces.ServiceListener;
+import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.views.Notice;
-import com.wooplr.spotlight.SpotlightView;
-import com.wooplr.spotlight.utils.SpotlightListener;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class SongListFragment extends Fragment implements
         View.OnClickListener,
@@ -91,7 +83,7 @@ public class SongListFragment extends Fragment implements
 
         //TODO: Add Swipe Actions
 
-        //TODO: Add menu onClick listener
+        //TODO: Add menu onPlay listener
         done = (FloatingActionButton) view.findViewById(R.id.song_list_done);
         done.setOnClickListener(this);
         done.hide();

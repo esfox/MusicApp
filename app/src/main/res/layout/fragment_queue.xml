@@ -1,0 +1,23 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                tools:context="com.music.app.database.QueueFragment">
+
+    <com.mobeta.android.dslv.DragSortListView
+        android:id="@+id/queue_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fastScrollEnabled="true"
+        app:drag_enabled="true"
+        app:sort_enabled="true"
+        app:drag_handle_id="@+id/queue_list_drag_handle"
+        app:drag_start_mode="onMove"
+        app:drop_animation_duration="100"
+        app:max_drag_scroll_speed="1.5"
+        app:slide_shuffle_speed="0.5"
+        app:float_background_color="@color/background_secondary"
+        app:remove_enabled="false"/>
+
+</RelativeLayout>

@@ -2,6 +2,7 @@ package com.music.app.objects;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +47,36 @@ public class Queue
 
         queueStack = 0;
         queueCount = 0;
+    }
+
+    public void reorderQueue(int from, int to)
+    {
+        int playing = data.currentQueueIndex();
+
+        Long item = queue.get(from);
+        queue.remove(from);
+        queue.add(to, item);
+
+        if(from != to)
+        {
+            int index = playing;
+            if(from != playing)
+            {
+                if (to > playing && from < playing)
+                    index--;
+                else if (to < playing && from > playing)
+                    index++;
+                else if (to == playing)
+                    if (to > from)
+                        index--;
+                    else if (to < from)
+                        index++;
+            }
+            else
+                index = to;
+
+            data.updateCurrentQueueIndex(index);
+        }
     }
 
     long update(boolean isNext)

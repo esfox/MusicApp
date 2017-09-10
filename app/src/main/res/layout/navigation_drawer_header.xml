@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="10dp"
-                android:paddingBottom="15dp"
                 android:background="@color/colorPrimary">
+
+                <!--android:paddingTop="10dp"-->
+                <!--android:paddingBottom="15dp"-->
 
     <ImageView
         android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/ic_launcher"/>
+        android:src="@drawable/navigation_view_header_icon"
+        android:tint="@color/background_primary"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/image"
-        android:layout_marginTop="5dp"
-        android:text="Music App"
-        android:textColor="@color/background_primary"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        tools:ignore="HardcodedText"/>
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_below="@+id/image"-->
+        <!--android:layout_marginTop="5dp"-->
+        <!--android:text="Music App"-->
+        <!--android:textColor="@color/background_primary"-->
+        <!--android:textSize="30sp"-->
+        <!--android:textStyle="bold"-->
+        <!--tools:ignore="HardcodedText"/>-->
 
 </RelativeLayout>

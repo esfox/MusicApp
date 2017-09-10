@@ -18,7 +18,8 @@ import com.music.app.fragments.FragmentManager;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
-import com.music.app.utils.interfaces.QueueListener;
+import com.music.app.interfaces.QueueListener;
+import com.music.app.interfaces.ServiceListener;
 
 import java.io.File;
 import java.util.Calendar;
@@ -30,8 +31,8 @@ public class UIManager
 
     private ImageButton playButton, shuffle, repeat;
     private NavigationView navigationDrawer;
-    private TextView title, artist, currentTime;
-    private ImageView cover;
+    private TextView title, artist, currentTime, appBarTitle;
+    private ImageView cover, appBarIcon;
 
     public UIManager(Activity activity)
     {
@@ -43,16 +44,26 @@ public class UIManager
         return fragmentManager;
     }
 
-    public void initUI(
+    public void initUI
+        (
             Context context,
             Data data,
             Player player,
             NavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener,
-            QueueListener queueListener)
+            ServiceListener serviceListener,
+            QueueListener queueListener
+        )
     {
-        fragmentManager = new FragmentManager(context);
+        fragmentManager = new FragmentManager(context, this);
         fragmentManager.nowPlayingFragment.initialize(data, player, this, queueListener);
         fragmentManager.playQueueFragment.initialize(data, player, queueListener);
+
+        fragmentManager.queueFragment.initialize(data);
+        fragmentManager.queueFragment.setServiceListener(serviceListener);
+
+        //Initialize App Bar
+        appBarTitle = (TextView) views.findViewById(R.id.toolbar_title);
+        appBarIcon = (ImageView) views.findViewById(R.id.toolbar_icon);
 
         //Initialize Now Playing Bar
         title = (TextView) views.findViewById(R.id.now_playing_bar_title);
@@ -79,8 +90,6 @@ public class UIManager
         navigationDrawer.setItemIconTintList(null);
         navigationDrawer.setNavigationItemSelectedListener(navigationItemSelectedListener);
         navigationDrawer.setTag(views.findViewById(R.id.drawer_layout));
-
-        updateNavigationDrawer();
     }
 
     public void setClickListeners(View.OnClickListener onClickListener,
@@ -112,6 +121,31 @@ public class UIManager
         views.findViewById(R.id.no_action_yet).setOnClickListener(onClickListener);
     }
 
+    public void updateAppBar(String title, int icon)
+    {
+        appBarTitle.setText(title);
+        appBarIcon.setImageResource(icon);
+    }
+
+    public void toggleNavigationDrawer(boolean open)
+    {
+        if(open)
+            ((DrawerLayout) navigationDrawer.getTag()).openDrawer(GravityCompat.START);
+        else
+        {
+            ((DrawerLayout) navigationDrawer.getTag()).closeDrawer(GravityCompat.START);
+            updateNavigationDrawer();
+        }
+    }
+
+    private void updateNavigationDrawer()
+    {
+//        if(navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).isChecked())
+//            navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).setChecked(false);
+//
+//        navigationDrawer.getMenu().findItem(fragmentManager.activeFragment).setChecked(true);
+    }
+
     public void openNowPlayingBar()
     {
         fragmentManager.nowPlaying();
@@ -135,7 +169,7 @@ public class UIManager
                 Glide.with(context)
                     .load((song.getCoverPath() != null)?
                             new File(song.getCoverPath()) :
-                            R.drawable.library_music_48dp)
+                            R.drawable.album_art_placeholder)
                     .into(cover);
             }
 
@@ -158,10 +192,10 @@ public class UIManager
         currentTime.setText(Timestamper.getTimestamp(time));
     }
 
-    public void updateNowPlayingFragment(Song song)
+    public void updateNowPlayingFragment()
     {
         if (fragmentManager.nowPlayingFragment.isVisible())
-            fragmentManager.nowPlayingFragment.update(song);
+            fragmentManager.nowPlayingFragment.update();
     }
 
     public void updateNowPlayingFragmentCurrentTime(int time)
@@ -170,23 +204,10 @@ public class UIManager
             fragmentManager.nowPlayingFragment.updateProgress(time);
     }
 
-    public void toggleNavigationDrawer(boolean open)
+    public void updateQueueFragment()
     {
-        if(open)
-            ((DrawerLayout) navigationDrawer.getTag()).openDrawer(GravityCompat.START);
-        else
-        {
-            ((DrawerLayout) navigationDrawer.getTag()).closeDrawer(GravityCompat.START);
-            updateNavigationDrawer();
-        }
-    }
-
-    private void updateNavigationDrawer()
-    {
-        if(navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).isChecked())
-            navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).setChecked(false);
-
-        navigationDrawer.getMenu().findItem(fragmentManager.activeFragment).setChecked(true);
+        if (fragmentManager.queueFragment.isVisible())
+            fragmentManager.queueFragment.onSongChanged();
     }
 
     public void togglePlayButtonIcon(boolean isPlaying)
@@ -224,16 +245,19 @@ public class UIManager
         {
             case OFF:
                 repeat.setImageResource(R.drawable.repeat_24dp);
-                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
+                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_off),
+                        PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ALL:
-                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on),
+                        PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ONE:
                 repeat.setImageResource(R.drawable.repeat_one_24dp);
-                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on),
+                        PorterDuff.Mode.SRC_ATOP);
                 break;
         }
     }
@@ -254,7 +278,7 @@ public class UIManager
 //        dialog.setPositiveButton("Okay", new DialogInterface.OnClickListener()
 //        {
 //            @Override
-//            public void onClick(DialogInterface dialog, int which)
+//            public void onPlay(DialogInterface dialog, int which)
 //            {
 //                data.updateScrubAmount(numberPicker.getValue());
 //            }

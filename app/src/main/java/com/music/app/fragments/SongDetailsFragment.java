@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.music.app.R;
 import com.music.app.objects.Song;
+import com.music.app.utils.Timestamper;
 
 public class SongDetailsFragment extends Fragment
 {
@@ -35,7 +36,8 @@ public class SongDetailsFragment extends Fragment
         ((TextView) getView().findViewById(R.id.album)).setText(song.getAlbum());
         ((TextView) getView().findViewById(R.id.year)).setText(song.getReleaseYear());
         ((TextView) getView().findViewById(R.id.genre)).setText(song.getGenre());
-        ((TextView) getView().findViewById(R.id.duration)).setText(song.getDuration());
+        ((TextView) getView().findViewById(R.id.duration)).setText(Timestamper.getTimestamp
+                (song.getDuration()));
     }
 
     public void setSong(Song pSong)

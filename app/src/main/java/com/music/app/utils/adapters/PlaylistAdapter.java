@@ -37,13 +37,13 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
         {
             super(view);
 
-            title = (TextView) view.findViewById(R.id.title);
-            artist = (TextView) view.findViewById(R.id.artist);
+            title = (TextView) view.findViewById(R.id.song_list_title);
+            artist = (TextView) view.findViewById(R.id.song_list_artist);
 
-            cover = (ImageView) view.findViewById(R.id.cover);
-            options = (ImageView) view.findViewById(R.id.options);
+            cover = (ImageView) view.findViewById(R.id.song_list_cover);
+            options = (ImageView) view.findViewById(R.id.song_list_options);
 
-            background = view.findViewById(R.id.background);
+            background = view.findViewById(R.id.song_list_background);
         }
 
         @Override

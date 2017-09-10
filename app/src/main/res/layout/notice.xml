@@ -45,6 +45,6 @@
         android:textColor="@android:color/white"
         android:textSize="13sp"
         android:ellipsize="marquee"
-        tools:text="What A Beautiful Name queued next in the meantime."/>
+        tools:text="This is some message. Cool."/>
 
 </RelativeLayout>

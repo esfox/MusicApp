@@ -3,8 +3,8 @@ package com.music.app.utils.adapters;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
-import com.music.app.utils.interfaces.DragListener;
-import com.music.app.utils.interfaces.ItemTouchListener;
+import com.music.app.interfaces.DragListener;
+import com.music.app.interfaces.ItemTouchListener;
 
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback
 {

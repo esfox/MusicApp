@@ -37,7 +37,7 @@ public class Notice extends RelativeLayout implements View.OnClickListener
         RelativeLayout notice = (RelativeLayout) parent.findViewById(R.id.notice);
         notice.setOnClickListener(this);
 
-        setGravity(Gravity.END | Gravity.BOTTOM);
+        setGravity(Gravity.END | Gravity.TOP);
         setTag("Notice");
 
         noticeText = (TextView) parent.findViewById(R.id.notice_text);
@@ -85,9 +85,9 @@ public class Notice extends RelativeLayout implements View.OnClickListener
         this.animationDuration = animationDuration;
     }
 
-    public void setAbove()
+    public void setBelow()
     {
-        setGravity(Gravity.END | Gravity.TOP);
+        setGravity(Gravity.END | Gravity.BOTTOM);
     }
 
     public void show()

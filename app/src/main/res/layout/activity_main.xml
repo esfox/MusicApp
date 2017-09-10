@@ -52,13 +52,12 @@
 
     <android.support.design.widget.NavigationView
         android:id="@+id/navigation_drawer"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         android:background="@color/background_material"
         android:theme="@style/NavigationViewStyle"
-        android:scrollbarThumbVertical="@android:color/transparent"
         app:itemBackground="@drawable/navigation_drawer_item_background"
         app:itemTextColor="@color/navigation_drawer_item"
         app:headerLayout="@layout/navigation_drawer_header"

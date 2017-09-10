@@ -13,7 +13,7 @@ public class Song
     private String album;
     private String releaseYear;
     private String genre;
-    private String duration;
+    private long duration;
     private Long albumID;
     private Drawable cover;
     private String coverPath;
@@ -29,7 +29,7 @@ public class Song
     public String getAlbum() { return album; }
     public String getReleaseYear() { return releaseYear; }
     public String getGenre() { return genre; }
-    public String getDuration() { return duration; }
+    public long getDuration() { return duration; }
     public Long getAlbumID() { return albumID; }
     public Drawable getCover() { return cover; }
     public String getCoverPath() { return coverPath; }
@@ -43,7 +43,7 @@ public class Song
     public void setAlbum(String album) { this.album = album; }
     public void setReleaseYear(String releaseYear) { this.releaseYear = releaseYear; }
     public void setGenre(String genre) { this.genre = genre; }
-    public void setDuration(String duration) { this.duration = duration; }
+    public void setDuration(long duration) { this.duration = duration; }
     public void setAlbumID(Long albumID) { this.albumID = albumID; }
     public void setCover(Drawable cover) { this.cover = cover; }
     public void setCoverPath(String coverPath) { this.coverPath = coverPath; }

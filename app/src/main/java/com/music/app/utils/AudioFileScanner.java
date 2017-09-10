@@ -15,12 +15,11 @@ import com.music.app.R;
 import com.music.app.database.SongDatabaseHelper;
 import com.music.app.objects.Data;
 import com.music.app.objects.Song;
-import com.music.app.utils.interfaces.AudioScanListener;
+import com.music.app.interfaces.AudioScanListener;
 import com.music.app.views.Notice;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class AudioFileScanner
 {
@@ -91,7 +90,7 @@ public class AudioFileScanner
                         song.setArtist(cursor.getString(4));
                         song.setAlbum(cursor.getString(5));
                         song.setReleaseYear(cursor.getString(6));
-                        song.setDuration(getDuration(cursor.getString(7)));
+                        song.setDuration(cursor.getLong(7));
                         song.setAlbumID(cursor.getLong(8));
                         songs.add(song);
                     }
@@ -211,18 +210,18 @@ public class AudioFileScanner
                             }
                             else
                                 cover = ResourcesCompat.getDrawable(context.getResources(),
-                                        R.drawable.library_music_48dp, null);
+                                        R.drawable.album_art_placeholder, null);
                         }
                         catch(OutOfMemoryError e)
                         {
                             e.printStackTrace();
                             cover = ResourcesCompat.getDrawable(context.getResources(),
-                                            R.drawable.library_music_48dp, null);
+                                            R.drawable.album_art_placeholder, null);
                         }
                     }
                     else
                         cover = ResourcesCompat.getDrawable(context.getResources(),
-                                R.drawable.library_music_48dp, null);
+                                R.drawable.album_art_placeholder, null);
 
                     for(Song song: songs)
                     {
@@ -253,13 +252,6 @@ public class AudioFileScanner
             databaseHelper.add(song);
 
         data.updateStored(true);
-    }
-
-    private String getDuration(String value)
-    {
-        Long length = Long.parseLong(value);
-        return String.valueOf(length / 60000) + ":"
-                + String.format(Locale.getDefault(),"%02d", (length % 60000) / 1000);
     }
 
     @SuppressLint("StaticFieldLeak")

@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -24,7 +23,9 @@ import com.music.app.objects.Player;
 import com.music.app.objects.Song;
 import com.music.app.utils.Timestamper;
 import com.music.app.utils.UIManager;
-import com.music.app.utils.interfaces.QueueListener;
+import com.music.app.interfaces.QueueListener;
+
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
 import java.io.File;
 
@@ -34,7 +35,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     private Player player;
     private UIManager uiManager;
 
-    private SeekBar progress;
+    private DiscreteSeekBar progress;
     private TextView time;
     private ImageView shuffle, repeat;
     private FloatingActionButton play;
@@ -71,6 +72,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         view.findViewById(R.id.now_playing_artist).setSelected(true);
         view.findViewById(R.id.now_playing_album).setSelected(true);
 
+        togglePlayButtonIcon();
         shuffle();
         repeat();
 
@@ -92,7 +94,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                 switch(item.getItemId())
                 {
                     case R.id.action_play_queue:
-                        uiManager.fragmentManager().playQueue();
+                        uiManager.fragmentManager().queue();
                         break;
                 }
                 return false;
@@ -113,7 +115,7 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     {
         super.onActivityCreated(savedInstanceState);
 
-        update(data.currentSong(getContext()));
+        update();
     }
 
     @Override
@@ -123,10 +125,14 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         togglePlayButtonIcon();
     }
 
-    public void update(Song song)
+    public void update()
     {
         if(data.currentSongIsNotNull())
         {
+            final Song song = data.currentSong(getContext());
+
+            Log.d("Duration", String.valueOf(song.getDuration()));
+
             ((ViewGroup) getView()).removeView(getView()
                     .findViewById(R.id.now_playing_start_message));
 
@@ -137,7 +143,8 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             ((TextView) getView()
                     .findViewById(R.id.now_playing_album)).setText(song.getAlbum());
             ((TextView) getView()
-                    .findViewById(R.id.now_playing_end_time)).setText(song.getDuration());
+                    .findViewById(R.id.now_playing_end_time)).setText
+                    (Timestamper.getTimestamp(song.getDuration()));
 
             ImageView cover = ((ImageView) getView().findViewById(R.id.now_playing_cover));
             Drawable currentAlbumArt = data.currentAlbumArt();
@@ -146,48 +153,97 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             else Glide.with(getContext())
                     .load((song.getCoverPath() != null)?
                             new File(song.getCoverPath()) :
-                            R.drawable.library_music_48dp)
+                            R.drawable.album_art_placeholder)
                     .into(cover);
 
             final MediaPlayer mediaPlayer = player.getPlayer();
 
-            progress = (SeekBar) getView().findViewById(R.id.now_playing_progress_bar);
+            progress = (DiscreteSeekBar) getView().findViewById(R.id.now_playing_progress_bar);
             time = (TextView) getView().findViewById(R.id.now_playing_start_time);
 
-            progress.setPadding(0,0,0,0);
-            progress.setMax(player.getPlayer().getDuration());
-
-            int currentTime = (int) data.currentTime();
-            boolean currentTimeIsNotNull = currentTime != -1;
-            progress.setProgress((currentTimeIsNotNull) ? currentTime : 0);
+            final int currentTime = (int) data.currentTime();
+            final boolean currentTimeIsNotNull = currentTime != -1;
             time.setText(Timestamper.getTimestamp((currentTimeIsNotNull) ? currentTime : 0));
 
-            progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+            progress.post(new Runnable()
             {
                 @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+                public void run()
                 {
-                    if(fromUser)
-                    {
-                        if(progress >= mediaPlayer.getDuration())
-                            mediaPlayer.seekTo(mediaPlayer.getDuration());
-                        else
-                            mediaPlayer.seekTo(progress);
-                    }
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar)
-                {
-                    player.play();
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar)
-                {
-                    player.play();
+                    progress.setMax((int) song.getDuration());
+                    progress.setProgress((currentTimeIsNotNull) ? currentTime : 0);
                 }
             });
+
+            progress.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener()
+            {
+                private boolean notPlaying;
+
+                @Override
+                public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser)
+                {
+                    if(fromUser)
+                        seekBar.setIndicatorFormatter(Timestamper
+                                .getIndicatorTimestamp(value));
+                }
+
+                @Override
+                public void onStartTrackingTouch(DiscreteSeekBar seekBar)
+                {
+                    if(player.getPlayer().isPlaying())
+                    {
+                        player.play();
+                        notPlaying = false;
+                    }
+                    else
+                        notPlaying = true;
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(DiscreteSeekBar seekBar)
+                {
+                    int value = seekBar.getProgress();
+                    int duration = (int) song.getDuration();
+                    boolean exceedingDuration = value >= duration;
+
+                    mediaPlayer.seekTo(exceedingDuration ? duration : value);
+                    time.setText(Timestamper
+                            .getTimestamp(exceedingDuration ? duration : value));
+
+                    data.updateCurrentTime(value);
+                    uiManager.updateCurrentTime(value);
+
+                    if(!notPlaying)
+                        player.play();
+                }
+            });
+//            progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+//            {
+//                @Override
+//                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+//                {
+//                    if(fromUser)
+//                    {
+//                        if(progress >= mediaPlayer.getDuration())
+//                            mediaPlayer.seekTo(mediaPlayer.getDuration());
+//                        else
+//                            mediaPlayer.seekTo(progress);
+//                    }
+//                }
+//
+//                @Override
+//                public void onStartTrackingTouch(SeekBar seekBar)
+//                {
+//                    player.play();
+//                }
+//
+//                @Override
+//                public void onStopTrackingTouch(SeekBar seekBar)
+//                {
+//                    player.play();
+//                }
+//            });
         }
         else
             getView().findViewById(R.id.now_playing_start_message).setVisibility(View.VISIBLE);
@@ -218,13 +274,15 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                 break;
 
             case R.id.now_playing_next:
-                player.next();
                 resetProgress();
+                togglePlayButtonIcon();
+                player.next();
                 break;
 
             case R.id.now_playing_previous:
-                player.previous();
                 resetProgress();
+                togglePlayButtonIcon();
+                player.previous();
                 break;
 
             case R.id.now_playing_shuffle:
@@ -263,16 +321,19 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         {
             case OFF:
                 repeat.setImageResource(R.drawable.repeat_36dp);
-                repeat.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off), PorterDuff.Mode.SRC_ATOP);
+                repeat.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_off),
+                        PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ALL:
-                repeat.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                repeat.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on),
+                        PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ONE:
                 repeat.setImageResource(R.drawable.repeat_one_36dp);
-                repeat.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on), PorterDuff.Mode.SRC_ATOP);
+                repeat.setColorFilter(ContextCompat.getColor(getContext(), R.color.toggle_on),
+                        PorterDuff.Mode.SRC_ATOP);
                 break;
         }
     }
@@ -285,3 +346,13 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
             play.setImageResource(R.drawable.play_36dp);
     }
 }
+
+
+//TODO: Try Chronometer
+//    private Chronometer time;
+//time = (Chronometer) getView().findViewById(R.id.now_playing_start_time);
+//                time.setBase((SystemClock.elapsedRealtime() -
+//                        player.getPlayer().getDuration()) +
+//                        (player.getPlayer().getDuration() -
+//                        player.getPlayer().getCurrentPosition()));
+//                time.start();
