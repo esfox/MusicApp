@@ -14,15 +14,15 @@ import android.widget.TextView;
 
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
+import com.music.app.interfaces.QueueListener;
+import com.music.app.interfaces.SongListAdapterListener;
+import com.music.app.interfaces.SongListListener;
 import com.music.app.objects.Data;
+import com.music.app.objects.Player;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
 import com.music.app.utils.adapters.viewholders.SongListViewHolder;
-import com.music.app.interfaces.QueueListener;
-import com.music.app.interfaces.ServiceListener;
-import com.music.app.interfaces.SongListAdapterListener;
-import com.music.app.interfaces.SongListListener;
 import com.music.app.views.Notice;
 import com.wooplr.spotlight.SpotlightView;
 import com.wooplr.spotlight.utils.SpotlightListener;
@@ -39,6 +39,8 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
     private ListView songList;
 
     private Data data;
+    private Player player;
+
     private Sorter.SortBy sort;
 
     private ArrayList<Song> songs;
@@ -56,7 +58,6 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
 
 
     private SongListAdapterListener songListAdapterListener;
-    private ServiceListener serviceListener;
     private QueueListener queueListener;
     private FragmentManager fragmentManager;
 
@@ -100,12 +101,14 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         ListView songList,
         ArrayList<Song> songs,
         Data data,
+        Player player,
         Sorter.SortBy sort
     )
     {
         this.context = context;
         this.songList = songList;
         this.data = data;
+        this.player = player;
         this.songs = songs;
         this.sort = sort;
 
@@ -156,11 +159,6 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
     public void setSongListAdapterListener(SongListAdapterListener songListAdapterListener)
     {
         this.songListAdapterListener = songListAdapterListener;
-    }
-
-    public void setServiceListener(ServiceListener serviceListener)
-    {
-        this.serviceListener = serviceListener;
     }
 
     public void setQueueListener(QueueListener queueListener)
@@ -237,7 +235,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
             selectItem(index);
             viewHolder.setBackgroundColor(index, itemIsSelected(index));
         } else
-            serviceListener.onStartAudio(song, true);
+            player.startSong(song, true);
     }
 
     @Override
@@ -547,6 +545,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
                         songs,
                         songList,
                         data,
+                        player,
                         sort
                     )
                 );

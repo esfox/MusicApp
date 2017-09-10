@@ -6,30 +6,30 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
-import com.bumptech.glide.Glide;
 import com.music.app.R;
-import com.music.app.interfaces.ServiceListener;
+import com.music.app.interfaces.UIListener;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 public class Player extends Service
 {
     private Intent intent;
     private IBinder binder = new ServiceBinder();
 
-    private ServiceListener serviceListener;
+    private UIListener uiListener;
+
+    public enum Event
+    {
+        onStartAudio,
+        onStopAudio,
+    }
 
     private MediaPlayer player;
     private Data data;
@@ -47,9 +47,9 @@ public class Player extends Service
         }
     }
 
-    public void setServiceListener(ServiceListener serviceListener)
+    public void setUIListener(UIListener uiListener)
     {
-        this.serviceListener = serviceListener;
+        this.uiListener = uiListener;
     }
 
     public void initialize(Intent intent, Data data, Queue queue)
@@ -67,6 +67,10 @@ public class Player extends Service
         songToPlay = song;
         startService(intent);
         updateCurrentSong(song, fromUser);
+
+        uiListener.updateUI(Event.onStartAudio);
+
+        timeUpdate();
     }
 
     public void resumeSong()
@@ -176,33 +180,8 @@ public class Player extends Service
     {
         player.pause();
         player.seekTo(0);
-        serviceListener.onStopAudio();
+        uiListener.updateUI(Event.onStopAudio);
         data.updateIsPlaying(false);
-    }
-
-    private Handler timeUpdater;
-
-    private Runnable timeUpdaterRunnable = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            timeUpdate();
-        }
-    };
-
-    private void timeUpdate()
-    {
-        serviceListener.onCurrentTimeUpdate(player.getCurrentPosition());
-        timeUpdater.postDelayed(timeUpdaterRunnable, 100);
-    }
-
-    public void toggleTimeUpdater(boolean toggle)
-    {
-        if(toggle)
-            timeUpdate();
-        else
-            timeUpdater.removeCallbacks(timeUpdaterRunnable);
     }
 
     public void next()
@@ -268,12 +247,32 @@ public class Player extends Service
             song = getSongByID(queue.update(next));
 
         if (song != null)
-        {
-            resumed = false;
-            serviceListener.onStartAudio(song, false);
-        }
+            startSong(song, false);
+    }
 
-        timeUpdate();
+    private Handler timeUpdater;
+
+    private Runnable timeUpdaterRunnable = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            timeUpdate();
+        }
+    };
+
+    private void timeUpdate()
+    {
+        uiListener.updateTime(player.getCurrentPosition());
+        timeUpdater.postDelayed(timeUpdaterRunnable, 100);
+    }
+
+    public void toggleTimeUpdater(boolean toggle)
+    {
+        if(toggle)
+            timeUpdate();
+        else
+            timeUpdater.removeCallbacks(timeUpdaterRunnable);
     }
 
     private Song getSongByID(long id)

@@ -5,22 +5,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.NavigationView;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.bumptech.glide.Glide;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.interfaces.AudioScanListener;
 import com.music.app.interfaces.QueueListener;
-import com.music.app.interfaces.ServiceListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Queue;
@@ -29,15 +25,14 @@ import com.music.app.utils.AudioFileScanner;
 import com.music.app.utils.UIManager;
 import com.music.app.utils.adapters.SongListAdapter;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /*
 
 TODO CURRENT ACTIVITY
 
-Play Queue Frag bment on song changed
 SongListAdapter implement OnItemClickListener
+Observer pattern for shuffle and repeat
 
 RESTRUCTURE CODE!!!!!
 
@@ -51,7 +46,6 @@ Timer onResume (When no playing song)
 */
 
 public class MainActivity extends AppCompatActivity implements
-        ServiceListener,
         AudioScanListener,
         QueueListener,
         View.OnClickListener,
@@ -74,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements
             Player.ServiceBinder binder = (Player.ServiceBinder) service;
             player = binder.getService();
             player.initialize(serviceIntent, data, queue);
-            player.setServiceListener(MainActivity.this);
 
             uiManager = new UIManager(MainActivity.this);
             uiManager.initUI
@@ -83,11 +76,12 @@ public class MainActivity extends AppCompatActivity implements
                     data,
                     player,
                     MainActivity.this,
-                    MainActivity.this,
                     MainActivity.this
                 );
             uiManager.setClickListeners(MainActivity.this, MainActivity.this);
             fragmentManager = uiManager.fragmentManager();
+
+            player.setUIListener(uiManager);
 
             boolean currentSongIsNotNull = data.currentSongIsNotNull();
             if(currentSongIsNotNull)
@@ -244,34 +238,6 @@ public class MainActivity extends AppCompatActivity implements
     //    }
 
     @Override
-    public void onStartAudio(final Song song, final boolean newSong)
-    {
-        player.startSong(song, newSong);
-
-        uiManager.togglePlayButtonIcon(true);
-        uiManager.updateNowPlayingBar(MainActivity.this, data);
-        uiManager.updateQueueFragment();
-
-        //TODO: More efficient current art loading
-        new CurrentAlbumArtScanner().execute();
-    }
-
-    @Override
-    public void onStopAudio()
-    {
-//        stopService(serviceIntent);
-//        player.stopForeground(true);
-        uiManager.togglePlayButtonIcon(false);
-    }
-
-    @Override
-    public void onCurrentTimeUpdate(int time)
-    {
-        uiManager.updateCurrentTime(time);
-        uiManager.updateNowPlayingFragmentCurrentTime(time);
-    }
-
-    @Override
     public void onQueue(long id)
     {
         queue.queue(id);
@@ -319,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements
         if(fragmentManager != null)
         {
             fragmentManager.songListFragment.setSongs(songs);
-            fragmentManager.songListFragment.initialize(data, this, this, fragmentManager);
+            fragmentManager.songListFragment.initialize(data, player, this, fragmentManager);
             fragmentManager.songList();
         }
         else
@@ -357,12 +323,10 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.next_button:
                 player.next();
-                uiManager.updateNowPlayingBar(this, data);
                 break;
 
             case R.id.previous_button:
                 player.previous();
-                uiManager.updateNowPlayingBar(this, data);
                 break;
 
 //            case R.id.scrub_forward_button:
@@ -492,38 +456,6 @@ public class MainActivity extends AppCompatActivity implements
 //            ((FloatingActionButton) controlButtons.findViewById(R.id.next_button)).show();
 //        }
 //    }
-
-    private class CurrentAlbumArtScanner extends AsyncTask<Void, Void, Void>
-    {
-        @Override
-        protected Void doInBackground(Void... params)
-        {
-            try
-            {
-//                data.updateCurrentAlbumArt
-//                        (Drawable.createFromPath(data.currentSong(MainActivity.this)
-//                                .getCoverPath()));
-
-                data.updateCurrentAlbumArt(Glide
-                        .with(MainActivity.this)
-                        .load(new File(data.currentSong(MainActivity.this).getCoverPath()))
-                        .into(700, 700).get());
-            }
-            catch (Exception e)
-            {
-                data.updateCurrentAlbumArt(ResourcesCompat
-                        .getDrawable(getResources(), R.drawable.album_art_placeholder, null));
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            super.onPostExecute(aVoid);
-            uiManager.updateNowPlayingFragment();
-        }
-    }
 
     private void restart()
     {

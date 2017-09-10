@@ -13,15 +13,15 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.music.app.R;
+import com.music.app.interfaces.QueueListener;
+import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.objects.Data;
+import com.music.app.objects.Player;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Menuer;
 import com.music.app.utils.adapters.SongListAdapter;
 import com.music.app.utils.adapters.SongListFastScrollAdapter;
-import com.music.app.interfaces.QueueListener;
-import com.music.app.interfaces.ServiceListener;
-import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.views.Notice;
 
 import java.util.ArrayList;
@@ -41,7 +41,8 @@ public class SongListFragment extends Fragment implements
     private SongListAdapter adapter;
 
     private Data data;
-    private ServiceListener serviceListener;
+    private Player player;
+
     private QueueListener queueListener;
     private FragmentManager fragmentManager;
 
@@ -52,12 +53,12 @@ public class SongListFragment extends Fragment implements
         this.songs = songs;
     }
     public void initialize(Data data,
-                           ServiceListener serviceListener,
+                           Player player,
                            QueueListener queueListener,
                            FragmentManager fragmentManager)
     {
         this.data = data;
-        this.serviceListener = serviceListener;
+        this.player = player;
         this.queueListener = queueListener;
         this.fragmentManager = fragmentManager;
     }
@@ -255,13 +256,13 @@ public class SongListFragment extends Fragment implements
                     Sorter.sort(songs, sort),
                     songList,
                     data,
+                    player,
                     sort
                 );
         else
-            adapter = new SongListAdapter(getContext(), songList, songs, data, sort);
+            adapter = new SongListAdapter(getContext(), songList, songs, data, player, sort);
 
         adapter.setSongListAdapterListener(this);
-        adapter.setServiceListener(serviceListener);
         adapter.setQueueListener(queueListener);
         adapter.setFragmentManager(fragmentManager);
 

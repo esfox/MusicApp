@@ -10,9 +10,9 @@ import android.widget.BaseAdapter;
 import com.mobeta.android.dslv.DragSortListView;
 import com.music.app.R;
 import com.music.app.objects.Data;
+import com.music.app.objects.Player;
 import com.music.app.objects.Song;
 import com.music.app.utils.adapters.viewholders.QueueListViewHolder;
-import com.music.app.interfaces.ServiceListener;
 
 import java.util.ArrayList;
 
@@ -23,21 +23,17 @@ public class QueueAdapter extends BaseAdapter implements
     private Context context;
 
     private Data data;
+    private Player player;
+
     private ArrayList<Long> queue;
 
-    private ServiceListener serviceListener;
-
-    public QueueAdapter(Context context, Data data)
+    public QueueAdapter(Context context, Data data, Player player)
     {
         this.context = context;
         this.data = data;
+        this.player = player;
 
         queue = data.queue().getQueue();
-    }
-
-    public void setServiceListener(ServiceListener serviceListener)
-    {
-        this.serviceListener = serviceListener;
     }
 
     @Override
@@ -69,7 +65,7 @@ public class QueueAdapter extends BaseAdapter implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id)
     {
         data.updateCurrentQueueIndex(position);
-        serviceListener.onStartAudio(getSongByID(queue.get(position)), true);
+        player.startSong(getSongByID(queue.get(position)), true);
         notifyDataSetChanged();
     }
 

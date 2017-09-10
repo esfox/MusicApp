@@ -10,37 +10,32 @@ import android.view.ViewGroup;
 
 import com.mobeta.android.dslv.DragSortListView;
 import com.music.app.R;
+import com.music.app.interfaces.AudioListener;
 import com.music.app.objects.Data;
+import com.music.app.objects.Player;
 import com.music.app.utils.adapters.QueueAdapter;
-import com.music.app.interfaces.ServiceListener;
 
-public class QueueFragment extends Fragment
+public class QueueFragment extends Fragment implements AudioListener
 {
     private Data data;
+    private Player player;
 
     private DragSortListView queueList;
     private QueueAdapter adapter;
 
-    private ServiceListener serviceListener;
-
     public QueueFragment() {}
 
-    public void initialize(Data data)
+    public void initialize(Data data, Player player)
     {
         this.data = data;
-    }
-
-    public void setServiceListener(ServiceListener serviceListener)
-    {
-        this.serviceListener = serviceListener;
+        this.player = player;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        adapter = new QueueAdapter(getContext(), data);
-        adapter.setServiceListener(serviceListener);
+        adapter = new QueueAdapter(getContext(), data, player);
 
         View view = inflater.inflate(R.layout.fragment_queue, container, false);
         queueList = (DragSortListView) view.findViewById(R.id.queue_list);
@@ -59,22 +54,39 @@ public class QueueFragment extends Fragment
         scrollToPlaying();
     }
 
-    public void onSongChanged()
+    @Override
+    public void onStartAudio()
     {
-        adapter.notifyDataSetChanged();
+        if(isVisible())
+        {
+            adapter.notifyDataSetChanged();
+            scrollToPlaying();
+        }
     }
+
+    @Override
+    public void onStopAudio() {}
+
+    @Override
+    public void onCurrentTimeUpdate(int time) {}
 
     private void scrollToPlaying()
     {
         final int playing = data.currentQueueIndex();
         if(playing != -1)
+        {
             queueList.post(new Runnable()
             {
                 @Override
                 public void run()
                 {
-                    queueList.setSelection(playing);
+                    if(playing < queueList.getFirstVisiblePosition() ||
+                       playing > queueList.getLastVisiblePosition())
+                    {
+                        queueList.setSelection(playing);
+                    }
                 }
             });
+        }
     }
 }

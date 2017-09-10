@@ -3,8 +3,11 @@ package com.music.app.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.os.AsyncTask;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
@@ -15,24 +18,28 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
+import com.music.app.interfaces.AudioListener;
+import com.music.app.interfaces.QueueListener;
+import com.music.app.interfaces.UIListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
-import com.music.app.interfaces.QueueListener;
-import com.music.app.interfaces.ServiceListener;
 
 import java.io.File;
 import java.util.Calendar;
 
-public class UIManager
+public class UIManager implements AudioListener, UIListener
 {
     private Activity views;
     private FragmentManager fragmentManager;
+    private Data data;
 
     private ImageButton playButton, shuffle, repeat;
     private NavigationView navigationDrawer;
     private TextView title, artist, currentTime, appBarTitle;
     private ImageView cover, appBarIcon;
+
+    private AudioListener[] audioListeners;
 
     public UIManager(Activity activity)
     {
@@ -50,16 +57,22 @@ public class UIManager
             Data data,
             Player player,
             NavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener,
-            ServiceListener serviceListener,
             QueueListener queueListener
         )
     {
+        this.data = data;
+
         fragmentManager = new FragmentManager(context, this);
         fragmentManager.nowPlayingFragment.initialize(data, player, this, queueListener);
         fragmentManager.playQueueFragment.initialize(data, player, queueListener);
+        fragmentManager.queueFragment.initialize(data, player);
 
-        fragmentManager.queueFragment.initialize(data);
-        fragmentManager.queueFragment.setServiceListener(serviceListener);
+        audioListeners = new AudioListener[]
+        {
+            this,
+            fragmentManager.nowPlayingFragment,
+            fragmentManager.queueFragment
+        };
 
         //Initialize App Bar
         appBarTitle = (TextView) views.findViewById(R.id.toolbar_title);
@@ -72,7 +85,7 @@ public class UIManager
         currentTime = (TextView)
                 views.findViewById(R.id.now_playing_bar_current_time);
 
-        updateNowPlayingBar(context, data);
+        updateNowPlayingBar(context);
 
         playButton = (ImageButton)
                 views.findViewById(R.id.play_button);
@@ -121,6 +134,62 @@ public class UIManager
         views.findViewById(R.id.no_action_yet).setOnClickListener(onClickListener);
     }
 
+    @Override
+    public void updateUI(Player.Event event)
+    {
+        for(AudioListener listener : audioListeners)
+        {
+            switch (event)
+            {
+                case onStartAudio:
+                    listener.onStartAudio();
+                    break;
+
+                case onStopAudio:
+                    listener.onStopAudio();
+                    break;
+            }
+        }
+    }
+
+
+    @Override
+    public void updateTime(int time)
+    {
+        for(AudioListener listener : audioListeners)
+        {
+            if(listener instanceof Fragment)
+            {
+                if (((Fragment) listener).isVisible())
+                    listener.onCurrentTimeUpdate(time);
+            }
+            else
+                listener.onCurrentTimeUpdate(time);
+        }
+    }
+
+    @Override
+    public void onStartAudio()
+    {
+        togglePlayButtonIcon(true);
+        updateNowPlayingBar(views);
+
+        //TODO: More efficient current art loading
+        new CurrentAlbumArtScanner().execute();
+    }
+
+    @Override
+    public void onStopAudio()
+    {
+        togglePlayButtonIcon(false);
+    }
+
+    @Override
+    public void onCurrentTimeUpdate(int time)
+    {
+        updateCurrentTime(time);
+    }
+
     public void updateAppBar(String title, int icon)
     {
         appBarTitle.setText(title);
@@ -152,7 +221,7 @@ public class UIManager
 //        toggleControlButtons(false);
     }
 
-    public void updateNowPlayingBar(Context context, Data data)
+    private void updateNowPlayingBar(Context context)
     {
         Song song = data.currentSong(context);
 
@@ -192,29 +261,8 @@ public class UIManager
         currentTime.setText(Timestamper.getTimestamp(time));
     }
 
-    public void updateNowPlayingFragment()
-    {
-        if (fragmentManager.nowPlayingFragment.isVisible())
-            fragmentManager.nowPlayingFragment.update();
-    }
-
-    public void updateNowPlayingFragmentCurrentTime(int time)
-    {
-        if (fragmentManager.nowPlayingFragment.isVisible())
-            fragmentManager.nowPlayingFragment.updateProgress(time);
-    }
-
-    public void updateQueueFragment()
-    {
-        if (fragmentManager.queueFragment.isVisible())
-            fragmentManager.queueFragment.onSongChanged();
-    }
-
     public void togglePlayButtonIcon(boolean isPlaying)
     {
-        if(fragmentManager.nowPlayingFragment.isVisible())
-            fragmentManager.nowPlayingFragment.togglePlayButtonIcon();
-
         if (isPlaying)
             playButton.setImageResource(R.drawable.pause_24dp);
         else
@@ -287,6 +335,39 @@ public class UIManager
 //        dialog.show();
 //    }
 
+    private class CurrentAlbumArtScanner extends AsyncTask<Void, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            try
+            {
+//                data.updateCurrentAlbumArt
+//                        (Drawable.createFromPath(data.currentSong(MainActivity.this)
+//                                .getCoverPath()));
+
+                data.updateCurrentAlbumArt(Glide
+                        .with(views)
+                        .load(new File(data.currentSong(views).getCoverPath()))
+                        .into(700, 700).get());
+            }
+            catch (Exception e)
+            {
+                data.updateCurrentAlbumArt(ResourcesCompat
+                        .getDrawable(views.getResources(), R.drawable.album_art_placeholder, null));
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
+            if(fragmentManager.nowPlayingFragment.isVisible())
+                fragmentManager.nowPlayingFragment.update(true);
+        }
+    }
+
     private String greetings()
     {
         String greeting = "Good ";
@@ -308,4 +389,5 @@ public class UIManager
 
         return greeting;
     }
+
 }
