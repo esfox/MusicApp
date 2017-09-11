@@ -4,9 +4,9 @@ import com.music.app.utils.adapters.viewholders.SongListViewHolder;
 
 public interface SongListListener
 {
-    public void onPlay(int index, SongListViewHolder viewHolder);
-    public void onQueue(int index);
-    public void onPlayNext(int index);
-    public void onOptions(int index, boolean isOpened, SongListViewHolder viewHolder);
-    public void onMoreOptions(int index, SongListViewHolder viewHolder);
+    void onPlay(int index, SongListViewHolder viewHolder);
+    void onQueue(int index);
+    void onPlayNext(int index);
+    void onOptions(int index, boolean isOpened, SongListViewHolder viewHolder);
+    void onMoreOptions(int index, SongListViewHolder viewHolder);
 }

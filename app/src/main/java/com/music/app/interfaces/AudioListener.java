@@ -1,8 +1,9 @@
 package com.music.app.interfaces;
 
+import com.music.app.objects.Player;
+
 public interface AudioListener
 {
-    public void onStartAudio();
-    public void onStopAudio();
-    public void onCurrentTimeUpdate(int time);
+    void updateUI(Player.Event event);
+    void updateTime(int time);
 }

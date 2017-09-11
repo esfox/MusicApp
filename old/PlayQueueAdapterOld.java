@@ -30,7 +30,7 @@ public class PlayQueueAdapterOld
         this.data = data;
 //        this.dragListener = dragListener;
 
-        ArrayList<Long> ids = data.queue().getQueue();
+        ArrayList<Long> ids = data.queue().getQueueList();
         songIDs = new long[ids.size()];
         for(int i = 0; i < songIDs.length; i++)
             songIDs[i] = ids.get(i);
@@ -83,7 +83,7 @@ public class PlayQueueAdapterOld
 
     public void update()
     {
-        ArrayList<Long> idsList = data.queue().getQueue();
+        ArrayList<Long> idsList = data.queue().getQueueList();
         songIDs = new long[idsList.size()];
         for(int i = 0; i < songIDs.length; i++)
             songIDs[i] = idsList.get(i);

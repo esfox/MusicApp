@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 public class Data
 {
+    //TODO: Load all data at start
+
     private final SharedPreferences sharedPreferences;
 
     public Data(Context context)
@@ -19,13 +21,10 @@ public class Data
     }
 
     private ArrayList<Song> songs;
-    private Queue queue;
     private Drawable currentAlbumArt;
 
     public ArrayList<Song> songs() { return songs; }
     public void setSongs(ArrayList<Song> songs) { this.songs = songs; }
-    public Queue queue() { return queue; }
-    public void setQueue(Queue queue) { this.queue = queue; }
     public Drawable currentAlbumArt() { return currentAlbumArt; }
     public void updateCurrentAlbumArt(Drawable albumArt) { currentAlbumArt = albumArt; }
 

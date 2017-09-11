@@ -13,7 +13,6 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.music.app.R;
-import com.music.app.interfaces.QueueListener;
 import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
@@ -43,7 +42,6 @@ public class SongListFragment extends Fragment implements
     private Data data;
     private Player player;
 
-    private QueueListener queueListener;
     private FragmentManager fragmentManager;
 
     public SongListFragment() {}
@@ -54,12 +52,10 @@ public class SongListFragment extends Fragment implements
     }
     public void initialize(Data data,
                            Player player,
-                           QueueListener queueListener,
                            FragmentManager fragmentManager)
     {
         this.data = data;
         this.player = player;
-        this.queueListener = queueListener;
         this.fragmentManager = fragmentManager;
     }
 
@@ -263,7 +259,6 @@ public class SongListFragment extends Fragment implements
             adapter = new SongListAdapter(getContext(), songList, songs, data, player, sort);
 
         adapter.setSongListAdapterListener(this);
-        adapter.setQueueListener(queueListener);
         adapter.setFragmentManager(fragmentManager);
 
         songList.setAdapter(adapter);

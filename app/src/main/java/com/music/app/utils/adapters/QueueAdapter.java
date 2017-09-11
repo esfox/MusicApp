@@ -33,7 +33,7 @@ public class QueueAdapter extends BaseAdapter implements
         this.data = data;
         this.player = player;
 
-        queue = data.queue().getQueue();
+        queue = player.queue().getQueueList();
     }
 
     @Override
@@ -64,15 +64,22 @@ public class QueueAdapter extends BaseAdapter implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id)
     {
+        player.queue().newSongFromQueue(data.currentQueueIndex(), position);
         data.updateCurrentQueueIndex(position);
-        player.startSong(getSongByID(queue.get(position)), true);
+        player.startSong(getSongByID(queue.get(position)), false);
         notifyDataSetChanged();
     }
 
     @Override
     public void drop(int from, int to)
     {
-        data.queue().reorderQueue(from, to);
+        player.queue().reorderQueue(from, to);
+        notifyDataSetChanged();
+    }
+
+    public void shuffle()
+    {
+        queue = player.queue().getQueueList();
         notifyDataSetChanged();
     }
 

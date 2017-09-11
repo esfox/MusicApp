@@ -14,7 +14,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
 import com.music.app.R;
-import com.music.app.interfaces.UIListener;
+import com.music.app.interfaces.AudioListener;
 
 import java.io.IOException;
 
@@ -23,19 +23,22 @@ public class Player extends Service
     private Intent intent;
     private IBinder binder = new ServiceBinder();
 
-    private UIListener uiListener;
+    private AudioListener audioListener;
 
     public enum Event
     {
         onStartAudio,
+        onPlayOrPause,
         onStopAudio,
+        onShuffle,
+        onRepeat
     }
 
     private MediaPlayer player;
     private Data data;
     private Queue queue;
 
-    private Song songToPlay;
+    private Song currentSong;
 
     private boolean resumed;
 
@@ -47,11 +50,6 @@ public class Player extends Service
         }
     }
 
-    public void setUIListener(UIListener uiListener)
-    {
-        this.uiListener = uiListener;
-    }
-
     public void initialize(Intent intent, Data data, Queue queue)
     {
         this.intent = intent;
@@ -61,24 +59,39 @@ public class Player extends Service
         timeUpdater = new Handler();
     }
 
+    public void setAudioListener(AudioListener audioListener)
+    {
+        this.audioListener = audioListener;
+    }
+
     public void startSong(Song song, boolean fromUser)
     {
         resumed = false;
-        songToPlay = song;
+        currentSong = song;
         startService(intent);
         updateCurrentSong(song, fromUser);
 
-        uiListener.updateUI(Event.onStartAudio);
-
+        audioListener.updateUI(Event.onStartAudio);
         timeUpdate();
+    }
+
+    private void updateCurrentSong(Song song, boolean fromUser)
+    {
+        if(fromUser)
+            queue.newSong(song.getId());
+
+            data.updateCurrentSong(song.getId());
+
+        if(!data.currentSongIsNotNull())
+            data.updateCurrentSongIsNotNull(true);
     }
 
     public void resumeSong()
     {
         resumed = true;
-        songToPlay = data.currentSong(this);
+        currentSong = data.currentSong(this);
         startService(intent);
-        updateCurrentSong(songToPlay, false);
+        updateCurrentSong(currentSong, false);
     }
 
     @Override
@@ -89,7 +102,7 @@ public class Player extends Service
             try
             {
                 player.reset();
-                player.setDataSource(songToPlay.getPath());
+                player.setDataSource(currentSong.getPath());
                 player.prepare();
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
@@ -116,8 +129,8 @@ public class Player extends Service
             }
 
             final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setContentTitle(songToPlay.getTitle())
-                    .setContentText(songToPlay.getArtist())
+                    .setContentTitle(currentSong.getTitle())
+                    .setContentText(currentSong.getArtist())
                     .setSmallIcon(R.drawable.play_36dp)
                     .setOngoing(true);
 
@@ -150,17 +163,6 @@ public class Player extends Service
         return super.onUnbind(intent);
     }
 
-    public void updateCurrentSong(Song song, boolean fromUser)
-    {
-        if(fromUser)
-            queue.newSong(song.getId());
-
-        data.updateCurrentSong(song.getId());
-
-        if(!data.currentSongIsNotNull())
-            data.updateCurrentSongIsNotNull(true);
-    }
-
     public void play()
     {
         if(data.currentSongIsNotNull())
@@ -172,6 +174,7 @@ public class Player extends Service
             data.updateIsPlaying(!isPlaying);
             data.updateCurrentTime(player.getCurrentPosition());
 
+            audioListener.updateUI(Event.onPlayOrPause);
             toggleTimeUpdater(!isPlaying);
         }
     }
@@ -180,7 +183,7 @@ public class Player extends Service
     {
         player.pause();
         player.seekTo(0);
-        uiListener.updateUI(Event.onStopAudio);
+        audioListener.updateUI(Event.onStopAudio);
         data.updateIsPlaying(false);
     }
 
@@ -226,17 +229,17 @@ public class Player extends Service
             else
             {
                 if (data.repeatState() == Data.RepeatState.ONE)
-                    song = data.currentSong(this);
+                    song = currentSong;    //song = data.currentSong(this);
                 else
                 {
                     if (data.repeatState() == Data.RepeatState.OFF)
                     {
                         long nextID = queue.update(next);
-                        if (nextID != queue.getQueue().get(0))
+                        if (nextID != queue.getQueueList().get(0))
                             song = getSongByID(nextID);
                         else
                         {
-                            data.updateCurrentQueueIndex(queue.getQueue().size() - 1);
+                            data.updateCurrentQueueIndex(queue.getQueueList().size() - 1);
                             stop();
                         }
                     } else if (data.repeatState() == Data.RepeatState.ALL)
@@ -248,6 +251,24 @@ public class Player extends Service
 
         if (song != null)
             startSong(song, false);
+    }
+
+    public Queue queue()
+    {
+        return queue;
+    }
+
+    public void shuffle()
+    {
+        queue.shuffle(data.currentSong(this));
+        audioListener.updateUI(Event.onShuffle);
+//        queue.shuffle(currentSong);
+    }
+
+    public void repeat()
+    {
+        data.updateRepeatState();
+        audioListener.updateUI(Event.onRepeat);
     }
 
     private Handler timeUpdater;
@@ -263,7 +284,7 @@ public class Player extends Service
 
     private void timeUpdate()
     {
-        uiListener.updateTime(player.getCurrentPosition());
+        audioListener.updateTime(player.getCurrentPosition());
         timeUpdater.postDelayed(timeUpdaterRunnable, 100);
     }
 

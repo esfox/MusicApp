@@ -26,7 +26,7 @@ public class Queue
             queue.add(id);
     }
 
-    public ArrayList<Long> getQueue()
+    public ArrayList<Long> getQueueList()
     {
         return queue;
     }
@@ -35,6 +35,16 @@ public class Queue
     {
         resetQueue();
         data.updateCurrentQueueIndex(queue.indexOf(id));
+    }
+
+    public void newSongFromQueue(int previousIndex, int newIndex)
+    {
+        if(newIndex <= previousIndex + queueStack && newIndex >= previousIndex)
+            queueStack = (previousIndex + queueStack) - newIndex;
+        else
+            queueStack = 0;
+
+        Log.d("New Queue Stack", String.valueOf(queueStack));
     }
 
     private void resetQueue()
@@ -51,22 +61,47 @@ public class Queue
 
     public void reorderQueue(int from, int to)
     {
-        int playing = data.currentQueueIndex();
+        int current = data.currentQueueIndex();
 
         Long item = queue.get(from);
         queue.remove(from);
         queue.add(to, item);
 
+        if(from == current)
+        {
+            if(to <= current + queueStack && to >= current)
+                queueStack = (current + queueStack) - to;
+            else
+                queueStack = 0;
+        }
+        else if(from < current)
+        {
+            if(to <= current + queueStack && to >= current)
+                queueStack++;
+        }
+        else if(from > current + queueStack)
+        {
+            if(to <= current + queueStack && to > current)
+                queueStack++;
+        }
+        else if(from > current && from <= current + queueStack)
+        {
+            if(to > current + queueStack || to <= current)
+                queueStack--;
+        }
+        else
+            queueStack = 0;
+
         if(from != to)
         {
-            int index = playing;
-            if(from != playing)
+            int index = current;
+            if(from != current)
             {
-                if (to > playing && from < playing)
+                if (to > current && from < current)
                     index--;
-                else if (to < playing && from > playing)
+                else if (to < current && from > current)
                     index++;
-                else if (to == playing)
+                else if (to == current)
                     if (to > from)
                         index--;
                     else if (to < from)
@@ -159,12 +194,15 @@ public class Queue
         queueCount = preferences.getInt(queueCountKey, 0);
     }
 
-    public void shuffle(Context context)
+    public void shuffle(Song currentSong)
     {
+        boolean isShuffled = !data.isShuffled();
+        data.updateIsShuffled(isShuffled);
+
         queueStack = 0;
         queueCount = 0;
 
-        if(data.isShuffled())
+        if(isShuffled)
         {
             //TODO: Fix current index
 
@@ -215,7 +253,12 @@ public class Queue
 
             if(data.currentSongIsNotNull())
                 data.updateCurrentQueueIndex(queue.indexOf
-                        (data.currentSong(context).getId()));
+                        (currentSong.getId()));
         }
+    }
+
+    public void repeat()
+    {
+        data.updateRepeatState();
     }
 }

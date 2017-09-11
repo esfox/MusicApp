@@ -1,5 +1,6 @@
 package com.music.app.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -18,56 +19,53 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
+import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.interfaces.AudioListener;
-import com.music.app.interfaces.QueueListener;
-import com.music.app.interfaces.UIListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
+import com.music.app.utils.adapters.SongListAdapter;
 
 import java.io.File;
 import java.util.Calendar;
 
-public class UIManager implements AudioListener, UIListener
+public class UIManager implements
+        UIUpdatesListener,
+        AudioListener,
+        View.OnClickListener,
+        View.OnLongClickListener
 {
     private Activity views;
-    private FragmentManager fragmentManager;
     private Data data;
+    private Player player;
+
+    private FragmentManager fragmentManager;
 
     private ImageButton playButton, shuffle, repeat;
     private NavigationView navigationDrawer;
     private TextView title, artist, currentTime, appBarTitle;
     private ImageView cover, appBarIcon;
 
-    private AudioListener[] audioListeners;
+    private UIUpdatesListener[] UIUpdatesListeners;
 
     public UIManager(Activity activity)
     {
         views = activity;
     }
 
-    public FragmentManager fragmentManager()
-    {
-        return fragmentManager;
-    }
+    public FragmentManager fragmentManager() { return fragmentManager; }
 
-    public void initUI
-        (
-            Context context,
-            Data data,
-            Player player,
-            NavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener,
-            QueueListener queueListener
-        )
+    public void initUI(Context context, Data data, Player player)
     {
         this.data = data;
+        this.player = player;
 
         fragmentManager = new FragmentManager(context, this);
-        fragmentManager.nowPlayingFragment.initialize(data, player, this, queueListener);
-        fragmentManager.playQueueFragment.initialize(data, player, queueListener);
+        fragmentManager.nowPlayingFragment.initialize(data, player, this);
         fragmentManager.queueFragment.initialize(data, player);
+//        fragmentManager.playQueueFragment.initialize(data, player, queueListener);
 
-        audioListeners = new AudioListener[]
+        UIUpdatesListeners = new UIUpdatesListener[]
         {
             this,
             fragmentManager.nowPlayingFragment,
@@ -85,7 +83,7 @@ public class UIManager implements AudioListener, UIListener
         currentTime = (TextView)
                 views.findViewById(R.id.now_playing_bar_current_time);
 
-        updateNowPlayingBar(context);
+        updateNowPlayingBar();
 
         playButton = (ImageButton)
                 views.findViewById(R.id.play_button);
@@ -94,50 +92,131 @@ public class UIManager implements AudioListener, UIListener
         repeat = (ImageButton)
                 views.findViewById(R.id.repeat);
 
-        shuffle(context, data.isShuffled());
-        repeat(context, data);
+        shuffle();
+        repeat();
 
         //Initialize Navigation Drawer
         navigationDrawer = ((NavigationView)
                 views.findViewById(R.id.navigation_drawer));
         navigationDrawer.setItemIconTintList(null);
-        navigationDrawer.setNavigationItemSelectedListener(navigationItemSelectedListener);
         navigationDrawer.setTag(views.findViewById(R.id.drawer_layout));
+
+        setClickListeners();
     }
 
-    public void setClickListeners(View.OnClickListener onClickListener,
-                                  View.OnLongClickListener onLongClickListener)
+    private void setClickListeners()
     {
-        playButton.setOnClickListener(onClickListener);
-        playButton.setOnLongClickListener(onLongClickListener);
-        views.findViewById(R.id.next_button).setOnClickListener(onClickListener);
-        views.findViewById(R.id.previous_button).setOnClickListener(onClickListener);
+        navigationDrawer.setNavigationItemSelectedListener(fragmentManager);
 
-//        View scrubForward = views.findViewById(R.id.scrub_forward_button);
+        playButton.setOnClickListener(this);
+        playButton.setOnLongClickListener(this);
+        views.findViewById(R.id.next_button).setOnClickListener(this);
+        views.findViewById(R.id.previous_button).setOnClickListener(this);
+
+        //        View scrubForward = views.findViewById(R.id.scrub_forward_button);
 //        View scrubBackward = views.findViewById(R.id.scrub_backward_button);
 //        scrubForward.setOnClickListener(onClickListener);
 //        scrubForward.setOnLongClickListener(onLongClickListener);
 //        scrubBackward.setOnClickListener(onClickListener);
 //        scrubBackward.setOnLongClickListener(onLongClickListener);
 
-        shuffle.setOnClickListener(onClickListener);
-        repeat.setOnClickListener(onClickListener);
+        shuffle.setOnClickListener(this);
+        repeat.setOnClickListener(this);
 
-        views.findViewById(R.id.no_action_yet).setOnClickListener(onClickListener);
+        views.findViewById(R.id.no_action_yet).setOnClickListener(this);
 
-        views.findViewById(R.id.toolbar_icon).setOnClickListener(onClickListener);
-        views.findViewById(R.id.toolbar_menu).setOnClickListener(onClickListener);
-        views.findViewById(R.id.toolbar_sort).setOnClickListener(onClickListener);
+        views.findViewById(R.id.toolbar_icon).setOnClickListener(this);
+        views.findViewById(R.id.toolbar_menu).setOnClickListener(this);
+        views.findViewById(R.id.toolbar_sort).setOnClickListener(this);
 
-        views.findViewById(R.id.now_playing_bar).setOnClickListener(onClickListener);
-        views.findViewById(R.id.multi_queue).setOnClickListener(onClickListener);
-        views.findViewById(R.id.no_action_yet).setOnClickListener(onClickListener);
+        views.findViewById(R.id.now_playing_bar).setOnClickListener(this);
+        views.findViewById(R.id.multi_queue).setOnClickListener(this);
+        views.findViewById(R.id.no_action_yet).setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        switch (v.getId())
+        {
+            case R.id.play_button:
+                player.play();
+                break;
+
+            case R.id.next_button:
+                player.next();
+                break;
+
+            case R.id.previous_button:
+                player.previous();
+                break;
+
+//            case R.id.scrub_forward_button:
+//                player.scrub(true);
+//                uiManager.updateCurrentTime(false);
+//                break;
+//
+//            case R.id.scrub_backward_button:
+//                player.scrub(false);
+//                uiManager.updateCurrentTime(false);
+//                break;
+
+            case R.id.shuffle:
+                player.shuffle();
+                break;
+
+            case R.id.repeat:
+                player.repeat();
+                break;
+
+            case R.id.multi_queue:
+                SongListAdapter adapter = (SongListAdapter) fragmentManager.songListFragment
+                        .getSongList().getAdapter();
+
+                adapter.toggleMultiQueueMode(!adapter.isInMultiQueueMode());
+                break;
+
+            case R.id.no_action_yet:
+                break;
+
+            case R.id.now_playing_bar:
+                openNowPlayingBar();
+                break;
+
+            case R.id.toolbar_icon:
+                toggleNavigationDrawer(true);
+                break;
+
+            case R.id.toolbar_menu:
+                fragmentManager.songListFragment.menu(v);
+                break;
+
+            case R.id.toolbar_sort:
+                fragmentManager.songListFragment.sortOptions(v);
+        }
+    }
+
+    @SuppressLint("InflateParams")
+    @Override
+    public boolean onLongClick(View v)
+    {
+        switch(v.getId())
+        {
+            case R.id.play_button:
+                player.stop();
+                break;
+//            case R.id.scrub_forward_button:
+//            case R.id.scrub_backward_button:
+//                uiManager.setScrubAmount(this, data);
+//                break;
+        }
+        return true;
     }
 
     @Override
     public void updateUI(Player.Event event)
     {
-        for(AudioListener listener : audioListeners)
+        for(UIUpdatesListener listener : UIUpdatesListeners)
         {
             switch (event)
             {
@@ -145,18 +224,29 @@ public class UIManager implements AudioListener, UIListener
                     listener.onStartAudio();
                     break;
 
+                case onPlayOrPause:
+                    listener.onPlayOrPause();
+                    break;
+
                 case onStopAudio:
                     listener.onStopAudio();
+                    break;
+
+                case onShuffle:
+                    listener.onShuffle();
+                    break;
+
+                case onRepeat:
+                    listener.onRepeat();
                     break;
             }
         }
     }
 
-
     @Override
     public void updateTime(int time)
     {
-        for(AudioListener listener : audioListeners)
+        for(UIUpdatesListener listener : UIUpdatesListeners)
         {
             if(listener instanceof Fragment)
             {
@@ -171,24 +261,18 @@ public class UIManager implements AudioListener, UIListener
     @Override
     public void onStartAudio()
     {
-        togglePlayButtonIcon(true);
-        updateNowPlayingBar(views);
+        togglePlayButtonIcon();
+        updateNowPlayingBar();
 
         //TODO: More efficient current art loading
         new CurrentAlbumArtScanner().execute();
     }
 
-    @Override
-    public void onStopAudio()
-    {
-        togglePlayButtonIcon(false);
-    }
-
-    @Override
-    public void onCurrentTimeUpdate(int time)
-    {
-        updateCurrentTime(time);
-    }
+    @Override public void onPlayOrPause() { togglePlayButtonIcon(); }
+    @Override public void onStopAudio() { togglePlayButtonIcon(); }
+    @Override public void onCurrentTimeUpdate(int time) { updateCurrentTime(time); }
+    @Override public void onShuffle() { shuffle(); }
+    @Override public void onRepeat() { repeat(); }
 
     public void updateAppBar(String title, int icon)
     {
@@ -215,15 +299,11 @@ public class UIManager implements AudioListener, UIListener
 //        navigationDrawer.getMenu().findItem(fragmentManager.activeFragment).setChecked(true);
     }
 
-    public void openNowPlayingBar()
-    {
-        fragmentManager.nowPlaying();
-//        toggleControlButtons(false);
-    }
+    private void openNowPlayingBar() { fragmentManager.nowPlaying(); }
 
-    private void updateNowPlayingBar(Context context)
+    private void updateNowPlayingBar()
     {
-        Song song = data.currentSong(context);
+        Song song = data.currentSong(views);
 
         if (data.currentSongIsNotNull())
         {
@@ -235,7 +315,7 @@ public class UIManager implements AudioListener, UIListener
                 cover.setImageDrawable(song.getCover());
             else
             {
-                Glide.with(context)
+                Glide.with(views)
                     .load((song.getCoverPath() != null)?
                             new File(song.getCoverPath()) :
                             R.drawable.album_art_placeholder)
@@ -261,50 +341,50 @@ public class UIManager implements AudioListener, UIListener
         currentTime.setText(Timestamper.getTimestamp(time));
     }
 
-    public void togglePlayButtonIcon(boolean isPlaying)
+    private void togglePlayButtonIcon()
     {
-        if (isPlaying)
+        if (data.isPlaying())
             playButton.setImageResource(R.drawable.pause_24dp);
         else
             playButton.setImageResource(R.drawable.play_24dp);
     }
 
-    public void shuffle(Context context, boolean toggle)
+    private void shuffle()
     {
-        if(toggle)
+        if(data.isShuffled())
             shuffle.setColorFilter
                 (
-                    ContextCompat.getColor(context,
+                    ContextCompat.getColor(views,
                             R.color.toggle_on),
                     PorterDuff.Mode.SRC_ATOP
                 );
         else
             shuffle.setColorFilter
                 (
-                    ContextCompat.getColor(context,
+                    ContextCompat.getColor(views,
                             R.color.toggle_off),
                     PorterDuff.Mode.SRC_ATOP
                 );
     }
 
-    public void repeat(Context context, Data data)
+    private void repeat()
     {
         switch(data.repeatState())
         {
             case OFF:
                 repeat.setImageResource(R.drawable.repeat_24dp);
-                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_off),
+                repeat.setColorFilter(ContextCompat.getColor(views, R.color.toggle_off),
                         PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ALL:
-                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on),
+                repeat.setColorFilter(ContextCompat.getColor(views, R.color.toggle_on),
                         PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ONE:
                 repeat.setImageResource(R.drawable.repeat_one_24dp);
-                repeat.setColorFilter(ContextCompat.getColor(context, R.color.toggle_on),
+                repeat.setColorFilter(ContextCompat.getColor(views, R.color.toggle_on),
                         PorterDuff.Mode.SRC_ATOP);
                 break;
         }

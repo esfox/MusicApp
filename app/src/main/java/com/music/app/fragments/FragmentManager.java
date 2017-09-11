@@ -1,31 +1,34 @@
 package com.music.app.fragments;
 
 import android.content.Context;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.database.QueueFragment;
 import com.music.app.objects.Song;
-import com.music.app.unused.PlayQueueFragment;
 import com.music.app.utils.UIManager;
 
 import java.util.HashMap;
 
-public class FragmentManager implements OnBackStackChangedListener
+public class FragmentManager implements
+        OnBackStackChangedListener,
+        NavigationView.OnNavigationItemSelectedListener
 {
     private UIManager uiManager;
     private android.support.v4.app.FragmentManager fragmentManager;
 
     public SongListFragment songListFragment;
     public NowPlayingFragment nowPlayingFragment;
+    public QueueFragment queueFragment;
     private PlaylistsFragment playlistsFragment;
     private FavoritesFragment favoritesFragment;
-    public PlayQueueFragment playQueueFragment;
     private SongDetailsFragment songDetailsFragment;
 
-    public QueueFragment queueFragment;
+//    public PlayQueueFragment playQueueFragment;
 
     private String allSongsTag = "All Songs";
     private String queueTag = "Play Queue";
@@ -52,14 +55,45 @@ public class FragmentManager implements OnBackStackChangedListener
 
         songListFragment = new SongListFragment();
         nowPlayingFragment = new NowPlayingFragment();
-        playQueueFragment = new PlayQueueFragment();
+        queueFragment = new QueueFragment();
         playlistsFragment = new PlaylistsFragment();
         favoritesFragment = new FavoritesFragment();
         songDetailsFragment = new SongDetailsFragment();
 
-        queueFragment = new QueueFragment();
+//        playQueueFragment = new PlayQueueFragment();
 
         this.uiManager = uiManager;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case R.id.navigation_drawer_songs:
+                songList();
+                break;
+
+            case R.id.navigation_drawer_playlists:
+                playlists();
+                break;
+
+            case R.id.navigation_drawer_favorites:
+                favorites();
+                break;
+
+            case R.id.navigation_drawer_play_queue:
+                queue();
+                break;
+
+            case R.id.navigation_drawer_settings:
+                settings();
+                break;
+        }
+
+        uiManager.toggleNavigationDrawer(false);
+
+        return true;
     }
 
     public void songList()
@@ -75,7 +109,7 @@ public class FragmentManager implements OnBackStackChangedListener
                 .commit();
     }
 
-    public void playlists()
+    private void playlists()
     {
         fragmentManager
                 .beginTransaction()
@@ -84,7 +118,7 @@ public class FragmentManager implements OnBackStackChangedListener
                 .commit();
     }
 
-    public void favorites()
+    private void favorites()
     {
         fragmentManager
                 .beginTransaction()
@@ -125,7 +159,7 @@ public class FragmentManager implements OnBackStackChangedListener
                 .commit();
     }
 
-    public void settings()
+    private void settings()
     {
         Log.d("Fragment", "Settings");
     }

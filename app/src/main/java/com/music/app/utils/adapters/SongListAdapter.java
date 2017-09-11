@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
-import com.music.app.interfaces.QueueListener;
 import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.interfaces.SongListListener;
 import com.music.app.objects.Data;
@@ -58,7 +57,6 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
 
 
     private SongListAdapterListener songListAdapterListener;
-    private QueueListener queueListener;
     private FragmentManager fragmentManager;
 
     class Item
@@ -159,11 +157,6 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
     public void setSongListAdapterListener(SongListAdapterListener songListAdapterListener)
     {
         this.songListAdapterListener = songListAdapterListener;
-    }
-
-    public void setQueueListener(QueueListener queueListener)
-    {
-        this.queueListener = queueListener;
     }
 
     public void setFragmentManager(FragmentManager fragmentManager)
@@ -304,7 +297,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
     public void queue(int index)
     {
         Song song = getSongByIndex(index);
-        queueListener.onQueue(song.getId());
+        player.queue().queue(song.getId());
 
         Notice notice = new Notice(context);
         notice.setNoticeText(song.getTitle() + " queued");
@@ -318,7 +311,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         if(data.currentSongIsNotNull())
         {
             Song song = getSongByIndex(index);
-            queueListener.onPlayNext(song.getId());
+            player.queue().playNext(song.getId());
 
             Notice notice = new Notice(context);
             notice.setNoticeText(song.getTitle() + " to play next");

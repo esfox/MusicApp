@@ -17,8 +17,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.music.app.R;
-import com.music.app.interfaces.AudioListener;
-import com.music.app.interfaces.QueueListener;
+import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
@@ -29,7 +28,9 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
 import java.io.File;
 
-public class NowPlayingFragment extends Fragment implements View.OnClickListener, AudioListener
+public class NowPlayingFragment extends Fragment implements
+        View.OnClickListener,
+        UIUpdatesListener
 {
     private Data data;
     private Player player;
@@ -40,23 +41,19 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
     private ImageView shuffle, repeat;
     private FloatingActionButton play;
 
-    private QueueListener queueListener;
 
     public NowPlayingFragment() {}
 
-    public void initialize(Data data,
-                           Player player,
-                           UIManager uiManager,
-                           QueueListener queueListener)
+    public void initialize(Data data, Player player, UIManager uiManager)
     {
         this.data = data;
         this.player = player;
         this.uiManager = uiManager;
-        this.queueListener = queueListener;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView
+            (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_now_playing, container, false);
 
@@ -128,18 +125,11 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    @Override
-    public void onStopAudio()
-    {
-        togglePlayButtonIcon();
-    }
-
-    @Override
-    public void onCurrentTimeUpdate(int time)
-    {
-        if(isVisible())
-            updateProgress(time);
-    }
+    @Override public void onPlayOrPause() { if(isVisible()) togglePlayButtonIcon(); }
+    @Override public void onStopAudio() { if(isVisible()) togglePlayButtonIcon(); }
+    @Override public void onCurrentTimeUpdate(int time) { if(isVisible()) updateProgress(time); }
+    @Override public void onShuffle() { if(isVisible()) shuffle(); }
+    @Override public void onRepeat() { if(isVisible()) repeat(); }
 
     @Override
     public void onClick(View v)
@@ -148,8 +138,6 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
         {
             case R.id.now_playing_play:
                 player.play();
-                togglePlayButtonIcon();
-                uiManager.togglePlayButtonIcon(data.isPlaying());
                 break;
 
             case R.id.now_playing_next:
@@ -163,13 +151,11 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                 break;
 
             case R.id.now_playing_shuffle:
-                queueListener.onShuffle();
-                shuffle();
+                player.shuffle();
                 break;
 
             case R.id.now_playing_repeat:
-                queueListener.onRepeat();
-                repeat();
+                player.repeat();
                 break;
         }
     }
@@ -199,12 +185,15 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
 
                 final MediaPlayer mediaPlayer = player.getPlayer();
 
-                progress = (DiscreteSeekBar) getView().findViewById(R.id.now_playing_progress_bar);
-                time = (TextView) getView().findViewById(R.id.now_playing_start_time);
+                progress = (DiscreteSeekBar)
+                        getView().findViewById(R.id.now_playing_progress_bar);
+                time = (TextView)
+                        getView().findViewById(R.id.now_playing_start_time);
 
                 final int currentTime = (int) data.currentTime();
                 final boolean currentTimeIsNotNull = currentTime != -1;
-                time.setText(Timestamper.getTimestamp((currentTimeIsNotNull) ? currentTime : 0));
+                time.setText(Timestamper
+                        .getTimestamp((currentTimeIsNotNull) ? currentTime : 0));
 
                 progress.post(new Runnable()
                 {
@@ -216,12 +205,14 @@ public class NowPlayingFragment extends Fragment implements View.OnClickListener
                     }
                 });
 
-                progress.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener()
+                progress.setOnProgressChangeListener
+                        (new DiscreteSeekBar.OnProgressChangeListener()
                 {
                     private boolean notPlaying;
 
                     @Override
-                    public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser)
+                    public void onProgressChanged
+                            (DiscreteSeekBar seekBar, int value, boolean fromUser)
                     {
                         if(fromUser)
                             seekBar.setIndicatorFormatter(Timestamper

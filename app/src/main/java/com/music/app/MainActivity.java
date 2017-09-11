@@ -1,22 +1,17 @@
 package com.music.app;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.design.widget.NavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MenuItem;
-import android.view.View;
 
 import com.music.app.fragments.FragmentManager;
 import com.music.app.interfaces.AudioScanListener;
-import com.music.app.interfaces.QueueListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Queue;
@@ -31,10 +26,7 @@ import java.util.ArrayList;
 
 TODO CURRENT ACTIVITY
 
-SongListAdapter implement OnItemClickListener
 Observer pattern for shuffle and repeat
-
-RESTRUCTURE CODE!!!!!
 
 TODO: Remember to do these
 NowPlayingFragment Seek Value bug
@@ -45,18 +37,12 @@ Timer onResume (When no playing song)
 
 */
 
-public class MainActivity extends AppCompatActivity implements
-        AudioScanListener,
-        QueueListener,
-        View.OnClickListener,
-        View.OnLongClickListener,
-        NavigationView.OnNavigationItemSelectedListener
+public class MainActivity extends AppCompatActivity implements AudioScanListener
 {
     private Player player;
     private Queue queue;
     private Data data;
 
-    private UIManager uiManager;
     private FragmentManager fragmentManager;
 
     private Intent serviceIntent;
@@ -69,19 +55,16 @@ public class MainActivity extends AppCompatActivity implements
             player = binder.getService();
             player.initialize(serviceIntent, data, queue);
 
-            uiManager = new UIManager(MainActivity.this);
+            UIManager uiManager = new UIManager(MainActivity.this);
             uiManager.initUI
                 (
                     MainActivity.this,
                     data,
-                    player,
-                    MainActivity.this,
-                    MainActivity.this
+                    player
                 );
-            uiManager.setClickListeners(MainActivity.this, MainActivity.this);
             fragmentManager = uiManager.fragmentManager();
 
-            player.setUIListener(uiManager);
+            player.setAudioListener(uiManager);
 
             boolean currentSongIsNotNull = data.currentSongIsNotNull();
             if(currentSongIsNotNull)
@@ -148,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
 //        {
 //            ActivityCompat.requestPermissions(this, new String[]
@@ -159,11 +141,11 @@ public class MainActivity extends AppCompatActivity implements
 //        }
 
         data = new Data(MainActivity.this);
+        queue = new Queue(data);
 
         serviceIntent = new Intent(MainActivity.this, Player.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
-        queue = new Queue(data);
 
         //Scan audio
         new AudioFileScanner(MainActivity.this, MainActivity.this, data).scanAudio();
@@ -238,33 +220,6 @@ public class MainActivity extends AppCompatActivity implements
     //    }
 
     @Override
-    public void onQueue(long id)
-    {
-        queue.queue(id);
-    }
-
-    @Override
-    public void onPlayNext(long id)
-    {
-        queue.playNext(id);
-    }
-
-    @Override
-    public void onShuffle()
-    {
-        data.updateIsShuffled(!data.isShuffled());
-        queue.shuffle(this);
-        uiManager.shuffle(this, data.isShuffled());
-    }
-
-    @Override
-    public void onRepeat()
-    {
-        data.updateRepeatState();
-        uiManager.repeat(this, data);
-    }
-
-    @Override
     public void onScanComplete(ArrayList<Song> songs)
     {
         data.setSongs(songs);
@@ -280,12 +235,10 @@ public class MainActivity extends AppCompatActivity implements
             queue.initialize(ids);
         }
 
-        data.setQueue(queue);
-
         if(fragmentManager != null)
         {
             fragmentManager.songListFragment.setSongs(songs);
-            fragmentManager.songListFragment.initialize(data, player, this, fragmentManager);
+            fragmentManager.songListFragment.initialize(data, player, fragmentManager);
             fragmentManager.songList();
         }
         else
@@ -302,128 +255,12 @@ public class MainActivity extends AppCompatActivity implements
         {
             ((SongListAdapter) fragmentManager.songListFragment
                     .getSongList().getAdapter()).notifyDataSetChanged();
-
         }
         catch (Exception e)
         {
             Log.d("Music App", "FragmentManager was null. (onUpdate)");
             restart();
         }
-    }
-
-    @Override
-    public void onClick(View v)
-    {
-        switch (v.getId())
-        {
-            case R.id.play_button:
-                player.play();
-                uiManager.togglePlayButtonIcon(data.isPlaying());
-                break;
-
-            case R.id.next_button:
-                player.next();
-                break;
-
-            case R.id.previous_button:
-                player.previous();
-                break;
-
-//            case R.id.scrub_forward_button:
-//                player.scrub(true);
-//                uiManager.updateCurrentTime(false);
-//                break;
-//
-//            case R.id.scrub_backward_button:
-//                player.scrub(false);
-//                uiManager.updateCurrentTime(false);
-//                break;
-
-            case R.id.shuffle:
-                onShuffle();
-                break;
-
-            case R.id.repeat:
-                onRepeat();
-                break;
-
-            case R.id.multi_queue:
-                SongListAdapter adapter = (SongListAdapter) fragmentManager.songListFragment
-                        .getSongList().getAdapter();
-
-                adapter.toggleMultiQueueMode(!adapter.isInMultiQueueMode());
-                break;
-
-            case R.id.no_action_yet:
-                break;
-
-            case R.id.now_playing_bar:
-                uiManager.openNowPlayingBar();
-                break;
-
-            case R.id.toolbar_icon:
-                uiManager.toggleNavigationDrawer(true);
-                break;
-
-            case R.id.toolbar_menu:
-                fragmentManager.songListFragment.menu(v);
-                break;
-
-            case R.id.toolbar_sort:
-                fragmentManager.songListFragment.sortOptions(v);
-        }
-    }
-
-    @SuppressLint("InflateParams")
-    @Override
-    public boolean onLongClick(View v)
-    {
-        switch(v.getId())
-        {
-            case R.id.play_button:
-                player.stop();
-                break;
-
-//            case R.id.scrub_forward_button:
-//            case R.id.scrub_backward_button:
-//                uiManager.setScrubAmount(this, data);
-//                break;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item)
-    {
-        //TODO: Do other fragments
-        //TODO: Update currently selected
-
-        switch(item.getItemId())
-        {
-            case R.id.navigation_drawer_songs:
-                fragmentManager.songList();
-                break;
-
-            case R.id.navigation_drawer_playlists:
-                fragmentManager.playlists();
-                break;
-
-            case R.id.navigation_drawer_favorites:
-                fragmentManager.favorites();
-                break;
-
-            case R.id.navigation_drawer_play_queue:
-                fragmentManager.queue();
-                break;
-
-            case R.id.navigation_drawer_settings:
-                fragmentManager.settings();
-                break;
-        }
-
-        uiManager.toggleNavigationDrawer(false);
-
-        return true;
     }
 
     @Override

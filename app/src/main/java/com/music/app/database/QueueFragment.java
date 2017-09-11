@@ -10,12 +10,13 @@ import android.view.ViewGroup;
 
 import com.mobeta.android.dslv.DragSortListView;
 import com.music.app.R;
-import com.music.app.interfaces.AudioListener;
+import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.utils.adapters.QueueAdapter;
 
-public class QueueFragment extends Fragment implements AudioListener
+public class QueueFragment extends Fragment implements
+        UIUpdatesListener
 {
     private Data data;
     private Player player;
@@ -58,17 +59,26 @@ public class QueueFragment extends Fragment implements AudioListener
     public void onStartAudio()
     {
         if(isVisible())
-        {
-            adapter.notifyDataSetChanged();
-            scrollToPlaying();
-        }
+            updateAdapter();
     }
 
     @Override
-    public void onStopAudio() {}
+    public void onShuffle()
+    {
+        if(isVisible())
+            updateAdapter();
+    }
 
-    @Override
-    public void onCurrentTimeUpdate(int time) {}
+    @Override public void onPlayOrPause() {}
+    @Override public void onStopAudio() {}
+    @Override public void onCurrentTimeUpdate(int time) {}
+    @Override public void onRepeat() {}
+
+    private void updateAdapter()
+    {
+        adapter.notifyDataSetChanged();
+        scrollToPlaying();
+    }
 
     private void scrollToPlaying()
     {
