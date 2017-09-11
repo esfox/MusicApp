@@ -14,8 +14,11 @@
     <dimen name="song_detail_divider_margin_left">7dp</dimen>
     <dimen name="song_detail_divider_margin_right">5dp</dimen>
 
+    <dimen name="song_list_item_height">60dp</dimen>
+    <dimen name="song_list_item_cover_size">56dp</dimen>
+
     <dimen name="now_playing_bar_details_height">60dp</dimen>
-    <dimen name="now_playing_bar_height">112dp</dimen>
+    <dimen name="now_playing_bar_height">114dp</dimen>
 
     <dimen name="fastscroll_bubble_padding">0dp</dimen>
 </resources>

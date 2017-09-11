@@ -2,86 +2,71 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/queue_list_background"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/song_list_item_height"
     tools:ignore="ContentDescription">
 
-    <RelativeLayout
-        android:id="@+id/queue_list_background"
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/queue_list_drag_handle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:ignore="UselessParent">
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
+        android:paddingLeft="10dp"
+        android:paddingStart="10dp"
+        android:paddingRight="10dp"
+        android:paddingEnd="10dp"
+        android:src="@drawable/drag_vertical_24dp"/>
 
-        <RelativeLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/queue_list_cover"
+        android:layout_toStartOf="@+id/queue_list_cover"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/queue_list_title"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:paddingLeft="0dp"
-            android:paddingStart="0dp"
-            android:paddingRight="0dp"
-            android:paddingEnd="0dp">
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            tools:text="For Your Purpose"/>
 
-            <ImageView
-                android:id="@+id/queue_list_drag_handle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginRight="20dp"
-                android:layout_marginEnd="20dp"
-                android:paddingLeft="10dp"
-                android:paddingStart="10dp"
-                android:paddingRight="10dp"
-                android:paddingEnd="10dp"
-                android:src="@drawable/drag_vertical_24dp"/>
+        <TextView
+            android:id="@+id/queue_list_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="15sp"
+            tools:text="Victory Worship"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerVertical="true"
-                android:gravity="center_vertical"
-                android:layout_marginEnd="15dp"
-                android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginStart="15dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_toLeftOf="@+id/queue_list_cover"
-                android:layout_toStartOf="@+id/queue_list_cover"
-                android:orientation="vertical">
+    </LinearLayout>
 
-                <TextView
-                    android:id="@+id/queue_list_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    tools:text="For Your Purpose"/>
-
-                <TextView
-                    android:id="@+id/queue_list_artist"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textSize="15sp"
-                    tools:text="Victory Worship"/>
-
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/queue_list_cover"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_toLeftOf="@+id/queue_list_drag_handle"
-                android:layout_toStartOf="@+id/queue_list_drag_handle"
-                android:layout_centerVertical="true"
-                android:src="@drawable/album_art_placeholder"/>
-        </RelativeLayout>
-    </RelativeLayout>
+    <ImageView
+        android:id="@+id/queue_list_cover"
+        android:layout_width="@dimen/song_list_item_cover_size"
+        android:layout_height="@dimen/song_list_item_cover_size"
+        android:layout_toLeftOf="@+id/queue_list_drag_handle"
+        android:layout_toStartOf="@+id/queue_list_drag_handle"
+        android:layout_centerVertical="true"
+        android:src="@drawable/album_art_placeholder"/>
 </RelativeLayout>

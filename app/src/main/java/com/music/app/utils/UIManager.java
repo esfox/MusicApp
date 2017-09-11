@@ -11,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -19,8 +20,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.music.app.R;
 import com.music.app.fragments.FragmentManager;
-import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.interfaces.AudioListener;
+import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
@@ -100,6 +101,8 @@ public class UIManager implements
                 views.findViewById(R.id.navigation_drawer));
         navigationDrawer.setItemIconTintList(null);
         navigationDrawer.setTag(views.findViewById(R.id.drawer_layout));
+
+        updateNavigationDrawer();
 
         setClickListeners();
     }
@@ -285,18 +288,25 @@ public class UIManager implements
         if(open)
             ((DrawerLayout) navigationDrawer.getTag()).openDrawer(GravityCompat.START);
         else
-        {
             ((DrawerLayout) navigationDrawer.getTag()).closeDrawer(GravityCompat.START);
-            updateNavigationDrawer();
-        }
     }
 
-    private void updateNavigationDrawer()
+    public void updateNavigationDrawer()
     {
-//        if(navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).isChecked())
-//            navigationDrawer.getMenu().findItem(R.id.navigation_drawer_songs).setChecked(false);
-//
-//        navigationDrawer.getMenu().findItem(fragmentManager.activeFragment).setChecked(true);
+        final int menuID = fragmentManager.getActiveFragmentID();
+        navigationDrawer.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if(menuID == 0)
+                    navigationDrawer.setCheckedItem(R.id.navigation_drawer_invisible);
+                else
+                    navigationDrawer.setCheckedItem(menuID);
+            }
+        });
+
+        Log.d("Active ID", String.valueOf(menuID));
     }
 
     private void openNowPlayingBar() { fragmentManager.nowPlaying(); }

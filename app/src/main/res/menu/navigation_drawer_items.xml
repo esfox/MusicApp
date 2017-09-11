@@ -27,32 +27,38 @@
                     android:checkable="true"/>
             </menu>
         </item>
+    </group>
 
+    <group>
         <item
-            android:id="@+id/navigation_drawer_play_queue"
+            android:id="@+id/navigation_drawer_queue"
             android:icon="@drawable/queue_list_36dp"
             android:title="Play Queue"
             android:checkable="true"/>
+    </group>
 
-        <item android:title="Options">
-            <menu>
-                <item
-                    android:id="@+id/navigation_drawer_settings"
-                    android:icon="@drawable/settings_36dp"
-                    android:title="Settings"
-                    android:checkable="true"/>
+    <group
+        android:id="@+id/navigation_drawer_third_group">
+        <item
+            android:id="@+id/navigation_drawer_settings"
+            android:icon="@drawable/settings_36dp"
+            android:title="Settings"
+            android:checkable="true"/>
 
-                <item
-                    android:id="@+id/navigation_drawer_help"
-                    android:icon="@drawable/help_36dp"
-                    android:title="Help"
-                    android:checkable="true"/>
-                <item
-                    android:id="@+id/navigation_drawer_about"
-                    android:icon="@drawable/info_36dp"
-                    android:title="About"
-                    android:checkable="true"/>
-            </menu>
-        </item>
+        <item
+            android:id="@+id/navigation_drawer_help"
+            android:icon="@drawable/help_36dp"
+            android:title="Help"
+            android:checkable="true"/>
+        <item
+            android:id="@+id/navigation_drawer_about"
+            android:icon="@drawable/info_36dp"
+            android:title="About"
+            android:checkable="true"/>
+
+        <item
+            android:id="@+id/navigation_drawer_invisible"
+            android:visible="false"
+            android:checkable="true"/>
     </group>
 </menu>

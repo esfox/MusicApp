@@ -3,6 +3,7 @@ package com.music.app.fragments;
 import android.content.Context;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -11,6 +12,7 @@ import com.music.app.R;
 import com.music.app.database.QueueFragment;
 import com.music.app.objects.Song;
 import com.music.app.utils.UIManager;
+import com.music.app.views.Notice;
 
 import java.util.HashMap;
 
@@ -35,20 +37,36 @@ public class FragmentManager implements
     private String songDetailsTag = "Song Details";
     private String nowPlayingTag = "Now Playing";
 
-    private HashMap<String, Integer> icons;
+    private HashMap<String, Pair<Integer, Integer>> ids;
+    private int activeFragmentID = R.id.navigation_drawer_songs;
 
-    private void initIcons()
+    private void initReferences()
     {
-        icons = new HashMap<>();
+        ids = new HashMap<>();
 
-        icons.put(allSongsTag, R.drawable.all_songs_36dp);
-        icons.put(queueTag, R.drawable.queue_list_36dp);
-        icons.put(songDetailsTag, R.drawable.info_36dp);
+        ids.put(allSongsTag,
+                new Pair<>
+                    (
+                        R.id.navigation_drawer_songs,
+                        R.drawable.all_songs_36dp
+                    ));
+        ids.put(queueTag,
+                new Pair<>
+                    (
+                        R.id.navigation_drawer_queue,
+                        R.drawable.queue_list_36dp
+                    ));
+        ids.put(songDetailsTag,
+                new Pair<>
+                    (
+                        0,
+                        R.drawable.info_36dp
+                    ));
     }
 
     public FragmentManager(Context context, UIManager uiManager)
     {
-        initIcons();
+        initReferences();
 
         fragmentManager = ((MainActivity) context).getSupportFragmentManager();
         fragmentManager.addOnBackStackChangedListener(this);
@@ -75,19 +93,27 @@ public class FragmentManager implements
                 break;
 
             case R.id.navigation_drawer_playlists:
-                playlists();
+                notYetDevelopedNotice();
                 break;
 
             case R.id.navigation_drawer_favorites:
-                favorites();
+                notYetDevelopedNotice();
                 break;
 
-            case R.id.navigation_drawer_play_queue:
+            case R.id.navigation_drawer_queue:
                 queue();
                 break;
 
             case R.id.navigation_drawer_settings:
-                settings();
+                notYetDevelopedNotice();
+                break;
+
+            case R.id.navigation_drawer_help:
+                notYetDevelopedNotice();
+                break;
+
+            case R.id.navigation_drawer_about:
+                notYetDevelopedNotice();
                 break;
         }
 
@@ -96,49 +122,49 @@ public class FragmentManager implements
         return true;
     }
 
+    private void notYetDevelopedNotice()
+    {
+        Notice notice = new Notice(songListFragment.getContext());
+        notice.setNoticeText("Sorry! This part has not yet been developed.");
+        notice.show();
+
+        uiManager.updateNavigationDrawer();
+    }
+
+    public int getActiveFragmentID()
+    {
+        return activeFragmentID;
+    }
+
     public void songList()
     {
-        fragmentManager
-                .popBackStack(songDetailsTag,
-                        android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if(!songListFragment.isVisible())
+        {
+            fragmentManager
+                    .popBackStack(songDetailsTag,
+                            android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-        fragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_area, songListFragment, allSongsTag)
-                .addToBackStack(allSongsTag)
-                .commit();
-    }
-
-    private void playlists()
-    {
-        fragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_area, playlistsFragment, "Playlist")
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void favorites()
-    {
-        fragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_area, favoritesFragment, "Favorites")
-                .addToBackStack(null)
-                .commit();
+            fragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_area, songListFragment, allSongsTag)
+                    .addToBackStack(allSongsTag)
+                    .commit();
+        }
     }
 
     public void nowPlaying()
     {
-        fragmentManager
-                .beginTransaction()
-                .setCustomAnimations
-                    (
-                        R.anim.slide_up, R.anim.slide_down,
-                        R.anim.slide_up, R.anim.slide_down
-                    )
-                .replace(R.id.parent, nowPlayingFragment, nowPlayingTag)
-                .addToBackStack(nowPlayingTag)
-                .commit();
+        if(!nowPlayingFragment.isVisible())
+            fragmentManager
+                    .beginTransaction()
+                    .setCustomAnimations
+                        (
+                            R.anim.slide_up, R.anim.slide_down,
+                            R.anim.slide_up, R.anim.slide_down
+                        )
+                    .replace(R.id.parent, nowPlayingFragment, nowPlayingTag)
+                    .addToBackStack(nowPlayingTag)
+                    .commit();
     }
 
     public void queue()
@@ -146,22 +172,18 @@ public class FragmentManager implements
         if(nowPlayingFragment.isVisible())
             popBackStack();
 
-        fragmentManager
-                .beginTransaction()
-                .setCustomAnimations
-                    (
-                        R.anim.slide_in_left, R.anim.slide_out_left,
-                        R.anim.slide_in_right, R.anim.slide_out_right
+        if(!queueFragment.isVisible())
+            fragmentManager
+                    .beginTransaction()
+                    .setCustomAnimations
+                        (
+                            R.anim.slide_in_left, R.anim.slide_out_left,
+                            R.anim.slide_in_right, R.anim.slide_out_right
 
-                    )
-                .replace(R.id.fragment_area, queueFragment, queueTag)
-                .addToBackStack(queueTag)
-                .commit();
-    }
-
-    private void settings()
-    {
-        Log.d("Fragment", "Settings");
+                        )
+                    .replace(R.id.fragment_area, queueFragment, queueTag)
+                    .addToBackStack(queueTag)
+                    .commit();
     }
 
     public void songDetails(Song song)
@@ -187,7 +209,6 @@ public class FragmentManager implements
 
     @Override
     public void onBackStackChanged()
-
     {
         String currentFragmentName
                 = fragmentManager.getBackStackEntryAt
@@ -195,8 +216,23 @@ public class FragmentManager implements
                     fragmentManager.getBackStackEntryCount() - 1
                 ).getName();
 
-        if(!currentFragmentName.equals(nowPlayingTag) && icons.containsKey(currentFragmentName))
-            uiManager.updateAppBar(currentFragmentName, icons.get(currentFragmentName));
+        Pair currentFragmentPair = ids.get(currentFragmentName);
+        if(!currentFragmentName.equals(nowPlayingTag))
+            uiManager.updateAppBar(currentFragmentName, (Integer) currentFragmentPair.second);
+
+        int currentFragmentID;
+        try
+        {
+            currentFragmentID = (int) currentFragmentPair.first;
+        }
+        catch (Exception e) { currentFragmentID = 0; }
+
+        if(currentFragmentID != -1)
+            activeFragmentID = currentFragmentID;
+
+        uiManager.updateNavigationDrawer();
+
+        Log.d("Current Fragment Name", currentFragmentName);
     }
 
 //    public void playQueue()

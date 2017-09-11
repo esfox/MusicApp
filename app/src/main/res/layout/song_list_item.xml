@@ -3,12 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/song_list_item_height"
     tools:ignore="ContentDescription">
 
     <include layout="@layout/song_list_options_layout"
              android:layout_width="180dp"
-             android:layout_height="60dp"
+             android:layout_height="match_parent"
              android:layout_alignParentRight="true"
              android:layout_alignParentEnd="true"/>
 
@@ -21,7 +21,7 @@
         <RelativeLayout
             android:id="@+id/song_list_clickable"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="match_parent"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -41,10 +41,10 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:paddingEnd="15dp"
-                android:paddingLeft="5dp"
-                android:paddingRight="15dp"
-                android:paddingStart="5dp"
+                android:paddingEnd="18dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="18dp"
+                android:paddingStart="10dp"
                 android:src="@drawable/more_vertical_24dp"
                 android:tint="@color/button_tint"/>
 
@@ -88,8 +88,8 @@
 
             <ImageView
                 android:id="@+id/song_list_cover"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
+                android:layout_width="@dimen/song_list_item_cover_size"
+                android:layout_height="@dimen/song_list_item_cover_size"
                 android:layout_toLeftOf="@+id/song_list_options"
                 android:layout_toStartOf="@+id/song_list_options"
                 android:layout_centerVertical="true"
