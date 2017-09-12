@@ -15,7 +15,8 @@
         android:layout_below="@+id/song_list_toolbar"
         android:fastScrollEnabled="true"
         android:scrollingCache="false"
-        android:animationCache="false"/>
+        android:animationCache="false"
+        android:smoothScrollbar="true"/>
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/song_list_toolbar"

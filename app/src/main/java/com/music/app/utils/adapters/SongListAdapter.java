@@ -212,6 +212,29 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         return view;
     }
 
+    private void checkIfPositionIsOpened(int position, SongListViewHolder viewHolder)
+    {
+        if(position == openedOptionsPosition)
+            viewHolder.toggleOptions(false, true);
+        else
+            viewHolder.toggleOptions(false, false);
+
+//        if(openedOptionsPosition <= songList.getFirstVisiblePosition() &&
+//           openedOptionsPosition >= songList.getLastVisiblePosition())
+//            openedOptionsPosition = -1;
+    }
+
+    private void checkIfPositionIsSelected(int position, SongListViewHolder viewHolder)
+    {
+        if(inSelectionMode)
+        {
+            viewHolder.toggleOptionsVisibility(false);
+            viewHolder.setBackgroundColor(position, selectedFlags.get(position));
+        }
+        else
+            viewHolder.toggleOptionsVisibility(true);
+    }
+
     @Override
     public void onPlay(int index, SongListViewHolder viewHolder)
     {
@@ -467,29 +490,6 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         notice.show();
 
         toggleSelectionMode(false);
-    }
-
-    private void checkIfPositionIsOpened(int position, SongListViewHolder viewHolder)
-    {
-        if(position == openedOptionsPosition)
-            viewHolder.toggleOptions(false, true);
-        else
-            viewHolder.toggleOptions(false, false);
-
-//        if(openedOptionsPosition <= songList.getFirstVisiblePosition() &&
-//           openedOptionsPosition >= songList.getLastVisiblePosition())
-//            openedOptionsPosition = -1;
-    }
-
-    private void checkIfPositionIsSelected(int position, SongListViewHolder viewHolder)
-    {
-        if(inSelectionMode)
-        {
-            viewHolder.toggleOptionsVisibility(false);
-            viewHolder.setBackgroundColor(position, selectedFlags.get(position));
-        }
-        else
-            viewHolder.toggleOptionsVisibility(true);
     }
 
     public boolean isInMultiQueueMode() { return inMultiQueueMode; }

@@ -26,7 +26,8 @@ import java.util.ArrayList;
 
 TODO CURRENT ACTIVITY
 
-Observer pattern for shuffle and repeat
+Seekbar on Now Playing Bar
+
 
 TODO: Remember to do these
 NowPlayingFragment Seek Value bug

@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:background="@drawable/fastscroll_bubble"
+        android:background="@drawable/scroll_bubble"
         android:gravity="center"
         android:textColor="#FFffffff"
         android:textSize="40sp"
