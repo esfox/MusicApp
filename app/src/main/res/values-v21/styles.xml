@@ -6,7 +6,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:fastScrollThumbDrawable">@drawable/scroll_thumb</item>
-        <item name="android:fastScrollPreviewBackgroundRight">@drawable/scroll_preview</item>
+        <item name="android:fastScrollPreviewBackgroundRight">@drawable/scroll_preview_drawable</item>
         <item name="android:fastScrollTrackDrawable">@drawable/scroll_track</item>
         <item name="android:fastScrollOverlayPosition">atThumb</item>
         <item name="android:fastScrollTextColor">#FFFFFF</item>
