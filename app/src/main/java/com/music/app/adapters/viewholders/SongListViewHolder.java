@@ -1,6 +1,7 @@
-package com.music.app.utils.adapters.viewholders;
+package com.music.app.adapters.viewholders;
 
 import android.animation.ObjectAnimator;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -10,7 +11,7 @@ import android.widget.TextView;
 import com.music.app.R;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
-import com.music.app.utils.adapters.SongListAdapter;
+import com.music.app.adapters.SongListAdapter;
 import com.music.app.interfaces.SongListListener;
 
 public class SongListViewHolder implements View.OnClickListener, View.OnLongClickListener
@@ -102,6 +103,23 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     {
         title.setText(song.getTitle());
         artist.setText(song.getArtist());
+
+//        title.setTag(song.getTitle());
+//        artist.setTag(song.getArtist());
+//
+//        for(final TextView textView : new TextView[] {title, artist})
+//        {
+//            textView.post(new Runnable()
+//            {
+//                @Override
+//                public void run()
+//                {
+//                    textView.setText(textView.getTag().toString());
+//                    textView.setEllipsize(TextUtils.TruncateAt.END);
+//                    textView.setSingleLine(true);
+//                }
+//            });
+//        }
 
 //        if(sort == Sorter.SortBy.artist)
 //            artist.setText(song.getAlbum());

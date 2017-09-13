@@ -6,7 +6,6 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:openDrawer="left"
     tools:ignore="ContentDescription">
 
     <RelativeLayout
@@ -63,5 +62,11 @@
         app:itemTextColor="@color/navigation_drawer_item"
         app:headerLayout="@layout/navigation_drawer_header"
         app:menu="@menu/navigation_drawer_items"/>
+
+    <ViewStub
+        android:id="@+id/lol"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout="@layout/lol"/>
     
 </android.support.v4.widget.DrawerLayout>

@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.music.app.objects.Player;
 import com.music.app.objects.Song;
 import com.music.app.utils.Timestamper;
 import com.music.app.utils.UIManager;
+import com.music.app.views.ScrollingTextView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -40,7 +42,6 @@ public class NowPlayingFragment extends Fragment implements
     private TextView time;
     private ImageView shuffle, repeat;
     private FloatingActionButton play;
-
 
     public NowPlayingFragment() {}
 
@@ -64,10 +65,6 @@ public class NowPlayingFragment extends Fragment implements
                 view.findViewById(R.id.now_playing_previous);
         shuffle = (ImageView) view.findViewById(R.id.now_playing_shuffle);
         repeat = (ImageView) view.findViewById(R.id.now_playing_repeat);
-
-        view.findViewById(R.id.now_playing_title).setSelected(true);
-        view.findViewById(R.id.now_playing_artist).setSelected(true);
-        view.findViewById(R.id.now_playing_album).setSelected(true);
 
         togglePlayButtonIcon();
         shuffle();
@@ -164,7 +161,7 @@ public class NowPlayingFragment extends Fragment implements
     {
         if(data.currentSongIsNotNull())
         {
-            final Song song = data.currentSong(getContext());
+            final Song song = data.currentSong();
             ImageView cover = ((ImageView) getView().findViewById(R.id.now_playing_cover));
 
             if(!updateCoverOnly)
@@ -172,15 +169,43 @@ public class NowPlayingFragment extends Fragment implements
                 ((ViewGroup) getView()).removeView(getView()
                         .findViewById(R.id.now_playing_start_message));
 
-                ((TextView) getView()
-                        .findViewById(R.id.now_playing_title)).setText(song.getTitle());
-                ((TextView) getView()
-                        .findViewById(R.id.now_playing_artist)).setText(song.getArtist());
-                ((TextView) getView()
-                        .findViewById(R.id.now_playing_album)).setText(song.getAlbum());
-                ((TextView) getView()
-                        .findViewById(R.id.now_playing_end_time)).setText
-                        (Timestamper.getTimestamp(song.getDuration()));
+                ScrollingTextView
+                        title = (ScrollingTextView) getView()
+                                .findViewById(R.id.now_playing_title),
+                        artist = (ScrollingTextView) getView()
+                                .findViewById(R.id.now_playing_artist),
+                        album = (ScrollingTextView) getView()
+                                .findViewById(R.id.now_playing_album);
+
+                final ScrollingTextView[] textViews = new ScrollingTextView[]
+                        {title, artist, album};
+                final String[] songDetails = new String[]
+                {
+                    song.getTitle(),
+                    song.getArtist(),
+                    song.getAlbum()
+                };
+
+                for(int index = 0; index < textViews.length; index++)
+                {
+                    final int i = index;
+                    textViews[index].post(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            textViews[i].setText(songDetails[i]);
+                            textViews[i].setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                            textViews[i].setSingleLine(true);
+                            textViews[i].setMarqueeRepeatLimit(-1);
+                            textViews[i].setSelected(true);
+                        }
+                    });
+                }
+
+                ((TextView) getView().findViewById(R.id.now_playing_end_time))
+                        .setText(Timestamper.getTimestamp(song.getDuration()));
+
                 updateCover(cover, song);
 
                 final MediaPlayer mediaPlayer = player.getPlayer();
@@ -190,16 +215,16 @@ public class NowPlayingFragment extends Fragment implements
                 time = (TextView)
                         getView().findViewById(R.id.now_playing_start_time);
 
-                final int currentTime = (int) data.currentTime();
+                final int currentTime = player.getPlayer().getCurrentPosition();
                 final boolean currentTimeIsNotNull = currentTime != -1;
-                time.setText(Timestamper
-                        .getTimestamp((currentTimeIsNotNull) ? currentTime : 0));
+                time.setText(Timestamper.getTimestamp((currentTimeIsNotNull) ? currentTime : 0));
 
                 progress.post(new Runnable()
                 {
                     @Override
                     public void run()
                     {
+                        progress.setFocusable(false);
                         progress.setMax((int) song.getDuration());
                         progress.setProgress((currentTimeIsNotNull) ? currentTime : 0);
                     }
@@ -214,9 +239,8 @@ public class NowPlayingFragment extends Fragment implements
                     public void onProgressChanged
                             (DiscreteSeekBar seekBar, int value, boolean fromUser)
                     {
-                        if(fromUser)
-                            seekBar.setIndicatorFormatter(Timestamper
-                                    .getIndicatorTimestamp(value));
+                        String time = Timestamper.getSeekbarTimestamp(value);
+                        if(fromUser) seekBar.setIndicatorFormatter(time);
                     }
 
                     @Override
@@ -227,8 +251,7 @@ public class NowPlayingFragment extends Fragment implements
                             player.play();
                             notPlaying = false;
                         }
-                        else
-                            notPlaying = true;
+                        else notPlaying = true;
 
                     }
 
@@ -240,45 +263,19 @@ public class NowPlayingFragment extends Fragment implements
                         boolean exceedingDuration = value >= duration;
 
                         mediaPlayer.seekTo(exceedingDuration ? duration : value);
-                        time.setText(Timestamper
-                                .getTimestamp(exceedingDuration ? duration : value));
+                        String timestamp = Timestamper.getTimestamp
+                                (exceedingDuration ? duration : value);
+                        time.setText(timestamp);
 
                         data.updateCurrentTime(value);
                         uiManager.updateCurrentTime(value);
 
-                        if(!notPlaying)
-                            player.play();
+                        if(!notPlaying) player.play();
                     }
                 });
             }
             else
                 updateCover(cover, song);
-//            progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-//            {
-//                @Override
-//                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-//                {
-//                    if(fromUser)
-//                    {
-//                        if(progress >= mediaPlayer.getDuration())
-//                            mediaPlayer.seekTo(mediaPlayer.getDuration());
-//                        else
-//                            mediaPlayer.seekTo(progress);
-//                    }
-//                }
-//
-//                @Override
-//                public void onStartTrackingTouch(SeekBar seekBar)
-//                {
-//                    player.play();
-//                }
-//
-//                @Override
-//                public void onStopTrackingTouch(SeekBar seekBar)
-//                {
-//                    player.play();
-//                }
-//            });
         }
         else
             getView().findViewById(R.id.now_playing_start_message).setVisibility(View.VISIBLE);
@@ -296,10 +293,24 @@ public class NowPlayingFragment extends Fragment implements
                 .into(cover);
     }
 
-    public void updateProgress(int currentTime)
+    public void updateProgress(final int currentTime)
     {
-        progress.setProgress(currentTime);
-        time.setText(Timestamper.getTimestamp(currentTime));
+        progress.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                progress.setProgress(currentTime);
+            }
+        });
+        time.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                time.setText(Timestamper.getTimestamp(currentTime));
+            }
+        });
     }
 
     private void resetProgress()

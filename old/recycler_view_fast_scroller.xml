@@ -9,7 +9,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:background="@drawable/scroll_bubble"
         android:gravity="center"
         android:textColor="#FFffffff"
         android:textSize="40sp"
@@ -24,7 +23,6 @@
         android:paddingStart="8dp"
         android:paddingRight="8dp"
         android:paddingEnd="8dp"
-        android:src="@drawable/recycler_view_fast_scroller_handle"
         tools:ignore="RtlSymmetry"/>
 
 </merge>

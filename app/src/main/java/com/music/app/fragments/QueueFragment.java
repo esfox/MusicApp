@@ -1,4 +1,4 @@
-package com.music.app.database;
+package com.music.app.fragments;
 
 
 import android.os.Bundle;
@@ -13,7 +13,7 @@ import com.music.app.R;
 import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
-import com.music.app.utils.adapters.QueueAdapter;
+import com.music.app.adapters.QueueAdapter;
 
 public class QueueFragment extends Fragment implements
         UIUpdatesListener
@@ -36,7 +36,7 @@ public class QueueFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        adapter = new QueueAdapter(getContext(), data, player);
+        adapter = new QueueAdapter(data, player);
 
         View view = inflater.inflate(R.layout.fragment_queue, container, false);
         queueList = (DragSortListView) view.findViewById(R.id.queue_list);

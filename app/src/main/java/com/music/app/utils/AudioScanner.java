@@ -1,37 +1,39 @@
 package com.music.app.utils;
 
-import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.v4.content.res.ResourcesCompat;
 
 import com.bumptech.glide.Glide;
 import com.music.app.R;
 import com.music.app.database.SongDatabaseHelper;
+import com.music.app.interfaces.AudioScannerListener;
+import com.music.app.interfaces.AudioScannerTaskListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Song;
-import com.music.app.interfaces.AudioScanListener;
-import com.music.app.views.Notice;
+import com.music.app.utils.asynctasks.AlbumArtScanner;
+import com.music.app.utils.asynctasks.MediaQuery;
+import com.music.app.utils.asynctasks.MediaScanner;
+import com.music.app.utils.asynctasks.MediaStorer;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-public class AudioFileScanner
+public class AudioScanner implements AudioScannerTaskListener
 {
     private Context context;
     private ArrayList<Song> songs;
     private Data data;
-    private AudioScanListener audioScanListener;
+    private AudioScannerListener audioScannerListener;
 
-    public AudioFileScanner(Context pContext, AudioScanListener pAudioScanListener, Data pData)
+    public AudioScanner(Context pContext, AudioScannerListener pAudioScannerListener, Data pData)
     {
         context = pContext;
-        audioScanListener = pAudioScanListener;
+        audioScannerListener = pAudioScannerListener;
         data = pData;
         songs = new ArrayList<>();
     }
@@ -39,19 +41,20 @@ public class AudioFileScanner
     public void scanAudio()
     {
         if(!data.stored())
-            new BackgroundScanner().execute();
+            new MediaScanner(new WeakReference<>(context), this).execute();
         else
-            new BackgroundQuery().execute();
+            new MediaQuery(new WeakReference<>(context), this).execute();
     }
 
     /*
     * TODO
     *
     * Fix code
-    * Send albumID as parameter instead in setCovers
+    * Send albumID as parameter instead in scanCovers
     * */
 
-    private void scan()
+    @Override
+    public void scan()
     {
         Uri external = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = {
@@ -107,6 +110,13 @@ public class AudioFileScanner
         }
 
         setGenres();
+    }
+
+    @Override
+    public void scanComplete()
+    {
+        audioScannerListener.onScanComplete(songs);
+        new AlbumArtScanner(new WeakReference<>(context), this).execute();
     }
 
     private void setGenres()
@@ -167,7 +177,8 @@ public class AudioFileScanner
         }
     }
 
-    private void setCovers()
+    @Override
+    public void scanCovers()
     {
         Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
         String[] projection = {
@@ -245,7 +256,27 @@ public class AudioFileScanner
         }
     }
 
-    private void store()
+    @Override
+    public void initializeSongs(ArrayList<Song> songs)
+    {
+        this.songs = songs;
+    }
+
+    @Override
+    public void updateAudioScannerListener()
+    {
+        audioScannerListener.onUpdate();
+    }
+
+    @Override
+    public void startMediaStorer()
+    {
+        if(!data.stored())
+            new MediaStorer(this).execute();
+    }
+
+    @Override
+    public void storeMedia()
     {
         SongDatabaseHelper databaseHelper = new SongDatabaseHelper(context);
         for (Song song : songs)
@@ -254,105 +285,98 @@ public class AudioFileScanner
         data.updateStored(true);
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private class BackgroundScanner extends AsyncTask<Void, Void, Void>
-    {
-        private ProgressDialog progressDialog =
-                new ProgressDialog(context, R.style.AppTheme_ProgressDialog);
+//    private class BackgroundScanner extends AsyncTask<Void, Void, Void>
+//    {
+//        private ProgressDialog progressDialog =
+//                new ProgressDialog(context, R.style.AppTheme_ProgressDialog);
+//
+//        @Override
+//        protected void onPreExecute()
+//        {
+//            super.onPreExecute();
+//            progressDialog.setCanceledOnTouchOutside(false);
+//            progressDialog.setMessage("\tLoading Music...");
+//            progressDialog.show();
+//        }
+//
+//        @Override
+//        protected Void doInBackground(Void... params)
+//        {
+//            scan();
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void aVoid)
+//        {
+//            super.onPostExecute(aVoid);
+//            progressDialog.dismiss();
+//            scanComplete();
+//        }
+//    }
 
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            progressDialog.setMessage("\tLoading Music...");
-            progressDialog.show();
-        }
+//    private class AlbumCoverScanner extends AsyncTask<Void, Void, Void>
+//    {
+//        private Notice notice;
+//
+//        @Override
+//        protected void onPreExecute()
+//        {
+//            super.onPreExecute();
+//            notice = new Notice(context);
+//            notice.setNoticeText("Loading album covers...");
+//            notice.setNotClickable();
+//            notice.doNotDismiss();
+//            notice.show();
+//        }
+//
+//        @Override
+//        protected Void doInBackground(Void... params)
+//        {
+//            scanCovers();
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void aVoid)
+//        {
+//            super.onPostExecute(aVoid);
+//            notice.dismiss();
+//            audioScannerListener.onUpdate();
+//
+//            if(!data.stored())
+//                new Store().execute();
+//        }
+//    }
 
-        @Override
-        protected Void doInBackground(Void... params)
-        {
-            scan();
-            return null;
-        }
+//    private class Store extends AsyncTask<Void, Void, Void>
+//    {
+//        @Override
+//        protected Void doInBackground(Void... params)
+//        {
+//            store();
+//            return null;
+//        }
+//    }
 
-        @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            super.onPostExecute(aVoid);
-            progressDialog.dismiss();
-            scanComplete();
-        }
-    }
-
-    private class AlbumCoverScanner extends AsyncTask<Void, Void, Void>
-    {
-        private Notice notice;
-
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            notice = new Notice(context);
-            notice.setNoticeText("Loading album covers...");
-            notice.setNotClickable();
-            notice.doNotDismiss();
-            notice.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params)
-        {
-            setCovers();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            super.onPostExecute(aVoid);
-            notice.dismiss();
-            audioScanListener.onUpdate();
-
-            if(!data.stored())
-                new Store().execute();
-        }
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class Store extends AsyncTask<Void, Void, Void>
-    {
-        @Override
-        protected Void doInBackground(Void... params)
-        {
-            store();
-            return null;
-        }
-    }
-
-    private class BackgroundQuery extends AsyncTask<Void, Void, Void>
-    {
-        SongDatabaseHelper sd;
-
-        @Override
-        protected Void doInBackground(Void... params)
-        {
-            sd = new SongDatabaseHelper(context);
-            songs = sd.getSongs();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            super.onPostExecute(aVoid);
-            sd.close();         // fixes leaky database
-            scanComplete();
-        }
-    }
-
-    private void scanComplete()
-    {
-        audioScanListener.onScanComplete(songs);
-        new AlbumCoverScanner().execute();
-    }
+//    private class BackgroundQuery extends AsyncTask<Void, Void, Void>
+//    {
+//        SongDatabaseHelper sd;
+//
+//        @Override
+//        protected Void doInBackground(Void... params)
+//        {
+//            sd = new SongDatabaseHelper(context);
+//            songs = sd.getSongs();
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void aVoid)
+//        {
+//            super.onPostExecute(aVoid);
+//            sd.close();         // fixes leaky database
+//            scanComplete();
+//        }
+//    }
 }

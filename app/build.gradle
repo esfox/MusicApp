@@ -38,4 +38,5 @@ dependencies {
     compile 'com.github.wooplr:Spotlight:1.2.3'
     compile 'org.adw.library:discrete-seekbar:1.0.1'
     compile 'asia.ivity.android:drag-sort-listview:1.0'
+    compile 'com.badoo.mobile:android-weak-handler:1.1'
 }

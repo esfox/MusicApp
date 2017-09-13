@@ -37,8 +37,6 @@
             android:textSize="21sp"
             android:maxLines="1"
             android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
             tools:text="What A Beautiful Name It Is What A Beautiful"/>
 
         <TextView
@@ -49,8 +47,6 @@
             android:textSize="16sp"
             android:maxLines="1"
             android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
             tools:text="Hillsong"/>
     </LinearLayout>
 

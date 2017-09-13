@@ -1,4 +1,4 @@
-package com.music.app.utils.adapters;
+package com.music.app.adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.music.app.R;
+import com.music.app.adapters.viewholders.SongListViewHolder;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.interfaces.SongListListener;
@@ -21,7 +22,6 @@ import com.music.app.objects.Player;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
-import com.music.app.utils.adapters.viewholders.SongListViewHolder;
 import com.music.app.views.Notice;
 import com.wooplr.spotlight.SpotlightView;
 import com.wooplr.spotlight.utils.SpotlightListener;
@@ -30,11 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-//TODO: Improve (Use getItem)
-
 public class SongListAdapter extends BaseAdapter implements SongListListener
 {
-    private Context context;
     private ListView songList;
 
     private Data data;
@@ -95,7 +92,6 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
 
     public SongListAdapter
     (
-        Context context,
         ListView songList,
         ArrayList<Song> songs,
         Data data,
@@ -103,7 +99,6 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         Sorter.SortBy sort
     )
     {
-        this.context = context;
         this.songList = songList;
         this.data = data;
         this.player = player;
@@ -180,7 +175,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         if(view == null)
         {
             LayoutInflater inflater = (LayoutInflater)
-                    context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             if(type == type_item)
                 view = inflater.inflate(R.layout.song_list_item, parent, false);
@@ -261,7 +256,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         {
             if(data.queuePrompt())
             {
-                AlertDialog.Builder dialog = Dialoger.getDialogBuilder(context);
+                AlertDialog.Builder dialog = Dialoger.getDialogBuilder(songList.getContext());
                 dialog.setTitle("Multi-Queue");
                 dialog.setMessage("It looks like you are trying to queue a song.\n" +
                         "I suggest you try the Multi-Queue mode.\n" +
@@ -276,7 +271,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
                     public void onClick(DialogInterface dialog, int which)
                     {
                         data.updateQueuePrompt(false);
-                        new SpotlightView.Builder((Activity) context)
+                        new SpotlightView.Builder((Activity) songList.getContext())
                                 .introAnimationDuration(300)
                                 .enableRevealAnimation(true)
                                 .fadeinTextDuration(200)
@@ -295,7 +290,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
                                 .dismissOnTouch(true)
                                 .enableDismissAfterShown(true)
                                 .performClick(true)
-                                .target(((Activity) context).findViewById(R.id.multi_queue))
+                                .target(((Activity) songList.getContext()).findViewById(R.id.multi_queue))
                                 .usageId(String.valueOf(UUID.randomUUID()))
                                 .setListener(new SpotlightListener()
                                 {
@@ -322,7 +317,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         Song song = getSongByIndex(index);
         player.queue().queue(song.getId());
 
-        Notice notice = new Notice(context);
+        Notice notice = new Notice(songList.getContext());
         notice.setNoticeText(song.getTitle() + " queued");
         notice.setNoticeIcon(R.drawable.queue_24dp);
         notice.show();
@@ -336,7 +331,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
             Song song = getSongByIndex(index);
             player.queue().playNext(song.getId());
 
-            Notice notice = new Notice(context);
+            Notice notice = new Notice(songList.getContext());
             notice.setNoticeText(song.getTitle() + " to play next");
             notice.setNoticeIcon(R.drawable.play_next_24dp);
             notice.show();
@@ -403,7 +398,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         String title = "More Options";
         Dialoger.createDialog
         (
-            context,
+            songList.getContext(),
             title,
             R.array.options_more_texts, listener
         );
@@ -431,7 +426,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
         String title = "Add \"" + song.getTitle() + "\" to...";
         Dialoger.createDialog
         (
-            context,
+            songList.getContext(),
             title,
             R.array.options_add_to_texts,
             listener
@@ -461,7 +456,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
 
         Dialoger.createAlertDialog
             (
-                context,
+                songList.getContext(),
                 title,
                 message,
                 positiveButtonListener
@@ -485,7 +480,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
 //        notifyDataSetChanged();
 
 
-        Notice notice = new Notice(context);
+        Notice notice = new Notice(songList.getContext());
         notice.setNoticeText("Delete Selected Items");
         notice.show();
 
@@ -534,7 +529,6 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
                 songList.setAdapter
                 (new SongListFastScrollAdapter
                     (
-                        context,
                         songs,
                         songList,
                         data,
@@ -578,7 +572,7 @@ public class SongListAdapter extends BaseAdapter implements SongListListener
 
     private void noPlayingSongNotice()
     {
-        Notice notice = new Notice(context);
+        Notice notice = new Notice(songList.getContext());
         notice.setNoticeText("There is no currently playing song.");
         notice.show();
     }

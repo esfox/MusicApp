@@ -13,6 +13,12 @@
         <item name="discreteSeekBarStyle">@style/AppTheme.DiscreteSeekBarStyle</item>
     </style>
 
+    <style name="AppTheme.DiscreteSeekBarStyle" parent="Widget.DiscreteSeekBar">
+        <item name="dsb_progressColor">@color/colorPrimary</item>
+        <item name="dsb_indicatorColor">@color/colorPrimary</item>
+        <item name="dsb_indicatorTextAppearance">@style/TextAppearance.AppCompat.Large</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

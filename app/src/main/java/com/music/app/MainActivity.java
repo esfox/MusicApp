@@ -11,14 +11,14 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.music.app.fragments.FragmentManager;
-import com.music.app.interfaces.AudioScanListener;
+import com.music.app.interfaces.AudioScannerListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Queue;
 import com.music.app.objects.Song;
-import com.music.app.utils.AudioFileScanner;
+import com.music.app.utils.AudioScanner;
 import com.music.app.utils.UIManager;
-import com.music.app.utils.adapters.SongListAdapter;
+import com.music.app.adapters.SongListAdapter;
 
 import java.util.ArrayList;
 
@@ -26,11 +26,11 @@ import java.util.ArrayList;
 
 TODO CURRENT ACTIVITY
 
-Seekbar on Now Playing Bar
-
 
 TODO: Remember to do these
-NowPlayingFragment Seek Value bug
+Seekbar on Now Playing Fragment focused on other view touch
+Scrolling TextView in Now Playing Fragment
+Not shuffled on new song played
 MediaSession, MediaBrowserCompat blabla
 
 REMEMBER:
@@ -38,7 +38,7 @@ Timer onResume (When no playing song)
 
 */
 
-public class MainActivity extends AppCompatActivity implements AudioScanListener
+public class MainActivity extends AppCompatActivity implements AudioScannerListener
 {
     private Player player;
     private Queue queue;
@@ -67,8 +67,7 @@ public class MainActivity extends AppCompatActivity implements AudioScanListener
 
             player.setAudioListener(uiManager);
 
-            boolean currentSongIsNotNull = data.currentSongIsNotNull();
-            if(currentSongIsNotNull)
+            if(data.currentSongIsNotNull())
                 player.resumeSong();
         }
 
@@ -107,12 +106,12 @@ public class MainActivity extends AppCompatActivity implements AudioScanListener
 //            queue = new Queue(data);
 //
 //            //Scan audio
-//            AudioFileScanner audioFileScanner = new AudioFileScanner(this, this, data);
+//            AudioScanner audioFileScanner = new AudioScanner(this, this, data);
 //            audioFileScanner.scanAudio();
 ////        temp();
 //
 //            if(data.currentSongIsNotNull())
-//                uiManager.updateNowPlayingBar(data.currentSong(this));
+//                uiManager.updateNowPlayingBar(data.getCurrentSongFromDB(this));
 //        }
 //    }
 //
@@ -147,9 +146,8 @@ public class MainActivity extends AppCompatActivity implements AudioScanListener
         serviceIntent = new Intent(MainActivity.this, Player.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
-
         //Scan audio
-        new AudioFileScanner(MainActivity.this, MainActivity.this, data).scanAudio();
+        new AudioScanner(MainActivity.this, MainActivity.this, data).scanAudio();
 //        temp();
     }
 
@@ -169,7 +167,11 @@ public class MainActivity extends AppCompatActivity implements AudioScanListener
         if(player != null)
             player.toggleTimeUpdater(false);
         queue.save(this);
+        data.updateCurrentSong(data.currentSong().getId());
         data.updateCurrentTime(player.getPlayer().getCurrentPosition());
+        data.updateCurrentSongIsNotNull(data.currentSongIsNotNull());
+
+//        System.gc();
     }
 
     @Override
@@ -259,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements AudioScanListener
         }
         catch (Exception e)
         {
-            Log.d("Music App", "FragmentManager was null. (onUpdate)");
+            Log.d("Music App", "FragmentManager was null. (updateAudioScannerListener)");
             restart();
         }
     }

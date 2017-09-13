@@ -72,7 +72,7 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
-                    tools:text="For Your Purpose"/>
+                    tools:text="You say I'm yours and you love me"/>
 
                 <TextView
                     android:id="@+id/song_list_artist"

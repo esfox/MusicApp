@@ -1,6 +1,6 @@
 package com.music.app.interfaces;
 
-import com.music.app.utils.adapters.viewholders.SongListViewHolder;
+import com.music.app.adapters.viewholders.SongListViewHolder;
 
 public interface SongListListener
 {

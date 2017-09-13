@@ -1,4 +1,4 @@
-package com.music.app.utils.adapters;
+package com.music.app.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,10 +9,10 @@ import android.widget.BaseAdapter;
 
 import com.mobeta.android.dslv.DragSortListView;
 import com.music.app.R;
+import com.music.app.adapters.viewholders.QueueListViewHolder;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
-import com.music.app.utils.adapters.viewholders.QueueListViewHolder;
 
 import java.util.ArrayList;
 
@@ -20,16 +20,13 @@ public class QueueAdapter extends BaseAdapter implements
         AdapterView.OnItemClickListener,
         DragSortListView.DropListener
 {
-    private Context context;
-
     private Data data;
     private Player player;
 
     private ArrayList<Long> queue;
 
-    public QueueAdapter(Context context, Data data, Player player)
+    public QueueAdapter(Data data, Player player)
     {
-        this.context = context;
         this.data = data;
         this.player = player;
 
@@ -45,7 +42,7 @@ public class QueueAdapter extends BaseAdapter implements
         if(view == null)
         {
             LayoutInflater inflater = (LayoutInflater)
-                    context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.queue_list_item, parent, false);
 
             viewHolder = new QueueListViewHolder(view);
@@ -74,12 +71,6 @@ public class QueueAdapter extends BaseAdapter implements
     public void drop(int from, int to)
     {
         player.queue().reorderQueue(from, to);
-        notifyDataSetChanged();
-    }
-
-    public void shuffle()
-    {
-        queue = player.queue().getQueueList();
         notifyDataSetChanged();
     }
 

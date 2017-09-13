@@ -21,8 +21,11 @@ public class Data
     }
 
     private ArrayList<Song> songs;
+    private Song currentSong;
     private Drawable currentAlbumArt;
 
+    public Song currentSong() { return currentSong; }
+    void setCurrentSong(Song song) { currentSong = song; }
     public ArrayList<Song> songs() { return songs; }
     public void setSongs(ArrayList<Song> songs) { this.songs = songs; }
     public Drawable currentAlbumArt() { return currentAlbumArt; }
@@ -48,12 +51,13 @@ public class Data
         ONE  //2
     }
 
-    public Song currentSong(Context context)
+    Song getCurrentSongFromDB(Context context)
     {
+//        Song s;
 //        if(songs != null)
 //        {
 //            for (Song song : songs)
-//                if (song.getUUID().equals(sharedPreferences
+//                if (song.getId().equals(sharedPreferences
 //                        .getString(currentSongIDKey, "")))
 //                    s = song;
 //        }

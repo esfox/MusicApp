@@ -1,4 +1,4 @@
-package com.music.app.utils.adapters.viewholders;
+package com.music.app.adapters.viewholders;
 
 import android.view.View;
 import android.widget.ImageView;

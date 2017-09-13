@@ -3,12 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/now_playing_bar_controls_height"
     android:paddingLeft="12dp"
     android:paddingStart="12dp"
     android:paddingRight="12dp"
     android:paddingEnd="12dp"
     android:padding="6dp"
+    android:animateLayoutChanges="true"
     tools:ignore="ContentDescription"
     tools:showIn="@layout/now_playing_bar">
 
@@ -94,7 +95,7 @@
 
     <!--TODO: Implement action (Could be more options for current song)-->
     <ImageButton
-        android:id="@+id/no_action_yet"
+        android:id="@+id/no_function_yet"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_alignParentLeft="true"
@@ -112,5 +113,27 @@
         android:layout_centerVertical="true"
         android:background="@drawable/fab"
         android:src="@drawable/playlist_add_24dp"/>
+
+    <LinearLayout
+        android:id="@+id/seekbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:background="@color/background_material"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/close_seekbar"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/close_24dp"/>
+
+        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+            android:id="@+id/seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
 </RelativeLayout>

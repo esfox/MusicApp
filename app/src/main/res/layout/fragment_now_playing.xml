@@ -6,7 +6,7 @@
                 android:background="@color/background_primary"
                 android:clickable="true"
                 tools:context=".fragments.NowPlayingFragment"
-                tools:ignore="ContentDescription,Deprecated">
+                tools:ignore="ContentDescription">
 
     <!--TODO: Improve Design-->
 
@@ -22,7 +22,7 @@
 
     <!--TODO: Scrolling Text-->
     <!--TODO Long App Marquee-->
-    <TextView
+    <com.music.app.views.ScrollingTextView
         android:id="@+id/now_playing_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,15 +33,17 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="15dp"
         android:gravity="center"
-        android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="22sp"
-        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:maxLines="1"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
         tools:text="Title of the Song is so very long, it's so unrealistically not awesome to do everything is so nice."/>
 
-    <TextView
+    <com.music.app.views.ScrollingTextView
         android:id="@+id/now_playing_artist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -54,13 +56,15 @@
         android:layout_below="@+id/now_playing_title"
         android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:singleLine="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:maxLines="1"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
         tools:text="Artist of the Song"/>
 
-    <TextView
+    <com.music.app.views.ScrollingTextView
         android:id="@+id/now_playing_album"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,13 +74,15 @@
         android:layout_marginRight="20dp"
         android:layout_marginStart="20dp"
         android:layout_below="@+id/now_playing_artist"
+        android:gravity="center"
+        android:textSize="17sp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:maxLines="1"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
-        android:gravity="center"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="17sp"
-        android:singleLine="true"
         tools:text="The title of this album is so long, it doesn't make any sense"/>
 
     <ImageView
@@ -100,7 +106,9 @@
         android:layout_marginEnd="30dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:layout_marginStart="30dp"/>
+        android:layout_marginStart="30dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
     <!--<android.support.v7.widget.AppCompatSeekBar-->
         <!--android:id="@+id/now_playing_progress_bar"-->
@@ -122,6 +130,8 @@
         android:layout_alignStart="@+id/now_playing_progress_bar"
         android:layout_above="@+id/now_playing_controls"
         android:text="0:00"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         tools:ignore="HardcodedText"/>
 
     <TextView

@@ -19,8 +19,8 @@ import com.music.app.objects.Player;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Menuer;
-import com.music.app.utils.adapters.SongListAdapter;
-import com.music.app.utils.adapters.SongListFastScrollAdapter;
+import com.music.app.adapters.SongListAdapter;
+import com.music.app.adapters.SongListFastScrollAdapter;
 import com.music.app.views.Notice;
 
 import java.util.ArrayList;
@@ -248,7 +248,6 @@ public class SongListFragment extends Fragment implements
         if(sort != Sorter.SortBy.none)
             adapter = new SongListFastScrollAdapter
                 (
-                    getContext(),
                     Sorter.sort(songs, sort),
                     songList,
                     data,
@@ -256,7 +255,7 @@ public class SongListFragment extends Fragment implements
                     sort
                 );
         else
-            adapter = new SongListAdapter(getContext(), songList, songs, data, player, sort);
+            adapter = new SongListAdapter(songList, songs, data, player, sort);
 
         adapter.setSongListAdapterListener(this);
         adapter.setFragmentManager(fragmentManager);

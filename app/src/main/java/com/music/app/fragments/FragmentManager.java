@@ -9,7 +9,6 @@ import android.view.MenuItem;
 
 import com.music.app.MainActivity;
 import com.music.app.R;
-import com.music.app.database.QueueFragment;
 import com.music.app.objects.Song;
 import com.music.app.utils.UIManager;
 import com.music.app.views.Notice;

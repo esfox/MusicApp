@@ -9,12 +9,12 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
 import com.music.app.R;
 import com.music.app.interfaces.AudioListener;
+import com.music.app.utils.TimeUpdater;
 
 import java.io.IOException;
 
@@ -35,6 +35,7 @@ public class Player extends Service
     }
 
     private MediaPlayer player;
+    private TimeUpdater timeUpdater;
     private Data data;
     private Queue queue;
 
@@ -56,12 +57,14 @@ public class Player extends Service
         this.data = data;
         this.queue = queue;
 
-        timeUpdater = new Handler();
+        if(data.currentSongIsNotNull())
+            data.setCurrentSong(data.getCurrentSongFromDB(this));
     }
 
     public void setAudioListener(AudioListener audioListener)
     {
         this.audioListener = audioListener;
+        timeUpdater = new TimeUpdater(audioListener, player);
     }
 
     public void startSong(Song song, boolean fromUser)
@@ -72,24 +75,22 @@ public class Player extends Service
         updateCurrentSong(song, fromUser);
 
         audioListener.updateUI(Event.onStartAudio);
-        timeUpdate();
+
+        timeUpdater.restart();
     }
 
     private void updateCurrentSong(Song song, boolean fromUser)
     {
+        data.setCurrentSong(song);
+
         if(fromUser)
             queue.newSong(song.getId());
-
-            data.updateCurrentSong(song.getId());
-
-        if(!data.currentSongIsNotNull())
-            data.updateCurrentSongIsNotNull(true);
     }
 
     public void resumeSong()
     {
         resumed = true;
-        currentSong = data.currentSong(this);
+        currentSong = data.currentSong();
         startService(intent);
         updateCurrentSong(currentSong, false);
     }
@@ -102,9 +103,9 @@ public class Player extends Service
             try
             {
                 player.reset();
+                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 player.setDataSource(currentSong.getPath());
                 player.prepare();
-                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
                 {
                     @Override
@@ -181,10 +182,10 @@ public class Player extends Service
 
     public void stop()
     {
-        player.pause();
-        player.seekTo(0);
-        audioListener.updateUI(Event.onStopAudio);
+        player.stop();
+        toggleTimeUpdater(false);
         data.updateIsPlaying(false);
+        audioListener.updateUI(Event.onStopAudio);
     }
 
     public void next()
@@ -197,7 +198,7 @@ public class Player extends Service
         if(player.getCurrentPosition() > 3000)
         {
             player.seekTo(0);
-            timeUpdate();
+            timeUpdater.restart();
             return false;
         }
         else
@@ -229,7 +230,7 @@ public class Player extends Service
             else
             {
                 if (data.repeatState() == Data.RepeatState.ONE)
-                    song = currentSong;    //song = data.currentSong(this);
+                    song = currentSong;    //song = data.getCurrentSongFromDB(this);
                 else
                 {
                     if (data.repeatState() == Data.RepeatState.OFF)
@@ -260,9 +261,9 @@ public class Player extends Service
 
     public void shuffle()
     {
-        queue.shuffle(data.currentSong(this));
+        queue.shuffle(data.currentSong());
         audioListener.updateUI(Event.onShuffle);
-//        queue.shuffle(currentSong);
+//        queue.shuffle(getCurrentSongFromDB);
     }
 
     public void repeat()
@@ -271,29 +272,12 @@ public class Player extends Service
         audioListener.updateUI(Event.onRepeat);
     }
 
-    private Handler timeUpdater;
-
-    private Runnable timeUpdaterRunnable = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            timeUpdate();
-        }
-    };
-
-    private void timeUpdate()
-    {
-        audioListener.updateTime(player.getCurrentPosition());
-        timeUpdater.postDelayed(timeUpdaterRunnable, 100);
-    }
-
     public void toggleTimeUpdater(boolean toggle)
     {
         if(toggle)
-            timeUpdate();
+            timeUpdater.restart();
         else
-            timeUpdater.removeCallbacks(timeUpdaterRunnable);
+            timeUpdater.toggle();
     }
 
     private Song getSongByID(long id)

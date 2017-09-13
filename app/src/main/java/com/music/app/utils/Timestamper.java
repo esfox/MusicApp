@@ -29,7 +29,7 @@ public class Timestamper
         return duration;
     }
 
-    public static String getIndicatorTimestamp(long milliseconds)
+    public static String getSeekbarTimestamp(long milliseconds)
     {
         int hours = (int) (milliseconds / (1000 * 60 * 60));
         int minutes = (int) (milliseconds % (1000 * 60 * 60)) / (1000 * 60);
