@@ -12,6 +12,8 @@ public class TimeUpdater
     private AudioListener audioListener;
     private MediaPlayer player;
 
+    private boolean isRunning = true;
+
     public TimeUpdater(AudioListener audioListener, MediaPlayer player)
     {
         timeUpdater = new WeakHandler();
@@ -24,29 +26,48 @@ public class TimeUpdater
         @Override
         public void run()
         {
-            Log.d("TimeUpdater", "I am running.");
+            Log.d("TimeUpdater", "Running.");
             timeUpdate();
         }
     };
 
     private void timeUpdate()
     {
-        audioListener.updateTime(player.getCurrentPosition());
+        if(isRunning)
+            audioListener.updateTime(player.getCurrentPosition());
+        else
+            audioListener.updateTime(0);
+
         timeUpdater.postDelayed(timeUpdaterRunnable, 500);
     }
 
     public void restart()
     {
+        Log.d("TimeUpdater", "Restart");
+        isRunning = false;
         timeUpdater.removeCallbacks(timeUpdaterRunnable);
+
+        new WeakHandler().post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                isRunning = true;
+            }
+        });
         timeUpdate();
     }
-
-    public void toggle()
+    public void pause()
     {
-        Log.d("TimeUpdater", "I'm toggled.");
-        if(player.isPlaying())
-            timeUpdate();
-        else
-            timeUpdater.removeCallbacks(timeUpdaterRunnable);
+        Log.d("TimeUpdater", "Pause");
+        isRunning = false;
+        timeUpdater.removeCallbacks(timeUpdaterRunnable);
+    }
+
+    public void resume()
+    {
+        Log.d("TimeUpdater", "Resume");
+        isRunning = true;
+        timeUpdate();
     }
 }

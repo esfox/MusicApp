@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -57,6 +58,15 @@ public class NowPlayingFragment extends Fragment implements
             (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_now_playing, container, false);
+
+        view.findViewById(R.id.now_playing_layout).setOnTouchListener(new View.OnTouchListener()
+        {
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                return true;
+            }
+        });
 
         play = (FloatingActionButton) view.findViewById(R.id.now_playing_play);
         FloatingActionButton next = (FloatingActionButton)
@@ -188,13 +198,13 @@ public class NowPlayingFragment extends Fragment implements
 
                 for(int index = 0; index < textViews.length; index++)
                 {
+                    textViews[index].setText(songDetails[index]);
                     final int i = index;
                     textViews[index].post(new Runnable()
                     {
                         @Override
                         public void run()
                         {
-                            textViews[i].setText(songDetails[i]);
                             textViews[i].setEllipsize(TextUtils.TruncateAt.MARQUEE);
                             textViews[i].setSingleLine(true);
                             textViews[i].setMarqueeRepeatLimit(-1);
@@ -268,7 +278,7 @@ public class NowPlayingFragment extends Fragment implements
                         time.setText(timestamp);
 
                         data.updateCurrentTime(value);
-                        uiManager.updateCurrentTime(value);
+//                        uiManager.updateCurrentTime(value);
 
                         if(!notPlaying) player.play();
                     }

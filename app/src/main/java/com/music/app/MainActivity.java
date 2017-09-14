@@ -26,9 +26,10 @@ import java.util.ArrayList;
 
 TODO CURRENT ACTIVITY
 
+Playlists
 
 TODO: Remember to do these
-Seekbar on Now Playing Fragment focused on other view touch
+Load next and previous album cover in background
 Scrolling TextView in Now Playing Fragment
 Not shuffled on new song played
 MediaSession, MediaBrowserCompat blabla
@@ -156,8 +157,10 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
     {
         super.onResume();
         if(player != null && data.currentSongIsNotNull())
+        {
             if (player.getPlayer().isPlaying())
                 player.toggleTimeUpdater(true);
+        }
     }
 
     @Override

@@ -34,6 +34,7 @@ public class Queue
     void newSong(long id)
     {
         resetQueue();
+        shuffle(data.currentSong(), data.isShuffled());
         data.updateCurrentQueueIndex(queue.indexOf(id));
     }
 
@@ -194,9 +195,8 @@ public class Queue
         queueCount = preferences.getInt(queueCountKey, 0);
     }
 
-    public void shuffle(Song currentSong)
+    void shuffle(Song currentSong, boolean isShuffled)
     {
-        boolean isShuffled = !data.isShuffled();
         data.updateIsShuffled(isShuffled);
 
         queueStack = 0;
@@ -255,10 +255,5 @@ public class Queue
                 data.updateCurrentQueueIndex(queue.indexOf
                         (currentSong.getId()));
         }
-    }
-
-    public void repeat()
-    {
-        data.updateRepeatState();
     }
 }

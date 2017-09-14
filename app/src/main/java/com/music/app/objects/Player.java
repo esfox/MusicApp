@@ -69,9 +69,13 @@ public class Player extends Service
 
     public void startSong(Song song, boolean fromUser)
     {
+        if(!data.currentSongIsNotNull())
+            data.updateCurrentSongIsNotNull(true);
+
         resumed = false;
         currentSong = song;
-        startService(intent);
+//        if(stopService(intent))
+            startService(intent);
         updateCurrentSong(song, fromUser);
 
         audioListener.updateUI(Event.onStartAudio);
@@ -122,7 +126,7 @@ public class Player extends Service
                         player.seekTo((int) currentTime);
                 }
                 else
-                    play();
+                    start(false);
             }
             catch (IOException e)
             {
@@ -166,6 +170,11 @@ public class Player extends Service
 
     public void play()
     {
+        start(true);
+    }
+
+    public void start(boolean fromUser)
+    {
         if(data.currentSongIsNotNull())
         {
             boolean isPlaying = player.isPlaying();
@@ -176,14 +185,17 @@ public class Player extends Service
             data.updateCurrentTime(player.getCurrentPosition());
 
             audioListener.updateUI(Event.onPlayOrPause);
-            toggleTimeUpdater(!isPlaying);
+
+            if(fromUser)
+                toggleTimeUpdater(!isPlaying);
         }
     }
 
     public void stop()
     {
-        player.stop();
-        toggleTimeUpdater(false);
+        player.pause();
+        player.seekTo(0);
+        timeUpdater.pause();
         data.updateIsPlaying(false);
         audioListener.updateUI(Event.onStopAudio);
     }
@@ -198,7 +210,6 @@ public class Player extends Service
         if(player.getCurrentPosition() > 3000)
         {
             player.seekTo(0);
-            timeUpdater.restart();
             return false;
         }
         else
@@ -261,7 +272,7 @@ public class Player extends Service
 
     public void shuffle()
     {
-        queue.shuffle(data.currentSong());
+        queue.shuffle(data.currentSong(), !data.isShuffled());
         audioListener.updateUI(Event.onShuffle);
 //        queue.shuffle(getCurrentSongFromDB);
     }
@@ -275,9 +286,9 @@ public class Player extends Service
     public void toggleTimeUpdater(boolean toggle)
     {
         if(toggle)
-            timeUpdater.restart();
+            timeUpdater.resume();
         else
-            timeUpdater.toggle();
+            timeUpdater.pause();
     }
 
     private Song getSongByID(long id)

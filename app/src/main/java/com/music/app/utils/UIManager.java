@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -382,12 +383,12 @@ public class UIManager implements
 
             for(final TextView textView : new TextView[] {title, artist})
             {
+                textView.setText(textView.getTag().toString());
                 textView.post(new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        textView.setText(textView.getTag().toString());
                         textView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
                         textView.setSingleLine(true);
                     }
@@ -505,7 +506,7 @@ public class UIManager implements
 //        dialog.show();
 //    }
 
-    public void updateCurrentTime(int time)
+    private void updateCurrentTime(int time)
     {
         currentTime.setText(Timestamper.getTimestamp(time));
         if(seekBarLayout.getVisibility() == View.VISIBLE)
@@ -565,8 +566,15 @@ public class UIManager implements
     public void onScanComplete(Drawable cover)
     {
         data.updateCurrentAlbumArt(cover);
-        if(fragmentManager.nowPlayingFragment.isVisible())
-            fragmentManager.nowPlayingFragment.update(true);
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if(fragmentManager.nowPlayingFragment.isVisible())
+                    fragmentManager.nowPlayingFragment.update(true);
+            }
+        });
     }
 
     private String greetings()
