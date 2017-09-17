@@ -1,14 +1,21 @@
 package com.music.app;
 
+import android.*;
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.music.app.fragments.FragmentManager;
 import com.music.app.interfaces.AudioScannerListener;
@@ -79,18 +86,17 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
         }
     };
 
-    //      TODO: IMPLEMENT PERMISSION REQUESTS
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-//    {
-//        if (grantResults[1] != PackageManager.PERMISSION_GRANTED && grantResults[0] != PackageManager.PERMISSION_GRANTED)
-//        {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-//            {
-//                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                        android.Manifest.permission.READ_EXTERNAL_STORAGE}, 2562);
-//            }
-//        }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        if (grantResults[1] != PackageManager.PERMISSION_GRANTED && grantResults[0] != PackageManager.PERMISSION_GRANTED)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE}, 2562);
+            }
+        }
 //        else
 //        {
 //            setContentView(R.layout.activity_main);
@@ -114,42 +120,36 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
 //            if(data.currentSongIsNotNull())
 //                uiManager.updateNowPlayingBar(data.getCurrentSongFromDB(this));
 //        }
-//    }
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState)
-//    {
-//        super.onCreate(savedInstanceState);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-//        {
-//            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                    android.Manifest.permission.READ_EXTERNAL_STORAGE}, 2562);
-//        }
-//    }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-//        {
-//            ActivityCompat.requestPermissions(this, new String[]
-//                {
-//                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                    android.Manifest.permission.READ_EXTERNAL_STORAGE
-//                }, 2562);
-//        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)  != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this, new String[]
+                    {
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN ?
+                                    Manifest.permission.READ_EXTERNAL_STORAGE :
+                                    "")
+                    }, 2562);
+        } else {
+            // TODO: FIX NOTHING SHOWS UP
+            data = new Data(this);
+            queue = new Queue(data);
 
-        data = new Data(MainActivity.this);
-        queue = new Queue(data);
+            serviceIntent = new Intent(this, Player.class);
+            bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
-        serviceIntent = new Intent(MainActivity.this, Player.class);
-        bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
-
-        //Scan audio
-        new AudioScanner(MainActivity.this, MainActivity.this, data).scanAudio();
+            //Scan audio
+            new AudioScanner(this, this, data).scanAudio();
 //        temp();
+        }
+
     }
 
     @Override
@@ -169,10 +169,17 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
         super.onStop();
         if(player != null)
             player.toggleTimeUpdater(false);
-        queue.save(this);
-        data.updateCurrentSong(data.currentSong().getId());
+        if (queue != null)
+            queue.save(this);
+//        if (data != null && data.currentSongIsNotNull())
+//        {
+
+        if (data != null && data.currentSongIsNotNull())
+            data.updateCurrentSong(data.currentSong().getId());
+
         data.updateCurrentTime(player.getPlayer().getCurrentPosition());
         data.updateCurrentSongIsNotNull(data.currentSongIsNotNull());
+//        }
 
 //        System.gc();
     }
