@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import com.music.app.adapters.SongListAdapter;
 import com.music.app.fragments.FragmentManager;
 import com.music.app.interfaces.AudioScannerListener;
 import com.music.app.objects.Data;
@@ -18,7 +19,6 @@ import com.music.app.objects.Queue;
 import com.music.app.objects.Song;
 import com.music.app.utils.AudioScanner;
 import com.music.app.utils.UIManager;
-import com.music.app.adapters.SongListAdapter;
 
 import java.util.ArrayList;
 
@@ -45,11 +45,13 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
     private Queue queue;
     private Data data;
 
+    private UIManager uiManager;
     private FragmentManager fragmentManager;
 
     private Intent serviceIntent;
     private ServiceConnection connection = new ServiceConnection()
     {
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder service)
         {
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
             player = binder.getService();
             player.initialize(serviceIntent, data, queue);
 
-            UIManager uiManager = new UIManager(MainActivity.this);
+            uiManager = new UIManager(MainActivity.this);
             uiManager.initUI
                 (
                     MainActivity.this,
@@ -142,13 +144,13 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
 //        }
 
         data = new Data(MainActivity.this);
-        queue = new Queue(data);
+        new AudioScanner(MainActivity.this, MainActivity.this, data).scanAudio();
 
+        queue = new Queue(data);
         serviceIntent = new Intent(MainActivity.this, Player.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
         //Scan audio
-        new AudioScanner(MainActivity.this, MainActivity.this, data).scanAudio();
 //        temp();
     }
 
@@ -169,10 +171,15 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
         super.onStop();
         if(player != null)
             player.toggleTimeUpdater(false);
-        queue.save(this);
-        data.updateCurrentSong(data.currentSong().getId());
-        data.updateCurrentTime(player.getPlayer().getCurrentPosition());
-        data.updateCurrentSongIsNotNull(data.currentSongIsNotNull());
+
+        try
+        {
+            queue.save(this);
+            data.updateCurrentSong(data.currentSong().getId());
+            data.updateCurrentTime(player.getPlayer().getCurrentPosition());
+            data.updateCurrentSongIsNotNull(data.currentSongIsNotNull());
+        }
+        catch (Exception ignored) {}
 
 //        System.gc();
     }
@@ -242,11 +249,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
         }
 
         if(fragmentManager != null)
-        {
-            fragmentManager.songListFragment.setSongs(songs);
-            fragmentManager.songListFragment.initialize(data, player, fragmentManager);
-            fragmentManager.songList();
-        }
+            fragmentManager.initializeSongList(songs, data, player);
         else
         {
             Log.d("Music App", "FragmentManager was null. (onScanComplete)");
@@ -259,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
     {
         try
         {
-            ((SongListAdapter) fragmentManager.songListFragment
+            ((SongListAdapter) fragmentManager.getSongListFragment()
                     .getSongList().getAdapter()).notifyDataSetChanged();
         }
         catch (Exception e)
@@ -274,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
     {
         if(keyCode == KeyEvent.KEYCODE_BACK)
         {
-            if(getSupportFragmentManager().getBackStackEntryCount() <= 1)
+            if(getSupportFragmentManager().getBackStackEntryCount() <= 0)
                 moveTaskToBack(true);
             else
                 super.onBackPressed();

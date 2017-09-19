@@ -38,7 +38,6 @@ import com.music.app.views.Notice;
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.Calendar;
 
 public class UIManager implements
@@ -64,6 +63,7 @@ public class UIManager implements
     private DiscreteSeekBar seekBar;
     private View seekBarLayout;
 
+    //TODO: Update fragments only when visible
     private UIUpdatesListener[] UIUpdatesListeners;
 
     public UIManager(Activity activity)
@@ -86,17 +86,8 @@ public class UIManager implements
 
         updateCurrentSong();
 
-        fragmentManager = new FragmentManager(context, this);
-        fragmentManager.nowPlayingFragment.initialize(data, player, this);
-        fragmentManager.queueFragment.initialize(data, player);
-//        fragmentManager.playQueueFragment.initialize(data, player, queueListener);
-
-        UIUpdatesListeners = new UIUpdatesListener[]
-        {
-            this,
-            fragmentManager.nowPlayingFragment,
-            fragmentManager.queueFragment
-        };
+        fragmentManager = new FragmentManager(context, this, data, player);
+        UIUpdatesListeners = fragmentManager.getUIUpdatesListeners();
 
         //Initialize App Bar
         appBarTitle = (TextView) views.findViewById(R.id.toolbar_title);
@@ -206,7 +197,7 @@ public class UIManager implements
                 break;
 
             case R.id.multi_queue:
-                SongListAdapter adapter = (SongListAdapter) fragmentManager.songListFragment
+                SongListAdapter adapter = (SongListAdapter) fragmentManager.getSongListFragment()
                         .getSongList().getAdapter();
                 adapter.toggleMultiQueueMode(!adapter.isInMultiQueueMode());
                 break;
@@ -231,12 +222,12 @@ public class UIManager implements
                 break;
 
             case R.id.toolbar_menu:
-                fragmentManager.songListFragment.menu(v);
+                fragmentManager.getSongListFragment().menu(v);
                 lol(v);
                 break;
 
             case R.id.toolbar_sort:
-                fragmentManager.songListFragment.sortOptions(v);
+                fragmentManager.getSongListFragment().sortOptions(v);
         }
     }
 
@@ -316,7 +307,8 @@ public class UIManager implements
         updateNowPlayingBar();
 
         //TODO: More efficient current art loading
-        new CurrentAlbumArtScanner(new WeakReference<>(views), this, song);
+//        new CurrentAlbumArtScanner(new WeakReference<>(views), this, song);
+        new CurrentAlbumArtScanner(this).execute(views, song);
     }
 
     @Override public void onPlayOrPause() { togglePlayButtonIcon(); }
@@ -353,14 +345,14 @@ public class UIManager implements
                     navigationDrawer.setCheckedItem(menuID);
             }
         });
-
-        Log.d("Active ID", String.valueOf(menuID));
     }
 
     private void openNowPlayingBar() { fragmentManager.nowPlaying(); }
 
     private void updateNowPlayingBar()
     {
+        Log.d("Update Now Playing Bar", "Updating");
+
         if (data.currentSongIsNotNull())
         {
             cover.setVisibility(View.VISIBLE);
@@ -371,11 +363,15 @@ public class UIManager implements
                 cover.setImageDrawable(song.getCover());
             else
             {
-                Glide.with(views)
-                    .load((song.getCoverPath() != null)?
-                            new File(song.getCoverPath()) :
-                            R.drawable.album_art_placeholder)
-                    .into(cover);
+                if(song.getCoverPath() != null)
+                {
+                    Log.d("Song Cover", song.getCoverPath());
+
+                    Glide.with(views)
+                        .load(new File(song.getCoverPath()))
+                        .error(R.drawable.album_art_placeholder)
+                        .into(cover);
+                }
             }
 
             title.setTag(song.getTitle());
@@ -456,29 +452,32 @@ public class UIManager implements
 
     private void toggleSeekbar(boolean toggle)
     {
-        if(toggle)
+        if(data.currentSongIsNotNull())
         {
-            if(seekBarLayout.getVisibility() == View.GONE)
+            if(toggle)
             {
-                seekBarLayout.setVisibility(View.VISIBLE);
-                if(data.currentSongIsNotNull())
+                if(seekBarLayout.getVisibility() == View.GONE)
                 {
-                    seekBar.post(new Runnable()
+                    seekBarLayout.setVisibility(View.VISIBLE);
+                    if(data.currentSongIsNotNull())
                     {
-                        @Override
-                        public void run()
+                        seekBar.post(new Runnable()
                         {
-                            seekBar.setProgress(player.getPlayer().getCurrentPosition());
-                            seekBar.setMax((int) song.getDuration());
-                        }
-                    });
+                            @Override
+                            public void run()
+                            {
+                                seekBar.setProgress(player.getPlayer().getCurrentPosition());
+                                seekBar.setMax((int) song.getDuration());
+                            }
+                        });
+                    }
                 }
+                else
+                    seekBarLayout.setVisibility(View.GONE);
             }
             else
                 seekBarLayout.setVisibility(View.GONE);
         }
-        else
-            seekBarLayout.setVisibility(View.GONE);
     }
 
 //    public void setScrubAmount(Context context, final Data data)
@@ -571,8 +570,7 @@ public class UIManager implements
             @Override
             public void run()
             {
-                if(fragmentManager.nowPlayingFragment.isVisible())
-                    fragmentManager.nowPlayingFragment.update(true);
+                fragmentManager.updateNowPlaying();
             }
         });
     }

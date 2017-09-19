@@ -20,4 +20,12 @@ public class MediaStorer extends AsyncTask<Void, Void, Void>
         listener.storeMedia();
         return null;
     }
+
+    @Override
+    protected void onPostExecute(Void aVoid)
+    {
+        super.onPostExecute(aVoid);
+        listener.finishedStoring();
+
+    }
 }

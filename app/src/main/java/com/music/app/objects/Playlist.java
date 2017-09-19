@@ -4,22 +4,62 @@ import java.util.ArrayList;
 
 public class Playlist
 {
+    private String[] tempCovers;
+    private int tempTracksCount;
+
+    public void setTempCovers(String[] covers)
+    {
+        tempCovers = covers;
+    }
+
+    public String[] getTempCovers()
+    {
+        return tempCovers;
+    }
+
+    public void setTempTracksCount(int count)
+    {
+        tempTracksCount = count;
+    }
+
+    public int getTempTracksCount()
+    {
+        return tempTracksCount;
+    }
+
     private String name = "Untitled Playlist";
-    private ArrayList<Song> songs;
+    private ArrayList<Long> songIDs;
 
     public Playlist()
     {
-        songs = new ArrayList<>();
+        initialize();
     }
 
-    public ArrayList<Song> getSongs()
+    public Playlist(String name)
     {
-        return songs;
+        initialize();
+        this.name = name;
     }
 
-    public void rename(String pName)
+    public Playlist(String name, ArrayList<Long> songIDs)
     {
-        name = pName;
+        initialize();
+        this.name = name;
+        this.songIDs = songIDs;
+    }
+
+    private void initialize()
+    {
+    }
+
+    public ArrayList<Long> getSongsIDs()
+    {
+        return songIDs;
+    }
+
+    public void rename(String name)
+    {
+        this.name = name;
     }
 
     public String getName()
@@ -27,28 +67,28 @@ public class Playlist
         return name;
     }
 
-    public void add(Song song)
+    public void add(Long songID)
     {
-        songs.add(song);
+        songIDs.add(songID);
     }
 
     public void remove(Song song)
     {
-        songs.remove(songs.indexOf(song));
+        songIDs.remove(songIDs.indexOf(song));
     }
 
-    public void addMany(ArrayList<Song> pSongs)
+    public void addMany(ArrayList<Long> songIDs)
     {
-        songs.addAll(pSongs);
+        this.songIDs.addAll(songIDs);
     }
 
-    public void removeMany(ArrayList<Song> pSongs)
+    public void removeMany(ArrayList<Long> songIDs)
     {
-        songs.removeAll(pSongs);
+        this.songIDs.removeAll(songIDs);
     }
 
     public void delete()
     {
-        songs = new ArrayList<>();
+        songIDs = new ArrayList<>();
     }
 }

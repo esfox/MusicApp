@@ -46,7 +46,7 @@ public class NowPlayingFragment extends Fragment implements
 
     public NowPlayingFragment() {}
 
-    public void initialize(Data data, Player player, UIManager uiManager)
+    public void initialize(UIManager uiManager, Data data, Player player)
     {
         this.data = data;
         this.player = player;

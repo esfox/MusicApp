@@ -16,7 +16,10 @@
         android:id="@+id/song_list_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background_alternate">
+        android:background="@color/background_alternate"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <RelativeLayout
             android:id="@+id/song_list_clickable"
@@ -72,7 +75,7 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
-                    tools:text="You say I'm yours and you love me"/>
+                    tools:text="Song Title"/>
 
                 <TextView
                     android:id="@+id/song_list_artist"
@@ -82,7 +85,7 @@
                     android:maxLines="1"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textSize="15sp"
-                    tools:text="Victory Worship"/>
+                    tools:text="Song Artist"/>
 
             </LinearLayout>
 

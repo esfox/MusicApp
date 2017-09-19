@@ -1,13 +1,17 @@
 package com.music.app.utils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 
 import com.bumptech.glide.Glide;
+import com.music.app.MainActivity;
 import com.music.app.R;
 import com.music.app.database.SongDatabaseHelper;
 import com.music.app.interfaces.AudioScannerListener;
@@ -18,6 +22,7 @@ import com.music.app.utils.asynctasks.AlbumArtScanner;
 import com.music.app.utils.asynctasks.MediaQuery;
 import com.music.app.utils.asynctasks.MediaScanner;
 import com.music.app.utils.asynctasks.MediaStorer;
+import com.music.app.views.FirstLaunch;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -30,18 +35,30 @@ public class AudioScanner implements AudioScannerTaskListener
     private Data data;
     private AudioScannerListener audioScannerListener;
 
+    private Intent loading;
+
+    private static WeakReference<Activity> firstLaunch;
+
+    public static void firstLaunch(Activity firstLaunch)
+    {
+        AudioScanner.firstLaunch = new WeakReference<>(firstLaunch);
+    }
+
     public AudioScanner(Context pContext, AudioScannerListener pAudioScannerListener, Data pData)
     {
         context = pContext;
         audioScannerListener = pAudioScannerListener;
         data = pData;
         songs = new ArrayList<>();
+
+        loading = new Intent(context, FirstLaunch.class);
+        loading.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
     public void scanAudio()
     {
         if(!data.stored())
-            new MediaScanner(new WeakReference<>(context), this).execute();
+            new MediaScanner(this).execute();
         else
             new MediaQuery(new WeakReference<>(context), this).execute();
     }
@@ -52,6 +69,12 @@ public class AudioScanner implements AudioScannerTaskListener
     * Fix code
     * Send albumID as parameter instead in scanCovers
     * */
+
+    @Override
+    public void firstLaunch()
+    {
+        context.startActivity(loading);
+    }
 
     @Override
     public void scan()
@@ -115,7 +138,9 @@ public class AudioScanner implements AudioScannerTaskListener
     @Override
     public void scanComplete()
     {
-        audioScannerListener.onScanComplete(songs);
+        if(data.stored())
+            audioScannerListener.onScanComplete(songs);
+
         new AlbumArtScanner(new WeakReference<>(context), this).execute();
     }
 
@@ -281,11 +306,20 @@ public class AudioScanner implements AudioScannerTaskListener
         SongDatabaseHelper databaseHelper = new SongDatabaseHelper(context);
         for (Song song : songs)
             databaseHelper.add(song);
-
         data.updateStored(true);
     }
 
-//    private class BackgroundScanner extends AsyncTask<Void, Void, Void>
+    @Override
+    public void finishedStoring()
+    {
+        Log.d("Database", "Data saved");
+        firstLaunch.get().finish();
+
+        Intent back = new Intent(firstLaunch.get(), MainActivity.class);
+        context.startActivity(back);
+    }
+
+    //    private class BackgroundScanner extends AsyncTask<Void, Void, Void>
 //    {
 //        private ProgressDialog progressDialog =
 //                new ProgressDialog(context, R.style.AppTheme_ProgressDialog);

@@ -51,7 +51,7 @@ public class Data
         ONE  //2
     }
 
-    Song getCurrentSongFromDB(Context context)
+    public Song getCurrentSongFromDB(Context context)
     {
 //        Song s;
 //        if(songs != null)

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public interface AudioScannerTaskListener
 {
+    void firstLaunch();
     void scan();
     void scanComplete();
     void scanCovers();
@@ -13,4 +14,5 @@ public interface AudioScannerTaskListener
     void updateAudioScannerListener();
     void startMediaStorer();
     void storeMedia();
+    void finishedStoring();
 }

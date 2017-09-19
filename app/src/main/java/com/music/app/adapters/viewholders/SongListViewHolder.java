@@ -77,16 +77,10 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
         if(!isSelected)
         {
             if(sort == Sorter.SortBy.title)
-            {
-                int color;
-
-                if(position % 2 == 0)
-                    color = R.color.background_primary;
-                else
-                    color = R.color.background_alternate;
-
-                background.setBackgroundResource(color);
-            }
+                background.setBackgroundResource
+                        ((position % 2 == 0)?
+                        R.color.background_primary :
+                        R.color.background_alternate);
             else
             {
                 if(viewType == SongListAdapter.type_item)

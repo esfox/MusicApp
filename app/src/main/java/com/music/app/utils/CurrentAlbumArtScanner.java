@@ -1,7 +1,9 @@
 package com.music.app.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.HandlerThread;
 import android.support.v4.content.res.ResourcesCompat;
 
@@ -13,42 +15,45 @@ import com.music.app.objects.Song;
 import java.io.File;
 import java.lang.ref.WeakReference;
 
-public class CurrentAlbumArtScanner
+class CurrentAlbumArtScanner extends AsyncTask<Object, Drawable, Drawable>
 {
-    public CurrentAlbumArtScanner
-            (
-                final WeakReference<Activity> views,
-                final CurrentAlbumArtScannerListener listener,
-                final Song song
-            )
+    private CurrentAlbumArtScannerListener listener;
+
+    CurrentAlbumArtScanner(CurrentAlbumArtScannerListener listener)
     {
-        new Thread(new Runnable()
+        this.listener = listener;
+    }
+
+    @Override
+    protected Drawable doInBackground(Object... params)
+    {
+        Context context = ((Context) params[0]);
+        Drawable cover = ResourcesCompat.getDrawable(context.getResources(),
+                R.drawable.album_art_placeholder, null);
+        try
         {
-            @Override
-            public void run()
-            {
-                Drawable cover = ResourcesCompat.getDrawable(views.get().getResources(),
-                                 R.drawable.album_art_placeholder, null);
-                try
-                {
 //                data.updateCurrentAlbumArt
 //                        (Drawable.createFromPath(data.getCurrentSongFromDB(MainActivity.this)
 //                                .getCoverPath()));
 
-                    if(views != null)
-                        cover = Glide
-                                .with(views.get())
-                                .load(new File(song.getCoverPath()))
-                                .into(700, 700).get();
-                }
-                catch (Exception e)
-                {
-                    cover = ResourcesCompat.getDrawable(views.get().getResources(),
-                            R.drawable.album_art_placeholder, null);
-                }
+            if(context != null)
+                cover = Glide
+                        .with(context)
+                        .load(new File(((Song) params[1]).getCoverPath()))
+                        .into(700, 700).get();
+        }
+        catch (Exception e)
+        {
+            cover = ResourcesCompat.getDrawable(context.getResources(),
+                    R.drawable.album_art_placeholder, null);
+        }
+        return cover;
+    }
 
-                listener.onScanComplete(cover);
-            }
-        }).start();
+    @Override
+    protected void onPostExecute(Drawable cover)
+    {
+        super.onPostExecute(cover);
+        listener.onScanComplete(cover);
     }
 }
