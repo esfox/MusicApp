@@ -3,7 +3,6 @@ package com.music.app.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -13,12 +12,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewStub;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,7 +28,6 @@ import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
-import com.music.app.views.Notice;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -55,7 +49,7 @@ public class UIManager implements
 
     private FragmentManager fragmentManager;
 
-    private ImageButton playButton, shuffle, repeat;
+    private ImageButton playButton, shuffle, repeat, actionButton;
     private NavigationView navigationDrawer;
     private TextView title, artist;
     private TextView currentTime, appBarTitle;
@@ -77,6 +71,9 @@ public class UIManager implements
     {
         if(data.currentSongIsNotNull())
             song = data.currentSong();
+
+        if(data.currentAlbumArt() == null)
+            new CurrentAlbumArtScanner(this).execute(views, song);
     }
 
     public void initUI(Context context, Data data, Player player)
@@ -101,14 +98,13 @@ public class UIManager implements
                 views.findViewById(R.id.now_playing_bar_current_time);
         updateNowPlayingBar();
 
-        playButton = (ImageButton)
-                views.findViewById(R.id.play_button);
-        shuffle = (ImageButton)
-                views.findViewById(R.id.shuffle);
-        repeat = (ImageButton)
-                views.findViewById(R.id.repeat);
+        playButton = (ImageButton) views.findViewById(R.id.play_button);
+        shuffle = (ImageButton) views.findViewById(R.id.shuffle);
+        repeat = (ImageButton) views.findViewById(R.id.repeat);
+        actionButton = (ImageButton) views.findViewById(R.id.action_button);
         seekBarLayout = views.findViewById(R.id.seekbar_layout);
         seekBar = (DiscreteSeekBar) views.findViewById(R.id.seekbar);
+        updateNowPlayingBarFunctionButton(R.id.navigation_drawer_songs);
         initializeSeekbar();
 
         shuffle();
@@ -154,10 +150,10 @@ public class UIManager implements
 
         views.findViewById(R.id.toolbar_icon).setOnClickListener(this);
         views.findViewById(R.id.toolbar_menu).setOnClickListener(this);
-        views.findViewById(R.id.toolbar_sort).setOnClickListener(this);
+//        views.findViewById(R.id.toolbar_sort).setOnClickListener(this);
 
         views.findViewById(R.id.now_playing_bar).setOnClickListener(this);
-        views.findViewById(R.id.multi_queue).setOnClickListener(this);
+        actionButton.setOnClickListener(this);
         views.findViewById(R.id.no_function_yet).setOnClickListener(this);
     }
 
@@ -196,16 +192,14 @@ public class UIManager implements
                 player.repeat();
                 break;
 
-            case R.id.multi_queue:
-                SongListAdapter adapter = (SongListAdapter) fragmentManager.getSongListFragment()
-                        .getSongList().getAdapter();
-                adapter.toggleMultiQueueMode(!adapter.isInMultiQueueMode());
+            case R.id.action_button:
+                actionButton();
                 break;
 
             case R.id.no_function_yet:
-                Notice notice = new Notice(views);
-                notice.setNoticeText("This button has no use yet.");
-                notice.show();
+//                Notice notice = new Notice(views);
+//                notice.setNoticeText("This button has no use yet.");
+//                notice.show();
                 break;
 
             case R.id.close_seekbar:
@@ -223,11 +217,11 @@ public class UIManager implements
 
             case R.id.toolbar_menu:
                 fragmentManager.getSongListFragment().menu(v);
-                lol(v);
+//                lol(v);
                 break;
 
-            case R.id.toolbar_sort:
-                fragmentManager.getSongListFragment().sortOptions(v);
+//            case R.id.toolbar_sort:
+//                fragmentManager.getSongListFragment().sortOptions(v);
         }
     }
 
@@ -351,8 +345,6 @@ public class UIManager implements
 
     private void updateNowPlayingBar()
     {
-        Log.d("Update Now Playing Bar", "Updating");
-
         if (data.currentSongIsNotNull())
         {
             cover.setVisibility(View.VISIBLE);
@@ -362,17 +354,12 @@ public class UIManager implements
             if(song.getCover() != null)
                 cover.setImageDrawable(song.getCover());
             else
-            {
                 if(song.getCoverPath() != null)
-                {
-                    Log.d("Song Cover", song.getCoverPath());
-
                     Glide.with(views)
                         .load(new File(song.getCoverPath()))
+                        .placeholder(R.drawable.album_art_placeholder)
                         .error(R.drawable.album_art_placeholder)
                         .into(cover);
-                }
-            }
 
             title.setTag(song.getTitle());
             artist.setTag(song.getArtist());
@@ -400,6 +387,29 @@ public class UIManager implements
             cover.setVisibility(View.GONE);
             currentTime.setVisibility(View.GONE);
         }
+    }
+
+    private void actionButton()
+    {
+        SongListAdapter adapter = (SongListAdapter) fragmentManager.getSongListFragment()
+                .getSongList().getAdapter();
+
+        int fragmentID = (int) actionButton.getTag();
+
+        if(fragmentID == R.id.navigation_drawer_songs)
+            adapter.toggleMultiQueueMode(!adapter.isInMultiQueueMode());
+        else
+            fragmentManager.popBackStack();
+    }
+
+    public void updateNowPlayingBarFunctionButton(int activeFragmentID)
+    {
+        if(activeFragmentID != R.id.navigation_drawer_songs)
+            actionButton.setImageResource(R.drawable.back_arrow_24dp);
+        else
+            actionButton.setImageResource(R.drawable.playlist_add_24dp);
+
+        actionButton.setTag(activeFragmentID);
     }
 
     private void initializeSeekbar()
@@ -496,7 +506,7 @@ public class UIManager implements
 //        dialog.setPositiveButton("Okay", new DialogInterface.OnClickListener()
 //        {
 //            @Override
-//            public void onPlay(DialogInterface dialog, int which)
+//            public void onItemClick(DialogInterface dialog, int which)
 //            {
 //                data.updateScrubAmount(numberPicker.getValue());
 //            }
@@ -570,7 +580,7 @@ public class UIManager implements
             @Override
             public void run()
             {
-                fragmentManager.updateNowPlaying();
+                fragmentManager.updateNowPlayingCover();
             }
         });
     }
@@ -598,57 +608,56 @@ public class UIManager implements
     }
 
 
-
-    private void lol(View button)
-    {
-        final boolean[] mBooleanIsPressed = {false};
-        final Handler handler = new Handler();
-        final Runnable runnable = new Runnable()
-        {
-            public void run()
-            {
-                if(mBooleanIsPressed[0])
-                {
-                    ((ViewStub) views.findViewById(R.id.lol)).inflate();
-                    new Handler().postDelayed(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            AlertDialog.Builder builder = Dialoger.getDialogBuilder(views);
-                            builder.setMessage("WHAT DID YOU DO?");
-                            builder.setPositiveButton("I didn't do anything!",
-                                    new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    throw null;
-                                }
-                            });
-                            AlertDialog dialog = builder.create();
-                            dialog.setCanceledOnTouchOutside(false);
-                            dialog.show();
-                        }
-                    }, 4000);
-                }
-            }
-        };
-
-        button.setOnTouchListener(new View.OnTouchListener()
-        {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
-                if(event.getAction() == MotionEvent.ACTION_DOWN)
-                {
-                    handler.postDelayed(runnable, 5000);
-                    mBooleanIsPressed[0] = true;
-                }
-
-                return false;
-            }
-        });
-    }
+//    private void lol(View button)
+//    {
+//        final boolean[] mBooleanIsPressed = {false};
+//        final Handler handler = new Handler();
+//        final Runnable runnable = new Runnable()
+//        {
+//            public void run()
+//            {
+//                if(mBooleanIsPressed[0])
+//                {
+//                    ((ViewStub) views.findViewById(R.id.lol)).inflate();
+//                    new Handler().postDelayed(new Runnable()
+//                    {
+//                        @Override
+//                        public void run()
+//                        {
+//                            AlertDialog.Builder builder = Dialoger.getDialogBuilder(views);
+//                            builder.setMessage("WHAT DID YOU DO?");
+//                            builder.setPositiveButton("I didn't do anything!",
+//                                    new DialogInterface.OnClickListener()
+//                            {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which)
+//                                {
+//                                    throw null;
+//                                }
+//                            });
+//                            AlertDialog dialog = builder.create();
+//                            dialog.setCanceledOnTouchOutside(false);
+//                            dialog.show();
+//                        }
+//                    }, 4000);
+//                }
+//            }
+//        };
+//
+//        button.setOnTouchListener(new View.OnTouchListener()
+//        {
+//
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event)
+//            {
+//                if(event.getAction() == MotionEvent.ACTION_DOWN)
+//                {
+//                    handler.postDelayed(runnable, 5000);
+//                    mBooleanIsPressed[0] = true;
+//                }
+//
+//                return false;
+//            }
+//        });
+//    }
 }

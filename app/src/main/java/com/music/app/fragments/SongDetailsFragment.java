@@ -9,9 +9,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.music.app.R;
 import com.music.app.objects.Song;
 import com.music.app.utils.Timestamper;
+
+import java.io.File;
 
 public class SongDetailsFragment extends Fragment
 {
@@ -29,7 +32,8 @@ public class SongDetailsFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        ((ImageView) getView().findViewById(R.id.album_cover)).setImageDrawable(song.getCover());
+        Glide.with(getContext()).load(new File(song.getCoverPath()))
+                .into(((ImageView) getView().findViewById(R.id.album_cover)));
         ((TextView) getView().findViewById(R.id.queue_item_title)).setText(song.getTitle());
         ((TextView) getView().findViewById(R.id.queue_item_artist)).setText(song.getArtist());
         ((TextView) getView().findViewById(R.id.album_artist)).setText(song.getAlbumArtist());

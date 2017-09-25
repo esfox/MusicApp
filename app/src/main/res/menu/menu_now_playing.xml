@@ -4,9 +4,9 @@
       xmlns:tools="http://schemas.android.com/tools">
     <item
         android:id="@+id/action_play_queue"
+        android:title="Play Queue"
         android:icon="@drawable/all_songs_36dp"
         android:orderInCategory="100"
-        android:title="Play Queue"
         app:showAsAction="always"
         tools:ignore="HardcodedText"/>
 </menu>

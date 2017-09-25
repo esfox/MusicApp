@@ -35,6 +35,12 @@
             android:layout_below="@id/app_bar"
             android:background="@drawable/toolbar_shadow"/>
 
+        <FrameLayout
+            android:id="@+id/song_details_area"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/now_playing_bar_layout"/>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="10dp"

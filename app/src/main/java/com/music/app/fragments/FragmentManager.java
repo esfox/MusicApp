@@ -2,6 +2,7 @@ package com.music.app.fragments;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.util.Pair;
@@ -12,6 +13,7 @@ import com.music.app.R;
 import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
+import com.music.app.objects.Playlist;
 import com.music.app.objects.Song;
 import com.music.app.utils.UIManager;
 import com.music.app.views.Notice;
@@ -33,15 +35,13 @@ public class FragmentManager implements
     private QueueFragment queueFragment;
 
     private Data data;
+    private Player player;
 
 //    public PlayQueueFragment playQueueFragment;
 
     private final String allSongsTag = "All Songs";
     private final String queueTag = "Play Queue";
     private final String playlistsTag = "Playlists";
-    private final String songDetailsTag = "Song Details";
-    @SuppressWarnings("FieldCanBeLocal")
-    private final String nowPlayingTag = "Now Playing";
 
     private HashMap<String, Pair<Integer, Integer>> ids;
     private int activeFragmentID = R.id.navigation_drawer_songs;
@@ -68,12 +68,6 @@ public class FragmentManager implements
                         R.id.navigation_drawer_playlists,
                         R.drawable.playlist_36dp
                     ));
-        ids.put(songDetailsTag,
-                new Pair<>
-                    (
-                        0,
-                        R.drawable.info_36dp
-                    ));
     }
 
     public FragmentManager(Context context, UIManager uiManager, Data data, Player player)
@@ -95,6 +89,7 @@ public class FragmentManager implements
     private void initFragments(UIManager uiManager, Data data, Player player)
     {
         this.data = data;
+        this.player = player;
 
         nowPlayingFragment.initialize(uiManager, data, player);
         queueFragment.initialize(data, player);
@@ -111,7 +106,7 @@ public class FragmentManager implements
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
+    public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
         switch(item.getItemId())
         {
@@ -121,7 +116,7 @@ public class FragmentManager implements
 
             case R.id.navigation_drawer_playlists:
 //                notYetDevelopedNotice();
-                playlists();
+                playlistsList();
                 break;
 
             case R.id.navigation_drawer_favorites:
@@ -199,15 +194,15 @@ public class FragmentManager implements
                     R.anim.slide_up, R.anim.slide_down,
                     R.anim.slide_up, R.anim.slide_down
                 )
-            .replace(R.id.parent, nowPlayingFragment, nowPlayingTag)
-            .addToBackStack(nowPlayingTag)
+            .replace(R.id.parent, nowPlayingFragment, "Now Playing")
+            .addToBackStack("Now Playing")
             .commit();
     }
 
-    public void updateNowPlaying()
+    public void updateNowPlayingCover()
     {
         if(nowPlayingFragment.isVisible())
-            nowPlayingFragment.update(true);
+            nowPlayingFragment.updateCover();
     }
 
     public void queue()
@@ -232,21 +227,31 @@ public class FragmentManager implements
         }
     }
 
-    private void playlists()
+    private void playlistsList()
     {
-        PlaylistsFragment playlistsFragment = new PlaylistsFragment();
-        playlistsFragment.initialize(data);
-        if(!playlistsFragment.isVisible())
+        PlaylistsListFragment playlistsListFragment = new PlaylistsListFragment();
+        playlistsListFragment.initialize(data, this);
+        if(!playlistsListFragment.isVisible())
         {
             hideRemainingFragments();
 
             fragmentManager.beginTransaction()
-            .replace(R.id.fragment_area, playlistsFragment, playlistsTag)
+            .replace(R.id.fragment_area, playlistsListFragment, playlistsTag)
             .addToBackStack(playlistsTag)
             .commit();
-        }
 
-        updateUI(playlistsTag);
+            updateUI(playlistsTag);
+        }
+    }
+
+    public void playlist(Playlist playlist)
+    {
+        PlaylistFragment playlistFragment = new PlaylistFragment();
+        playlistFragment.initialize(playlist, data, player, this);
+        fragmentManager.beginTransaction()
+        .replace(R.id.fragment_area, playlistFragment, "Playlist")
+        .addToBackStack(null)
+        .commit();
     }
 
     public void songDetails(Song song)
@@ -261,14 +266,12 @@ public class FragmentManager implements
                 R.anim.fade_in, R.anim.fade_out,
                 R.anim.fade_in, R.anim.fade_out
             )
-        .add(R.id.fragment_area, songDetailsFragment, songDetailsTag)
-        .addToBackStack(songDetailsTag)
+        .add(R.id.song_details_area, songDetailsFragment, "Song Details")
+        .addToBackStack(null)
         .commit();
-
-        updateUI(songDetailsTag);
     }
 
-    void popBackStack()
+    public void popBackStack()
     {
         fragmentManager.popBackStack();
     }
@@ -284,6 +287,7 @@ public class FragmentManager implements
                 activeFragmentID = (int) current.first;
                 uiManager.updateAppBar(tag, (Integer) current.second);
                 uiManager.updateNavigationDrawer();
+                uiManager.updateNowPlayingBarFunctionButton(activeFragmentID);
             }
         });
     }
@@ -291,8 +295,6 @@ public class FragmentManager implements
     private void hideRemainingFragments()
     {
         fragmentManager.popBackStack(null, POP_BACK_STACK_INCLUSIVE);
-//        if(nowPlayingFragment.isVisible())
-//            popBackStack();
     }
 
     @Override
@@ -304,6 +306,7 @@ public class FragmentManager implements
             activeFragmentID = (int) currentFragmentPair.first;
             uiManager.updateAppBar(allSongsTag, (Integer) currentFragmentPair.second);
             uiManager.updateNavigationDrawer();
+            uiManager.updateNowPlayingBarFunctionButton(activeFragmentID);
         }
     }
 }

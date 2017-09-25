@@ -3,6 +3,8 @@ package com.music.app.adapters;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 
+import com.music.app.fragments.FragmentManager;
+import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
@@ -23,16 +25,18 @@ public class SongListFastScrollAdapter extends SongListAdapter implements Sectio
 
     public SongListFastScrollAdapter
             (
-                 ArrayList<Song> pSongs,
-                 ListView pListView,
-                 Data pData,
-                 Player pPlayer,
-                 Sorter.SortBy pSort
+                 ListView songList,
+                 ArrayList<Song> songs,
+                 Sorter.SortBy sort,
+                 SongListAdapterListener listener,
+                 Data data,
+                 Player player,
+                 FragmentManager fragmentManager
             )
     {
-        super(pListView, pSongs, pData, pPlayer, pSort);
+        super(songList, songs, sort, listener, data, player, fragmentManager);
         items = getItems();
-        sort = pSort;
+        this.sort = sort;
         manageSections();
     }
 

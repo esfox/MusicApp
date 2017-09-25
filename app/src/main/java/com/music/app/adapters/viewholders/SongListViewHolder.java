@@ -1,52 +1,54 @@
 package com.music.app.adapters.viewholders;
 
-import android.animation.ObjectAnimator;
-import android.text.TextUtils;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.music.app.R;
+import com.music.app.adapters.SongListAdapter;
+import com.music.app.interfaces.ListItem;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
-import com.music.app.adapters.SongListAdapter;
-import com.music.app.interfaces.SongListListener;
 
 public class SongListViewHolder implements View.OnClickListener, View.OnLongClickListener
 {
     private View background,
                  clickable,
-                 options,
+                 optionsLayout,
                  addTo,
                  queue,
                  more,
                  sectionBackground;
     private TextView title, artist;
-    private ImageView cover;
+    private ImageView cover, options;
 
     public TextView sectionText;
 
     private Sorter.SortBy sort;
 
-    private int position,
+    private int index,
                 viewType;
 
-    private SongListListener songListListener;
+    private ListItem.SongListItemListener listener;
 
     public SongListViewHolder
             (View view,
              int pViewType,
              Sorter.SortBy pSort,
-             SongListListener songListListener)
+             ListItem.SongListItemListener listener)
     {
         viewType = pViewType;
         if(viewType == SongListAdapter.type_item)
         {
             background = view.findViewById(R.id.song_list_background);
             clickable = view.findViewById(R.id.song_list_clickable);
-            options = view.findViewById(R.id.song_list_options);
+            options = (ImageView) view.findViewById(R.id.song_list_options);
+
+            optionsLayout = view.findViewById(R.id.song_list_options_layout);
             addTo = view.findViewById(R.id.song_list_options_play_next);
             queue = view.findViewById(R.id.song_list_options_queue);
             more = view.findViewById(R.id.song_list_options_more);
@@ -63,24 +65,27 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 
         sort = pSort;
 
-        this.songListListener = songListListener;
+        this.listener = listener;
     }
 
-    public void setPosition(int pPosition)
+    public void setIndex(int index, boolean alternateBackgroundColor)
     {
-        position = pPosition;
-        setBackgroundColor(position, false);
+        this.index = index;
+        setBackgroundColor(this.index, alternateBackgroundColor, false);
     }
 
-    public void setBackgroundColor(int position, boolean isSelected)
+    public void setBackgroundColor
+            (int index, boolean alternateBackgroundColor, boolean isSelected)
     {
         if(!isSelected)
         {
-            if(sort == Sorter.SortBy.title)
-                background.setBackgroundResource
-                        ((position % 2 == 0)?
-                        R.color.background_primary :
-                        R.color.background_alternate);
+            if(alternateBackgroundColor)
+                if(sort == Sorter.SortBy.title)
+                    background.setBackgroundResource
+                            ((index % 2 == 0)?
+                            R.color.background_primary :
+                            R.color.background_alternate);
+
             else
             {
                 if(viewType == SongListAdapter.type_item)
@@ -97,6 +102,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
     {
         title.setText(song.getTitle());
         artist.setText(song.getArtist());
+        cover.setImageDrawable(song.getCover());
 
 //        title.setTag(song.getTitle());
 //        artist.setTag(song.getArtist());
@@ -119,8 +125,6 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //            artist.setText(song.getAlbum());
 //        else
 //            artist.setText(song.getArtist());
-
-       cover.setImageDrawable(song.getCover());
 
 //        if(song.getCoverPath() != null)
 //            Glide.with(clickable.getContext()).load(new File(song.getCoverPath())).into(cover);
@@ -145,7 +149,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
         switch (v.getId())
         {
             case R.id.song_list_clickable:
-                songListListener.onPlay(position, this);
+                listener.onItemClick(index, this);
                 break;
 
             case R.id.song_list_options:
@@ -153,17 +157,17 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
                 break;
 
             case R.id.song_list_options_queue:
-                songListListener.onQueue(position);
+                listener.onQueue(index);
                 onOptions();
                 break;
 
             case R.id.song_list_options_play_next:
-                songListListener.onPlayNext(position);
+                listener.onPlayNext(index);
                 onOptions();
                 break;
 
             case R.id.song_list_options_more:
-                songListListener.onMoreOptions(position, this);
+                listener.onMoreOptions(index, this);
                 break;
         }
     }
@@ -175,12 +179,12 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //        {
 //            if(adapter.getOpenedOptionsPosition() != -1)
 //            {
-//                toggleOptions(false, false);
+//                checkIfOpen(false, false);
 //                adapter.setOpenedOptionsPosition(-1);
 //            }
 //
 //            adapter.toggleSelectionMode(true);
-//            adapter.selectItem(position);
+//            adapter.selectItem(index);
 //            select();
 //
 //            return true;
@@ -192,64 +196,44 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 
     private void onOptions()
     {
-        songListListener.onOptions
+        listener.onOptions
         (
-            position,
-            optionsIsOpened(),
+            index,
+            background.getTranslationX() != 0,
             this
         );
     }
 
-    private boolean optionsIsOpened()
+    public void checkIfOpen(final boolean toggle)
     {
-        return background.getTranslationX() == 0;
-    }
+        optionsLayout.setVisibility(toggle? View.VISIBLE : View.GONE);
 
-    public void toggleOptions(boolean animate, boolean toggle)
-    {
-        if(animate)
-        {
-            ObjectAnimator swipe;
-
-            if (toggle)
-                swipe = ObjectAnimator.ofFloat(background, View.TRANSLATION_X,
-                        TypedValue.applyDimension
-                        (
-                            TypedValue.COMPLEX_UNIT_DIP,
-                            -180,
-                            background.getContext()
-                                     .getResources()
-                                     .getDisplayMetrics()
-                        ));
-            else
-                swipe = ObjectAnimator.ofFloat(background, View.TRANSLATION_X, 0);
-
-            swipe.setDuration(250);
-            swipe.setInterpolator(new AccelerateDecelerateInterpolator());
-            swipe.start();
-        }
-        else
-        {
-            if(toggle)
-                background.setTranslationX
+        if(toggle)
+            background.setTranslationX
+            (
+                TypedValue.applyDimension
                 (
-                    TypedValue.applyDimension
-                    (
-                        TypedValue.COMPLEX_UNIT_DIP,
-                        -180,
-                        background.getContext().getResources().getDisplayMetrics())
-                );
-            else
-                background.setTranslationX(0);
-        }
+                    TypedValue.COMPLEX_UNIT_DIP, -180,
+                    background.getContext().getResources().getDisplayMetrics()
+                )
+            );
+        else
+            background.setTranslationX(0);
     }
 
     public void toggleOptionsVisibility(boolean isVisible)
     {
-        if(isVisible)
-            options.setVisibility(View.VISIBLE);
-        else
-            options.setVisibility(View.INVISIBLE);
+        options.setVisibility(isVisible? View.VISIBLE : View.GONE);
+    }
+
+    public void toggleDragMode(boolean toggle)
+    {
+        Log.d("toggle", String.valueOf(toggle));
+        options.setColorFilter(toggle? Color.WHITE : Color.parseColor("#707070"),
+                PorterDuff.Mode.SRC_ATOP);
+        options.setImageResource(toggle?
+                R.drawable.drag_vertical_24dp :
+                R.drawable.more_vertical_24dp);
     }
 
 //    private void queue()
@@ -284,17 +268,17 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //                    openedOptionsPosition <= songList.getLastVisiblePosition())
 //                ((SongListViewHolder) songList.getChildAt
 //                        (openedOptionsPosition - songList.getFirstVisiblePosition()).getTag())
-//                        .toggleOptions(true, false);
+//                        .checkIfOpen(true, false);
 //        }
 //
 //        if(background.getTranslationX() == 0)
 //        {
-//            toggleOptions(true, true);
-//            adapter.setOpenedOptionsPosition(position);
+//            checkIfOpen(true, true);
+//            adapter.setOpenedOptionsPosition(index);
 //        }
 //        else
 //        {
-//            toggleOptions(true, false);
+//            checkIfOpen(true, false);
 //            adapter.setOpenedOptionsPosition(-1);
 //        }
 //    }
@@ -304,7 +288,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
 //        {
 //            @Override
-//            public void onPlay(DialogInterface dialog, int which)
+//            public void onItemClick(DialogInterface dialog, int which)
 //            {
 //                switch(which)
 //                {
@@ -312,7 +296,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //                        addTo();
 //                        break;
 //                    case 1:
-//                        toggleOptions(true, false);
+//                        checkIfOpen(true, false);
 //                        adapter.songDetails(song);
 //                        break;
 //                    case 2:
@@ -340,7 +324,7 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
 //        {
 //            @Override
-//            public void onPlay(DialogInterface dialog, int which)
+//            public void onItemClick(DialogInterface dialog, int which)
 //            {
 //                switch(which)
 //                {
@@ -371,10 +355,10 @@ public class SongListViewHolder implements View.OnClickListener, View.OnLongClic
 //        DialogInterface.OnClickListener positiveButtonListener = new DialogInterface.OnClickListener()
 //        {
 //            @Override
-//            public void onPlay(DialogInterface dialog, int which)
+//            public void onItemClick(DialogInterface dialog, int which)
 //            {
-//                toggleOptions(false, false);
-//                adapter.deleteItem(position);
+//                checkIfOpen(false, false);
+//                adapter.deleteItem(index);
 //            }
 //        };
 //

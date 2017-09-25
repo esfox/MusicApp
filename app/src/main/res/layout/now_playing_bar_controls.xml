@@ -105,7 +105,7 @@
         android:src="@drawable/more_horizontal_24dp"/>
 
     <ImageButton
-        android:id="@+id/multi_queue"
+        android:id="@+id/action_button"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_alignParentRight="true"
@@ -133,7 +133,9 @@
         <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
             android:id="@+id/seekbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
     </LinearLayout>
 
 </RelativeLayout>

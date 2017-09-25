@@ -145,7 +145,7 @@ public class Player extends Service
             startForeground(1, builder.build());
         }
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override

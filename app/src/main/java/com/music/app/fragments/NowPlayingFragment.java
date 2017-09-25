@@ -41,7 +41,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private DiscreteSeekBar progress;
     private TextView time;
-    private ImageView shuffle, repeat;
+    private ImageView cover, shuffle, repeat;
     private FloatingActionButton play;
 
     public NowPlayingFragment() {}
@@ -172,7 +172,7 @@ public class NowPlayingFragment extends Fragment implements
         if(data.currentSongIsNotNull())
         {
             final Song song = data.currentSong();
-            ImageView cover = ((ImageView) getView().findViewById(R.id.now_playing_cover));
+            cover = ((ImageView) getView().findViewById(R.id.now_playing_cover));
 
             if(!updateCoverOnly)
             {
@@ -216,7 +216,7 @@ public class NowPlayingFragment extends Fragment implements
                 ((TextView) getView().findViewById(R.id.now_playing_end_time))
                         .setText(Timestamper.getTimestamp(song.getDuration()));
 
-                updateCover(cover, song);
+                updateCover();
 
                 final MediaPlayer mediaPlayer = player.getPlayer();
 
@@ -285,22 +285,19 @@ public class NowPlayingFragment extends Fragment implements
                 });
             }
             else
-                updateCover(cover, song);
+                updateCover();
         }
         else
             getView().findViewById(R.id.now_playing_start_message).setVisibility(View.VISIBLE);
     }
 
-    private void updateCover(ImageView cover, Song song)
+    public void updateCover()
     {
         Drawable currentAlbumArt = data.currentAlbumArt();
         if(currentAlbumArt != null)
             cover.setImageDrawable(currentAlbumArt);
-        else Glide.with(getContext())
-                .load((song.getCoverPath() != null)?
-                        new File(song.getCoverPath()) :
-                        R.drawable.album_art_placeholder)
-                .into(cover);
+        else
+            cover.setImageResource(R.drawable.album_art_placeholder);
     }
 
     public void updateProgress(final int currentTime)

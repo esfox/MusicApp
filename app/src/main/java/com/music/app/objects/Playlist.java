@@ -4,27 +4,16 @@ import java.util.ArrayList;
 
 public class Playlist
 {
-    private String[] tempCovers;
-    private int tempTracksCount;
+    private Song[] tempSongs;
 
-    public void setTempCovers(String[] covers)
+    public void setTempSongs(Song[] tempSongs)
     {
-        tempCovers = covers;
+        this.tempSongs = tempSongs;
     }
 
-    public String[] getTempCovers()
+    public Song[] getTempSongs()
     {
-        return tempCovers;
-    }
-
-    public void setTempTracksCount(int count)
-    {
-        tempTracksCount = count;
-    }
-
-    public int getTempTracksCount()
-    {
-        return tempTracksCount;
+        return tempSongs;
     }
 
     private String name = "Untitled Playlist";

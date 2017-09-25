@@ -1,24 +1,59 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_secondary"
-    tools:context="com.music.app.fragments.PlaylistsFragment">
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/background_material"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
+    <com.mobeta.android.dslv.DragSortListView
+        android:id="@+id/playlist_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="50sp"
-        android:text="Under Development\n:V"
-        android:visibility="gone"
-        tools:ignore="HardcodedText"/>
+        android:layout_above="@+id/playlist_details"
+        android:layout_below="@+id/list_toolbar_layout"
+        android:fastScrollEnabled="true"
+        android:scrollingCache="false"
+        android:animationCache="false"
+        android:smoothScrollbar="true"
+        app:drag_enabled="false"
+        app:sort_enabled="true"
+        app:remove_enabled="false"
+        app:drag_handle_id="@+id/song_list_drag_handle"
+        app:drag_start_mode="onLongPress"
+        app:drop_animation_duration="100"
+        app:max_drag_scroll_speed="1.5"
+        app:slide_shuffle_speed="0.5"
+        app:float_background_color="@color/background_secondary"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/playlists_list"
+    <include
+        android:id="@+id/list_toolbar_layout"
+        layout="@layout/list_toolbar"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/song_list_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_above="@+id/playlist_details"
+        android:src="@drawable/done_36dp"
+        app:fabSize="normal"
+        app:useCompatPadding="true"/>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/playlist_details"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"/>
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/background_primary"
+        app:titleTextAppearance="?android:attr/textAppearanceLarge"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:layout_above="@+id/playlist_details"
+        android:background="@drawable/toolbar_shadow_upside_down"/>
 
 </RelativeLayout>

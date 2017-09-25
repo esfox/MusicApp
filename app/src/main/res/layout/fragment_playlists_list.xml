@@ -1,0 +1,24 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_secondary"
+    tools:context="com.music.app.fragments.PlaylistsListFragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="50sp"
+        android:text="Under Development\n:V"
+        android:visibility="gone"
+        tools:ignore="HardcodedText"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/playlists_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"/>
+
+</RelativeLayout>
