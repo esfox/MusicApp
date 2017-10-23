@@ -19,11 +19,11 @@ import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Playlist;
+import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Menuer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class PlaylistFragment extends Fragment implements
         View.OnClickListener,
@@ -61,37 +61,46 @@ public class PlaylistFragment extends Fragment implements
     {
         View view = inflater.inflate(R.layout.fragment_playlist, container, false);
 
-        int trackCount = playlist.getTempSongs().length;
+        DragSortListView playlistview = (DragSortListView) view.findViewById(R.id.playlist_view);
+        playlistview.setDividerHeight(0);
+
+        long[] songIDs = playlist.getSongs();
+        int trackCount = songIDs.length;
+        ArrayList<Song> songs = new ArrayList<>();
+        for (long id : songIDs)
+        {
+            Song song = Song.getSongByID(id, data.songs());
+            if(song != null)
+                songs.add(song);
+        }
+
+        adapter = new SongListFastScrollAdapter
+                (playlistview, songs, Sorter.SortBy.title, this,
+                        data, player, fragmentManager);
+        adapter.setUsedInPlaylists(playlist);
+        playlistview.setAdapter(adapter);
 
         //TODO: Add sort button in toolbar
         Toolbar details = ((Toolbar) view.findViewById(R.id.playlist_details));
         details.setTitle(playlist.getName());
         details.setSubtitle(String.valueOf(trackCount) +
-                ((trackCount > 1)? " tracks" : " track"));
-        details.inflateMenu(R.menu.menu_playlist);
-        details.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener()
-        {
-            @Override
-            public boolean onMenuItemClick(MenuItem item)
-            {
-                switch (item.getItemId())
-                {
-                    case R.id.playlist_action_sort:
-                        adapter.toggleSortMode(!adapter.isInSortMode());
-                        break;
-                }
-                return false;
-            }
-        });
+                ((trackCount != 1)? " tracks" : " track"));
 
-        DragSortListView playlistview = (DragSortListView) view.findViewById(R.id.playlist_view);
-        playlistview.setDividerHeight(0);
-
-        adapter = new SongListFastScrollAdapter
-                (playlistview, new ArrayList<>(Arrays.asList(playlist.getTempSongs())),
-                        Sorter.SortBy.title, this, data, player, fragmentManager);
-        adapter.doNotAlternateBackgroundColor();
-        playlistview.setAdapter(adapter);
+//        details.inflateMenu(R.menu.playlist_menu);
+//        details.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener()
+//        {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item)
+//            {
+//                switch (item.getItemId())
+//                {
+//                    case R.id.playlist_action_sort:
+//                        adapter.toggleSortMode(!adapter.isInSortMode());
+//                        break;
+//                }
+//                return false;
+//            }
+//        });
 
         toolbar = view.findViewById(R.id.song_list_toolbar);
         toolbarText = (TextView) toolbar.findViewById(R.id.song_list_toolbar_title);

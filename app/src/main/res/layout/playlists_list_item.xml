@@ -18,6 +18,7 @@
         android:background="?attr/selectableItemBackground">
 
         <LinearLayout
+            android:id="@+id/playlist_list_item_covers"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/playlists_list_item_name"
@@ -37,7 +38,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:scaleType="centerCrop"
-                android:src="@drawable/album_art_placeholder"/>
+                android:src="@drawable/album_art_placeholder"
+                android:visibility="gone"/>
 
             <ImageView
                 android:id="@+id/playlists_list_item_cover_3"
@@ -45,7 +47,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:scaleType="centerCrop"
-                android:src="@drawable/album_art_placeholder"/>
+                android:src="@drawable/album_art_placeholder"
+                android:visibility="gone"/>
 
             <ImageView
                 android:id="@+id/playlists_list_item_cover_4"
@@ -53,7 +56,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:scaleType="centerCrop"
-                android:src="@drawable/album_art_placeholder"/>
+                android:src="@drawable/album_art_placeholder"
+                android:visibility="gone"/>
 
             <ImageView
                 android:id="@+id/playlists_list_item_cover_5"
@@ -61,7 +65,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:scaleType="centerCrop"
-                android:src="@drawable/album_art_placeholder"/>
+                android:src="@drawable/album_art_placeholder"
+                android:visibility="gone"/>
 
         </LinearLayout>
 
@@ -73,20 +78,42 @@
             android:layout_marginLeft="10dp"
             android:layout_marginStart="10dp"
             android:layout_marginBottom="2dp"
+            android:layout_above="@+id/playlist_list_item_tracks_count"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:layout_above="@+id/playlist_item_tracks_count"
             tools:text="Sample Text"/>
 
         <TextView
-            android:id="@+id/playlist_item_tracks_count"
+            android:id="@+id/playlist_list_item_tracks_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginStart="10dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_alignParentBottom="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             tools:text="Sample Text"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_below="@+id/playlist_list_item_covers">
+
+            <ImageButton
+                android:id="@+id/playlist_list_item_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/more_vertical_24dp"
+                tools:ignore="ContentDescription"/>
+
+        </LinearLayout>
 
     </RelativeLayout>
 

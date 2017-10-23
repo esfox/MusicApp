@@ -14,9 +14,19 @@ public class Queue
     private ArrayList<Long> queue;
     private int queueStack, queueCount;
 
+    private long[] defaultIDs;
+
     public Queue(Data data)
     {
         this.data = data;
+    }
+
+    public void setDefaultIDs()
+    {
+        ArrayList<Song> songs = data.songs();
+        defaultIDs = new long[songs.size()];
+        for(int i = 0; i < defaultIDs.length; i++)
+            defaultIDs[i] = songs.get(i).getID();
     }
 
     public void initialize(long[] ids)
@@ -31,11 +41,18 @@ public class Queue
         return queue;
     }
 
-    void newSong(long id)
+    void newSong(long songID)
     {
-        resetQueue();
+        resetQueue(defaultIDs);
         shuffle(data.currentSong(), data.isShuffled());
-        data.updateCurrentQueueIndex(queue.indexOf(id));
+        data.updateCurrentQueueIndex(queue.indexOf(songID));
+    }
+
+    void newSongFromPlaylist(long songID, Playlist playlist)
+    {
+        resetQueue(playlist.getSongs());
+        shuffle(data.currentSong(), data.isShuffled());
+        data.updateCurrentQueueIndex(queue.indexOf(songID));
     }
 
     public void newSongFromQueue(int previousIndex, int newIndex)
@@ -48,12 +65,8 @@ public class Queue
         Log.d("New Queue Stack", String.valueOf(queueStack));
     }
 
-    private void resetQueue()
+    private void resetQueue(long[] ids)
     {
-        ArrayList<Song> songs = data.songs();
-        long[] ids = new long[songs.size()];
-        for(int i = 0; i < ids.length; i++)
-            ids[i] = songs.get(i).getId();
         initialize(ids);
 
         queueStack = 0;
@@ -129,20 +142,16 @@ public class Queue
         return queue.get(index);
     }
 
-    public void queue(long id)
+    public void queue(long id, boolean queueNext, Context context)
     {
         queueStack++;
-        int queueIndex = data.currentQueueIndex() + queueStack;
+        int queueIndex = queueNext?
+                data.currentQueueIndex() + 1 :
+                data.currentQueueIndex() + queueStack;
         queue.add(queueIndex, id);
         queueCount++;
-    }
 
-    public void playNext(long id)
-    {
-        queueStack++;
-        int queueIndex = data.currentQueueIndex() + 1;
-        queue.add(queueIndex, id);
-        queueCount++;
+        save(context);
     }
 
     private void updateQueueStack(boolean isNext)
@@ -161,40 +170,6 @@ public class Queue
         }
     }
 
-    private final String queueStackKey = "queueStack";
-    private final String queueCountKey = "queueCount";
-    private final String queueSizeKey = "queueSize";
-
-    public void save(Context context)
-    {
-        SharedPreferences preferences = context.getSharedPreferences("Queue",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        for(int i = 0; i < queue.size(); i++)
-            editor.putLong(String.valueOf(i), queue.get(i));
-
-        editor.putInt(queueStackKey, queueStack);
-        editor.putInt(queueCountKey, queueCount);
-        editor.putInt(queueSizeKey, queue.size());
-        editor.apply();
-
-        data.updateQueueIsSaved(true);
-    }
-
-    public void load(Context context)
-    {
-        SharedPreferences preferences = context.getSharedPreferences("Queue",
-                Context.MODE_PRIVATE);
-
-        queue = new ArrayList<>();
-        for(int i = 0; i < preferences.getInt(queueSizeKey, 0) ; i++)
-            queue.add(preferences.getLong(String.valueOf(i), 0));
-
-        queueStack = preferences.getInt(queueStackKey, 0);
-        queueCount = preferences.getInt(queueCountKey, 0);
-    }
-
     void shuffle(Song currentSong, boolean isShuffled)
     {
         data.updateIsShuffled(isShuffled);
@@ -204,11 +179,9 @@ public class Queue
 
         if(isShuffled)
         {
-            //TODO: Fix current index
-
             if(data.currentSongIsNotNull())
             {
-                long current = queue.get(data.currentQueueIndex());
+                long current = currentSong.getID();
                 queue.remove(current);
                 Collections.shuffle(queue);
                 queue.add(0, current);
@@ -225,7 +198,7 @@ public class Queue
                 for(int j = 0; j < songs.size(); j++)
                 {
                     Song song = songs.get(j);
-                    if (queue.get(i).equals(song.getId()))
+                    if (queue.get(i).equals(song.getID()))
                         tempSongs.add(song);
                 }
             }
@@ -241,7 +214,7 @@ public class Queue
 
             queue.clear();
             for(Song song : tempSongs)
-                queue.add(song.getId());
+                queue.add(song.getID());
 
             for(int i = 0; i < queue.size(); i++)
             {
@@ -253,7 +226,41 @@ public class Queue
 
             if(data.currentSongIsNotNull())
                 data.updateCurrentQueueIndex(queue.indexOf
-                        (currentSong.getId()));
+                        (currentSong.getID()));
         }
+    }
+
+    private final String queuePrefsName = "Queue";
+    private final String queueStackKey = "queueStack";
+    private final String queueCountKey = "queueCount";
+    private final String queueSizeKey = "queueSize";
+
+    void save(Context context)
+    {
+        SharedPreferences.Editor editor = context.getSharedPreferences(queuePrefsName,
+                Context.MODE_PRIVATE).edit();
+
+        for(int i = 0; i < queue.size(); i++)
+            editor.putLong(String.valueOf(i), queue.get(i));
+
+        editor.putInt(queueStackKey, queueStack);
+        editor.putInt(queueCountKey, queueCount);
+        editor.putInt(queueSizeKey, queue.size());
+        editor.apply();
+
+        data.updateQueueIsSaved(true);
+    }
+
+    public void load(Context context)
+    {
+        SharedPreferences preferences = context.getSharedPreferences(queuePrefsName,
+                Context.MODE_PRIVATE);
+
+        queue = new ArrayList<>();
+        for(int i = 0; i < preferences.getInt(queueSizeKey, 0) ; i++)
+            queue.add(preferences.getLong(String.valueOf(i), 0));
+
+        queueStack = preferences.getInt(queueStackKey, 0);
+        queueCount = preferences.getInt(queueCountKey, 0);
     }
 }

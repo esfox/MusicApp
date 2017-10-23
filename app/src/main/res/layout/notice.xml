@@ -40,11 +40,11 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:maxWidth="175dp"
-        android:maxLines="2"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="13sp"
-        android:ellipsize="marquee"
-        tools:text="This is some message. Cool."/>
+        android:maxLines="2"
+        android:ellipsize="end"
+        tools:text="This is some very very very long message that is not a practical message. Cool."/>
 
 </RelativeLayout>

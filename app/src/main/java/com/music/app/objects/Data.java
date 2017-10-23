@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 
-import com.music.app.database.SongDatabaseHelper;
+import com.music.app.database.DatabaseHelper;
 
 import java.util.ArrayList;
 
@@ -28,6 +28,8 @@ public class Data
     void setCurrentSong(Song song) { currentSong = song; }
     public ArrayList<Song> songs() { return songs; }
     public void setSongs(ArrayList<Song> songs) { this.songs = songs; }
+
+    //TODO: Migrate to Bitmap
     public Drawable currentAlbumArt() { return currentAlbumArt; }
     public void updateCurrentAlbumArt(Drawable albumArt) { currentAlbumArt = albumArt; }
 
@@ -57,12 +59,12 @@ public class Data
 //        if(songs != null)
 //        {
 //            for (Song song : songs)
-//                if (song.getId().equals(sharedPreferences
+//                if (song.getID().equals(sharedPreferences
 //                        .getString(currentSongIDKey, "")))
 //                    s = song;
 //        }
 //        else s = null;
-        return new SongDatabaseHelper(context)
+        return new DatabaseHelper(context)
                 .getCurrentSong(sharedPreferences
                         .getLong(currentSongIDKey, -1));
     }

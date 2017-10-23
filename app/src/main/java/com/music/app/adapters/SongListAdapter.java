@@ -27,15 +27,19 @@ import com.music.app.interfaces.ListItem;
 import com.music.app.interfaces.SongListAdapterListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
+import com.music.app.objects.Playlist;
 import com.music.app.objects.Song;
 import com.music.app.objects.Sorter;
 import com.music.app.utils.Dialoger;
+import com.music.app.utils.PlaylistManager;
 import com.music.app.views.Notice;
 import com.wooplr.spotlight.SpotlightView;
 import com.wooplr.spotlight.utils.SpotlightListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class SongListAdapter extends BaseAdapter implements ListItem.SongListItemListener
@@ -60,7 +64,10 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
     private boolean alternateBackgroundColor = true,
                     inMultiQueueMode = false,
                     inSortMode = false,
-                    inSelectionMode = false;
+                    inSelectionMode = false,
+                    isUsedInPlaylists = false;
+
+    private Playlist currentPlaylist;
 
     private SongListAdapterListener listener;
     private FragmentManager fragmentManager;
@@ -159,9 +166,11 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
         }
     }
 
-    public void doNotAlternateBackgroundColor()
+    public void setUsedInPlaylists(Playlist playlist)
     {
         alternateBackgroundColor = false;
+        isUsedInPlaylists = true;
+        currentPlaylist = playlist;
     }
 
     private Song getSongByIndex(int index)
@@ -243,7 +252,10 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
                     (index, alternateBackgroundColor, itemIsSelected(index));
         }
         else
-            player.startSong(song, true);
+        {
+            if(!isUsedInPlaylists) player.startSong(song, true);
+            else player.startSongFromPlaylist(song, currentPlaylist);
+        }
     }
 
     @Override
@@ -288,7 +300,8 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
                                 .enableDismissAfterShown(true)
                                 .performClick(true)
                                 .target(((Activity) songList.getContext()).findViewById(R.id.action_button))
-                                .usageId(String.valueOf(UUID.randomUUID()))
+                                .usageId
+                                        (String.valueOf(UUID.randomUUID()))
                                 .setListener(new SpotlightListener()
                                 {
                                     @Override
@@ -312,7 +325,7 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
     public void queue(int index)
     {
         Song song = getSongByIndex(index);
-        player.queue().queue(song.getId());
+        player.queue().queue(song.getID(), false, songList.getContext());
 
         Notice notice = new Notice(songList.getContext());
         notice.setNoticeText(song.getTitle() + " queued");
@@ -326,7 +339,7 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
         if(data.currentSongIsNotNull())
         {
             Song song = getSongByIndex(index);
-            player.queue().playNext(song.getId());
+            player.queue().queue(song.getID(), true, songList.getContext());
 
             Notice notice = new Notice(songList.getContext());
             notice.setNoticeText(song.getTitle() + " to play next");
@@ -423,6 +436,9 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
+
+            toggleOptions(index, true, false);
+
             switch(which)
             {
                 case 0:
@@ -430,7 +446,6 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
                     break;
                 case 1:
 //                    viewHolder.checkIfOpen(false, false);
-                    toggleOptions(index, true, false);
                     fragmentManager.songDetails(song);
                     break;
                 case 2:
@@ -444,16 +459,15 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
             }
         };
 
-        String title = "More Options";
-        Dialoger.createDialog
+        Dialoger.createListDialog
         (
             songList.getContext(),
-            title,
+            song.getTitle(),
             R.array.options_more_texts, listener
         );
     }
 
-    private void addTo(Song song)
+    private void addTo(final Song song)
     {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
         {
@@ -463,17 +477,17 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
             switch(which)
             {
                 case 0:
-                    //TODO: Add action (Playlist...)
+                    addToPlaylist(song);
                     break;
                 case 1:
-                    //TODO: Add action (New Playlist)
+//                    addToNewPlaylist(song);
                     break;
             }
             }
         };
 
         String title = "Add \"" + song.getTitle() + "\" to...";
-        Dialoger.createDialog
+        Dialoger.createListDialog
         (
             songList.getContext(),
             title,
@@ -481,6 +495,143 @@ public class SongListAdapter extends BaseAdapter implements ListItem.SongListIte
             listener
         );
     }
+
+    private void addToPlaylist(final Song song)
+    {
+        final List<Long> playlistIDs = new ArrayList<>();
+        final Map<Long, String> playlists = PlaylistManager.getPlaylists(songList.getContext());
+        int playlistCount = playlists.size();
+        if(playlistCount != -1)
+            for(Map.Entry<Long, String> playlist : playlists.entrySet())
+                playlistIDs.add(playlist.getKey());
+
+        Dialoger.getDialogBuilder(songList.getContext())
+                .setTitle("Add " + song.getTitle() + " to...")
+                .setItems(playlists.values().toArray(new String[playlists.size()]),
+                new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which)
+                    {
+                        long playlistID = playlistIDs.get(which);
+                        int trackCount = PlaylistManager.getPlaylistMembers
+                                (songList.getContext(), playlistID).size();
+                        PlaylistManager.addToPlaylist
+                                (songList.getContext(), playlistID, song.getID(), trackCount);
+                    }
+                })
+                .show();
+    }
+
+//    private void addToNewPlaylist(final Song song)
+//    {
+//        final List<String> playlistsList = new ArrayList<>();
+//        final SharedPreferences playlists = songList.getContext().getSharedPreferences
+//                ("Playlists", Context.MODE_PRIVATE);
+//
+//        final int playlistCount = playlists.getInt("playlistCount", -1);
+//        if(playlistCount != -1)
+//        {
+//            for (int i = 0; i < playlistCount; i++)
+//            {
+//                String playlistName = playlists.getString(String.valueOf(i), "");
+//                if(!playlistName.equals(""))
+//                {
+//                    playlistsList.add(playlistName);
+//                    notifyDataSetChanged();
+//                }
+//            }
+//        }
+//
+//        @SuppressLint("InflateParams")
+//        View dialogLayout = LayoutInflater.from(songList.getContext())
+//                .inflate(R.layout.create_new_playlist_dialog, null);
+//        final TextInputLayout playlistName = (TextInputLayout)
+//                dialogLayout.findViewById(R.id.playlist_name);
+//
+//        final AlertDialog dialog = Dialoger.getDialogBuilder(songList.getContext())
+//                .setView(dialogLayout)
+//                .setPositiveButton("Create", null)
+//                .setNegativeButton("Cancel", null)
+//                .create();
+//
+//        dialog.setOnShowListener(new DialogInterface.OnShowListener()
+//        {
+//            @Override
+//            public void onShow(DialogInterface dialogInterface)
+//            {
+//        ((AlertDialog) dialogInterface).getButton(AlertDialog.BUTTON_POSITIVE)
+//            .setOnClickListener(new View.OnClickListener()
+//            {
+//                @Override
+//                public void onClick(View view)
+//                {
+//                    final String input = playlistName.getEditText().getText().toString();
+//                    if(input.equals("")) dialogInputError(playlistName);
+//                    else
+//                    {
+//                        SharedPreferences playlist = songList.getContext()
+//                                .getSharedPreferences(input, Context.MODE_PRIVATE);
+//                        List<Long> songIDs = new ArrayList<>();
+//                        int trackCount = playlist.getInt(Playlist.playlistTrackCountKey, -1);
+//                        if(trackCount != -1)
+//                        {
+//                            for (int i = 0; i < trackCount; i++)
+//                            {
+//                                long id = playlist.getLong(String.valueOf(i), 0);
+//                                if(id != 0) songIDs.add(id);
+//                            }
+//                        }
+//
+//                        songIDs.add(song.getID());
+//                        new Playlist(input, songIDs, songList.getContext());
+//
+//                        playlistsList.add(0, input);
+//
+//                        SharedPreferences.Editor editor = playlists.edit();
+//                        for (int i = 0; i < playlistsList.size(); i++)
+//                            editor.putString(String.valueOf(i), playlistsList.get(i));
+//
+//                        editor.putInt("playlistCount", playlistsList.size());
+//                        editor.apply();
+//
+//                        dialog.dismiss();
+//
+//                        Notice notice = new Notice(songList.getContext());
+//                        notice.setNoticeText("Added " + song.getTitle() + " to " + playlistName);
+//                        notice.show();
+//                    }
+//                }
+//            });
+//            }
+//        });
+//        dialog.show();
+//    }
+//
+//    private void dialogInputError(TextInputLayout playlistName)
+//    {
+//        final EditText editText = playlistName.getEditText();
+//        Drawable icon = ResourcesCompat.getDrawable(songList.getResources(),
+//                R.drawable.error_24dp, null);
+//        icon.setBounds(0, 0, icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
+//        editText.setError("Please enter a name for the playlist", icon);
+//        editText.addTextChangedListener(new TextWatcher()
+//        {
+//            @Override
+//            public void beforeTextChanged
+//                    (CharSequence sequence, int i, int i1, int i2) {}
+//
+//            @Override
+//            public void onTextChanged
+//                    (CharSequence sequence, int i, int i1, int i2) {}
+//
+//            @Override
+//            public void afterTextChanged(Editable editable)
+//            {
+//                editText.setError(null);
+//            }
+//        });
+//    }
 
     private void delete(final int index, Song song)
     {

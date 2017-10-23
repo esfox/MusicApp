@@ -30,8 +30,14 @@
                   android:theme="@style/AppTheme.NoActionBar"
                   android:screenOrientation="portrait"/>
 
-        <service
-            android:name=".objects.Player"/>
+        <service android:name=".objects.Player"/>
+
+        <receiver android:name=".utils.RemoteControlReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+            </intent-filter>
+        </receiver>
+                <!--<action  android:name="android.media.AUDIO_BECOMING_NOISY"/>-->
 
     </application>
 

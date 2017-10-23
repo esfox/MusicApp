@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.music.app.R;
 import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.objects.Data;
@@ -28,8 +27,6 @@ import com.music.app.utils.UIManager;
 import com.music.app.views.ScrollingTextView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
-
-import java.io.File;
 
 public class NowPlayingFragment extends Fragment implements
         View.OnClickListener,
@@ -89,7 +86,7 @@ public class NowPlayingFragment extends Fragment implements
                 uiManager.fragmentManager().popBackStack();
             }
         });
-        header.inflateMenu(R.menu.menu_now_playing);
+        header.inflateMenu(R.menu.now_playing_menu);
         header.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener()
         {
             @Override
@@ -99,6 +96,10 @@ public class NowPlayingFragment extends Fragment implements
                 {
                     case R.id.action_play_queue:
                         uiManager.fragmentManager().queue();
+                        break;
+
+                    case R.id.action_equalizer:
+                        uiManager.openEqualizer();
                         break;
                 }
                 return false;

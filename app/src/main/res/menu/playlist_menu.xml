@@ -6,7 +6,7 @@
     <item
         android:id="@+id/playlist_action_sort"
         android:title="Item"
-        android:icon="@drawable/sort_36dp"
+        android:icon="@drawable/sort_24dp"
         android:orderInCategory="100"
         app:showAsAction="always"
         tools:ignore="HardcodedText"/>

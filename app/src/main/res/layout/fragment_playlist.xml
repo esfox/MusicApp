@@ -5,6 +5,7 @@
                 android:background="@color/background_material"
                 xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
     <com.mobeta.android.dslv.DragSortListView
         android:id="@+id/playlist_view"
         android:layout_width="match_parent"
@@ -47,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/background_primary"
+        android:background="@color/colorPrimary"
         app:titleTextAppearance="?android:attr/textAppearanceLarge"/>
 
     <View

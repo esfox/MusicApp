@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.audiofx.Equalizer;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
@@ -45,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
     private Queue queue;
     private Data data;
 
-    private UIManager uiManager;
     private FragmentManager fragmentManager;
 
     private Intent serviceIntent;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
             player = binder.getService();
             player.initialize(serviceIntent, data, queue);
 
-            uiManager = new UIManager(MainActivity.this);
+            UIManager uiManager = new UIManager(MainActivity.this);
             uiManager.initUI
                 (
                     MainActivity.this,
@@ -143,6 +143,9 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
 //                }, 2562);
 //        }
 
+//        Dialoger.createAlertDialog
+//                (this, "Playlists & Members", PlaylistManager.getPlaylists(this), null);
+
         data = new Data(MainActivity.this);
         new AudioScanner(MainActivity.this, MainActivity.this, data).scanAudio();
 
@@ -150,7 +153,6 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
         serviceIntent = new Intent(MainActivity.this, Player.class);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
 
-        //Scan audio
 //        temp();
     }
 
@@ -174,8 +176,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
 
         try
         {
-            queue.save(this);
-            data.updateCurrentSong(data.currentSong().getId());
+            data.updateCurrentSong(data.currentSong().getID());
             data.updateCurrentTime(player.getPlayer().getCurrentPosition());
             data.updateCurrentSongIsNotNull(data.currentSongIsNotNull());
         }
@@ -187,9 +188,20 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
     @Override
     protected void onDestroy()
     {
-        super.onDestroy();
+        if(player != null)
+            player.toggleTimeUpdater(false);
+
+        try
+        {
+            data.updateCurrentSong(data.currentSong().getID());
+            data.updateCurrentTime(player.getPlayer().getCurrentPosition());
+            data.updateCurrentSongIsNotNull(data.currentSongIsNotNull());
+        }
+        catch (Exception ignored) {}
+
         stopService(serviceIntent);
         unbindService(connection);
+        super.onDestroy();
     }
 
     //    private void temp()
@@ -236,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
     public void onScanComplete(ArrayList<Song> songs)
     {
         data.setSongs(songs);
+        queue.setDefaultIDs();
 
         if(data.queueIsSaved())
             queue.load(this);
@@ -243,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
         {
             long[] ids = new long[songs.size()];
             for(int i = 0; i < ids.length; i++)
-                ids[i] = songs.get(i).getId();
+                ids[i] = songs.get(i).getID();
 
             queue.initialize(ids);
         }
@@ -288,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements AudioScannerListe
             return super.onKeyDown(keyCode, event);
     }
 
-//    @Override
+    //    @Override
 //    public void onBackPressed()
 //    {
 //        super.onBackPressed();

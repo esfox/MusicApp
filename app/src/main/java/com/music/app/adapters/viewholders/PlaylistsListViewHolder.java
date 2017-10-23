@@ -1,13 +1,18 @@
 package com.music.app.adapters.viewholders;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.music.app.R;
 import com.music.app.interfaces.ListItem;
+import com.music.app.objects.Data;
 import com.music.app.objects.Playlist;
+import com.music.app.objects.Song;
+
+import java.util.ArrayList;
 
 public class PlaylistsListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
 {
@@ -19,9 +24,10 @@ public class PlaylistsListViewHolder extends RecyclerView.ViewHolder implements 
     {
         super(itemView);
         itemView.setOnClickListener(this);
+        findView(R.id.playlist_list_item_options).setOnClickListener(this);
 
         name = (TextView) findView(R.id.playlists_list_item_name);
-        tracksCount = (TextView) findView(R.id.playlist_item_tracks_count);
+        tracksCount = (TextView) findView(R.id.playlist_list_item_tracks_count);
         covers = new ImageView[]
         {
             (ImageView) findView(R.id.playlists_list_item_cover_1),
@@ -42,21 +48,37 @@ public class PlaylistsListViewHolder extends RecyclerView.ViewHolder implements 
     @Override
     public void onClick(View v)
     {
-        listener.onGotoPlaylist(getAdapterPosition());
+        switch(v.getId())
+        {
+            case R.id.playlist_list_item_options:
+                listener.onOptions(getAdapterPosition(), v);
+                break;
+
+            default:
+                listener.onGotoPlaylist(getAdapterPosition());
+                break;
+        }
     }
 
-    public void bind(Playlist playlist)
+    public void bind(Playlist playlist, Data data)
     {
         name.setText(playlist.getName());
-        int trackCount = playlist.getTempSongs().length;
-        tracksCount.setText(trackCount + ((trackCount > 1)? " tracks" : " track"));
+
+        long[] songIDs = playlist.getSongs();
+        int trackCount = songIDs.length;
+        tracksCount.setText(trackCount + ((trackCount != 1)? " tracks" : " track"));
+
+        Log.d("trackCount", String.valueOf(trackCount));
+
+        ArrayList<Song> songs = data.songs();
 
         if(trackCount >= 5)
         {
             for (int i = 0; i < 5; i++)
             {
                 covers[i].setVisibility((i <= trackCount)? View.VISIBLE : View.GONE);
-                covers[i].setImageDrawable(playlist.getTempSongs()[i].getCover());
+                covers[i].setImageDrawable
+                        (Song.getSongByID(songIDs[i], songs).getCover());
             }
         }
         else
@@ -64,13 +86,14 @@ public class PlaylistsListViewHolder extends RecyclerView.ViewHolder implements 
             for (int i = 0; i < trackCount; i++)
             {
                 covers[i].setVisibility((i <= trackCount)? View.VISIBLE : View.GONE);
-                covers[i].setImageDrawable(playlist.getTempSongs()[i].getCover());
+                covers[i].setImageDrawable
+                        (Song.getSongByID(songIDs[i], songs).getCover());
             }
         }
 
-//            Glide.with(itemView.getContext())
-//                    .load(playlist.getTempCovers()[i])
-//                    .placeholder(R.drawable.album_art_placeholder)
-//                    .into(covers[i]);
+//        Glide.with(itemView.getContext())
+//                .load(playlist.getTempCovers()[i])
+//                .placeholder(R.drawable.album_art_placeholder)
+//                .into(covers[i]);
     }
 }

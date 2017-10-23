@@ -1,10 +1,8 @@
 package com.music.app.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.HandlerThread;
 import android.support.v4.content.res.ResourcesCompat;
 
 import com.bumptech.glide.Glide;
@@ -13,7 +11,6 @@ import com.music.app.interfaces.CurrentAlbumArtScannerListener;
 import com.music.app.objects.Song;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 
 class CurrentAlbumArtScanner extends AsyncTask<Object, Drawable, Drawable>
 {

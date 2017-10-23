@@ -3,8 +3,10 @@ package com.music.app.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.media.audiofx.AudioEffect;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.NavigationView;
@@ -28,6 +30,7 @@ import com.music.app.interfaces.UIUpdatesListener;
 import com.music.app.objects.Data;
 import com.music.app.objects.Player;
 import com.music.app.objects.Song;
+import com.music.app.views.Notice;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -41,7 +44,7 @@ public class UIManager implements
         View.OnClickListener,
         View.OnLongClickListener
 {
-    private Activity views;
+    private Activity activity;
     private Data data;
     private Player player;
 
@@ -62,7 +65,7 @@ public class UIManager implements
 
     public UIManager(Activity activity)
     {
-        views = activity;
+        this.activity = activity;
     }
 
     public FragmentManager fragmentManager() { return fragmentManager; }
@@ -73,7 +76,7 @@ public class UIManager implements
             song = data.currentSong();
 
         if(data.currentAlbumArt() == null)
-            new CurrentAlbumArtScanner(this).execute(views, song);
+            new CurrentAlbumArtScanner(this).execute(activity, song);
     }
 
     public void initUI(Context context, Data data, Player player)
@@ -87,23 +90,23 @@ public class UIManager implements
         UIUpdatesListeners = fragmentManager.getUIUpdatesListeners();
 
         //Initialize App Bar
-        appBarTitle = (TextView) views.findViewById(R.id.toolbar_title);
-        appBarIcon = (ImageView) views.findViewById(R.id.toolbar_icon);
+        appBarTitle = (TextView) activity.findViewById(R.id.toolbar_title);
+        appBarIcon = (ImageView) activity.findViewById(R.id.toolbar_icon);
 
         //Initialize Now Playing Bar
-        title = (TextView) views.findViewById(R.id.now_playing_bar_title);
-        artist = (TextView) views.findViewById(R.id.now_playing_bar_artist);
-        cover = (ImageView)  views.findViewById(R.id.now_playing_bar_cover);
+        title = (TextView) activity.findViewById(R.id.now_playing_bar_title);
+        artist = (TextView) activity.findViewById(R.id.now_playing_bar_artist);
+        cover = (ImageView)  activity.findViewById(R.id.now_playing_bar_cover);
         currentTime = (TextView)
-                views.findViewById(R.id.now_playing_bar_current_time);
+                activity.findViewById(R.id.now_playing_bar_current_time);
         updateNowPlayingBar();
 
-        playButton = (ImageButton) views.findViewById(R.id.play_button);
-        shuffle = (ImageButton) views.findViewById(R.id.shuffle);
-        repeat = (ImageButton) views.findViewById(R.id.repeat);
-        actionButton = (ImageButton) views.findViewById(R.id.action_button);
-        seekBarLayout = views.findViewById(R.id.seekbar_layout);
-        seekBar = (DiscreteSeekBar) views.findViewById(R.id.seekbar);
+        playButton = (ImageButton) activity.findViewById(R.id.play_button);
+        shuffle = (ImageButton) activity.findViewById(R.id.shuffle);
+        repeat = (ImageButton) activity.findViewById(R.id.repeat);
+        actionButton = (ImageButton) activity.findViewById(R.id.action_button);
+        seekBarLayout = activity.findViewById(R.id.seekbar_layout);
+        seekBar = (DiscreteSeekBar) activity.findViewById(R.id.seekbar);
         updateNowPlayingBarFunctionButton(R.id.navigation_drawer_songs);
         initializeSeekbar();
 
@@ -112,9 +115,9 @@ public class UIManager implements
 
         //Initialize Navigation Drawer
         navigationDrawer = ((NavigationView)
-                views.findViewById(R.id.navigation_drawer));
+                activity.findViewById(R.id.navigation_drawer));
         navigationDrawer.setItemIconTintList(null);
-        navigationDrawer.setTag(views.findViewById(R.id.drawer_layout));
+        navigationDrawer.setTag(activity.findViewById(R.id.drawer_layout));
 
         updateNavigationDrawer();
 
@@ -128,15 +131,15 @@ public class UIManager implements
         playButton.setOnClickListener(this);
         playButton.setOnLongClickListener(this);
 
-        View nextButton = views.findViewById(R.id.next_button);
-        View previousButton = views.findViewById(R.id.previous_button);
+        View nextButton = activity.findViewById(R.id.next_button);
+        View previousButton = activity.findViewById(R.id.previous_button);
         nextButton.setOnClickListener(this);
         nextButton.setOnLongClickListener(this);
         previousButton.setOnClickListener(this);
         previousButton.setOnLongClickListener(this);
 
-        //        View scrubForward = views.findViewById(R.id.scrub_forward_button);
-//        View scrubBackward = views.findViewById(R.id.scrub_backward_button);
+        //        View scrubForward = activity.findViewById(R.id.scrub_forward_button);
+//        View scrubBackward = activity.findViewById(R.id.scrub_backward_button);
 //        scrubForward.setOnClickListener(onClickListener);
 //        scrubForward.setOnLongClickListener(onLongClickListener);
 //        scrubBackward.setOnClickListener(onClickListener);
@@ -145,16 +148,16 @@ public class UIManager implements
         shuffle.setOnClickListener(this);
         repeat.setOnClickListener(this);
 
-        views.findViewById(R.id.no_function_yet).setOnClickListener(this);
-        views.findViewById(R.id.close_seekbar).setOnClickListener(this);
+        activity.findViewById(R.id.no_function_yet).setOnClickListener(this);
+        activity.findViewById(R.id.close_seekbar).setOnClickListener(this);
 
-        views.findViewById(R.id.toolbar_icon).setOnClickListener(this);
-        views.findViewById(R.id.toolbar_menu).setOnClickListener(this);
-//        views.findViewById(R.id.toolbar_sort).setOnClickListener(this);
+        activity.findViewById(R.id.toolbar_icon).setOnClickListener(this);
+        activity.findViewById(R.id.toolbar_menu).setOnClickListener(this);
+//        activity.findViewById(R.id.toolbar_sort).setOnClickListener(this);
 
-        views.findViewById(R.id.now_playing_bar).setOnClickListener(this);
+        activity.findViewById(R.id.now_playing_bar).setOnClickListener(this);
         actionButton.setOnClickListener(this);
-        views.findViewById(R.id.no_function_yet).setOnClickListener(this);
+        activity.findViewById(R.id.no_function_yet).setOnClickListener(this);
     }
 
     @Override
@@ -197,9 +200,9 @@ public class UIManager implements
                 break;
 
             case R.id.no_function_yet:
-//                Notice notice = new Notice(views);
-//                notice.setNoticeText("This button has no use yet.");
-//                notice.show();
+                Notice notice = new Notice(activity);
+                notice.setNoticeText("This button has no use yet.");
+                notice.show();
                 break;
 
             case R.id.close_seekbar:
@@ -301,8 +304,8 @@ public class UIManager implements
         updateNowPlayingBar();
 
         //TODO: More efficient current art loading
-//        new CurrentAlbumArtScanner(new WeakReference<>(views), this, song);
-        new CurrentAlbumArtScanner(this).execute(views, song);
+//        new CurrentAlbumArtScanner(new WeakReference<>(activity), this, song);
+        new CurrentAlbumArtScanner(this).execute(activity, song);
     }
 
     @Override public void onPlayOrPause() { togglePlayButtonIcon(); }
@@ -355,7 +358,7 @@ public class UIManager implements
                 cover.setImageDrawable(song.getCover());
             else
                 if(song.getCoverPath() != null)
-                    Glide.with(views)
+                    Glide.with(activity)
                         .load(new File(song.getCoverPath()))
                         .placeholder(R.drawable.album_art_placeholder)
                         .error(R.drawable.album_art_placeholder)
@@ -515,6 +518,23 @@ public class UIManager implements
 //        dialog.show();
 //    }
 
+    public void openEqualizer()
+    {
+        Intent openEqualizer = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
+        openEqualizer.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, activity.getPackageName());
+        openEqualizer.putExtra
+                (AudioEffect.EXTRA_AUDIO_SESSION, player.getPlayer().getAudioSessionId());
+
+        if(openEqualizer.resolveActivity(activity.getPackageManager()) != null)
+            activity.startActivityForResult(openEqualizer, 100);
+        else
+        {
+            Notice notice = new Notice(activity);
+            notice.setNoticeText("There is no built-in equalizer.");
+            notice.show();
+        }
+    }
+
     private void updateCurrentTime(int time)
     {
         currentTime.setText(Timestamper.getTimestamp(time));
@@ -535,14 +555,14 @@ public class UIManager implements
         if(data.isShuffled())
             shuffle.setColorFilter
                 (
-                    ContextCompat.getColor(views,
+                    ContextCompat.getColor(activity,
                             R.color.toggle_on),
                     PorterDuff.Mode.SRC_ATOP
                 );
         else
             shuffle.setColorFilter
                 (
-                    ContextCompat.getColor(views,
+                    ContextCompat.getColor(activity,
                             R.color.toggle_off),
                     PorterDuff.Mode.SRC_ATOP
                 );
@@ -554,18 +574,18 @@ public class UIManager implements
         {
             case OFF:
                 repeat.setImageResource(R.drawable.repeat_24dp);
-                repeat.setColorFilter(ContextCompat.getColor(views, R.color.toggle_off),
+                repeat.setColorFilter(ContextCompat.getColor(activity, R.color.toggle_off),
                         PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ALL:
-                repeat.setColorFilter(ContextCompat.getColor(views, R.color.toggle_on),
+                repeat.setColorFilter(ContextCompat.getColor(activity, R.color.toggle_on),
                         PorterDuff.Mode.SRC_ATOP);
                 break;
 
             case ONE:
                 repeat.setImageResource(R.drawable.repeat_one_24dp);
-                repeat.setColorFilter(ContextCompat.getColor(views, R.color.toggle_on),
+                repeat.setColorFilter(ContextCompat.getColor(activity, R.color.toggle_on),
                         PorterDuff.Mode.SRC_ATOP);
                 break;
         }
@@ -581,6 +601,7 @@ public class UIManager implements
             public void run()
             {
                 fragmentManager.updateNowPlayingCover();
+                player.showNotification();
             }
         });
     }
@@ -618,13 +639,13 @@ public class UIManager implements
 //            {
 //                if(mBooleanIsPressed[0])
 //                {
-//                    ((ViewStub) views.findViewById(R.id.lol)).inflate();
+//                    ((ViewStub) activity.findViewById(R.id.lol)).inflate();
 //                    new Handler().postDelayed(new Runnable()
 //                    {
 //                        @Override
 //                        public void run()
 //                        {
-//                            AlertDialog.Builder builder = Dialoger.getDialogBuilder(views);
+//                            AlertDialog.Builder builder = Dialoger.getDialogBuilder(activity);
 //                            builder.setMessage("WHAT DID YOU DO?");
 //                            builder.setPositiveButton("I didn't do anything!",
 //                                    new DialogInterface.OnClickListener()

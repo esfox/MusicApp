@@ -4,21 +4,34 @@ package com.music.app.objects;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.audiofx.AudioEffect;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.widget.RemoteViews;
 
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.music.app.R;
 import com.music.app.interfaces.AudioListener;
+import com.music.app.interfaces.RemoteControlReceiverListener;
+import com.music.app.utils.RemoteControlReceiver;
 import com.music.app.utils.TimeUpdater;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
-public class Player extends Service
+public class Player extends Service implements RemoteControlReceiverListener
 {
     private Intent intent;
     private IBinder binder = new ServiceBinder();
@@ -57,7 +70,7 @@ public class Player extends Service
         this.data = data;
         this.queue = queue;
 
-        if(data.currentSongIsNotNull())
+        if (data.currentSongIsNotNull())
             data.setCurrentSong(data.getCurrentSongFromDB(this));
     }
 
@@ -69,26 +82,38 @@ public class Player extends Service
 
     public void startSong(Song song, boolean fromUser)
     {
-        if(!data.currentSongIsNotNull())
+        if (!data.currentSongIsNotNull())
             data.updateCurrentSongIsNotNull(true);
 
         resumed = false;
         currentSong = song;
 //        if(stopService(intent))
-            startService(intent);
-        updateCurrentSong(song, fromUser);
+        startService(intent);
+        data.setCurrentSong(song);
+        if (fromUser) queue.newSong(song.getID());
 
         audioListener.updateUI(Event.onStartAudio);
-
         timeUpdater.restart();
+
+        queue.save(this);
     }
 
-    private void updateCurrentSong(Song song, boolean fromUser)
+    public void startSongFromPlaylist(Song song, Playlist playlist)
     {
-        data.setCurrentSong(song);
+        if (!data.currentSongIsNotNull())
+            data.updateCurrentSongIsNotNull(true);
 
-        if(fromUser)
-            queue.newSong(song.getId());
+        resumed = false;
+        currentSong = song;
+//        if(stopService(intent))
+        startService(intent);
+        data.setCurrentSong(song);
+        queue.newSongFromPlaylist(song.getID(), playlist);
+
+        audioListener.updateUI(Event.onStartAudio);
+        timeUpdater.restart();
+
+        queue.save(this);
     }
 
     public void resumeSong()
@@ -96,18 +121,20 @@ public class Player extends Service
         resumed = true;
         currentSong = data.currentSong();
         startService(intent);
-        updateCurrentSong(currentSong, false);
+        data.setCurrentSong(currentSong);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        if(data.currentSongIsNotNull())
+        if (data.currentSongIsNotNull())
         {
             try
             {
                 player.reset();
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                startMediaSession();
+
                 player.setDataSource(currentSong.getPath());
                 player.prepare();
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
@@ -119,30 +146,21 @@ public class Player extends Service
                     }
                 });
 
-                if(resumed)
+                if (resumed)
                 {
                     long currentTime = data.currentTime();
-                    if(currentTime != -1)
+                    if (currentTime != -1)
                         player.seekTo((int) currentTime);
-                }
-                else
+                } else
                     start(false);
+
             }
             catch (IOException e)
             {
                 e.printStackTrace();
             }
 
-            final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setContentTitle(currentSong.getTitle())
-                    .setContentText(currentSong.getArtist())
-                    .setSmallIcon(R.drawable.play_36dp)
-                    .setOngoing(true);
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
-                builder.setPriority(Notification.PRIORITY_MAX);
-
-            startForeground(1, builder.build());
+            showNotification();
         }
 
         return START_NOT_STICKY;
@@ -158,7 +176,7 @@ public class Player extends Service
     @Override
     public boolean onUnbind(Intent intent)
     {
-        if(player != null)
+        if (player != null)
         {
             player.stop();
             player.release();
@@ -168,17 +186,112 @@ public class Player extends Service
         return super.onUnbind(intent);
     }
 
+    private void startMediaSession()
+    {
+        Intent openAudioEffect = new Intent
+                (AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
+        openAudioEffect.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, getPackageName());
+        openAudioEffect.putExtra
+                (AudioEffect.EXTRA_AUDIO_SESSION, player.getAudioSessionId());
+        sendBroadcast(openAudioEffect);
+
+        ComponentName mediaButtonReceiver = new ComponentName(this, RemoteControlReceiver.class);
+        MediaSessionCompat mediaSession = new MediaSessionCompat
+                (this, "MediaSession", mediaButtonReceiver, null);
+
+        mediaSession.setFlags
+                (
+                    MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+                );
+        mediaSession.setActive(true);
+
+        RemoteControlReceiver.setRemoteControlReceiverListener(this);
+    }
+
+    //TODO: Expanded RemoteView with cancel button
+    public void showNotification()
+    {
+        int playPauseIcon = player.isPlaying() ? R.drawable.pause_24dp : R.drawable.play_24dp;
+
+        RemoteViews notificationControls = new RemoteViews
+                (getPackageName(), R.layout.notification_controls);
+
+        notificationControls.setOnClickPendingIntent
+                (R.id.notification_controls_play,
+                        MediaButtonReceiver.buildMediaButtonPendingIntent
+                        (this, PlaybackStateCompat.ACTION_PLAY_PAUSE));
+
+        notificationControls.setOnClickPendingIntent
+                (R.id.notification_controls_previous,
+                        MediaButtonReceiver.buildMediaButtonPendingIntent
+                                (this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
+
+        notificationControls.setOnClickPendingIntent
+                (R.id.notification_controls_next,
+                        MediaButtonReceiver.buildMediaButtonPendingIntent
+                                (this, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
+
+        notificationControls.setImageViewResource(R.id.notification_controls_play, playPauseIcon);
+        notificationControls.setTextViewText
+                (R.id.notification_controls_title, currentSong.getTitle());
+        notificationControls.setTextViewText
+                (R.id.notification_controls_artist, currentSong.getArtist());
+
+        Drawable coverDrawable = (currentSong.getCover() != null)?
+                currentSong.getCover() :
+                data.currentAlbumArt();
+
+        if(coverDrawable != null)
+        {
+            Bitmap cover = null;
+            try { cover = ((GlideBitmapDrawable) coverDrawable).getBitmap(); }
+            catch(ClassCastException e) { cover = ((BitmapDrawable) coverDrawable).getBitmap(); }
+            notificationControls.setImageViewBitmap(R.id.notification_controls_cover, cover);
+        }
+
+
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setOngoing(true)
+                .setCustomBigContentView(notificationControls)
+                .setSmallIcon(R.drawable.play_36dp);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
+            builder.setPriority(Notification.PRIORITY_MAX);
+
+        startForeground(1, builder.build());
+    }
+
+    @Override
+    public void onPlayPause()
+    {
+        play();
+    }
+
+    @Override
+    public void onNext()
+    {
+        next();
+    }
+
+    @Override
+    public void onPrevious()
+    {
+        previous();
+    }
+
     public void play()
     {
         start(true);
+        showNotification();
     }
 
     public void start(boolean fromUser)
     {
-        if(data.currentSongIsNotNull())
+        if (data.currentSongIsNotNull())
         {
             boolean isPlaying = player.isPlaying();
-            if(!isPlaying) player.start();
+            if (!isPlaying) player.start();
             else player.pause();
 
             data.updateIsPlaying(!isPlaying);
@@ -186,7 +299,7 @@ public class Player extends Service
 
             audioListener.updateUI(Event.onPlayOrPause);
 
-            if(fromUser)
+            if (fromUser)
                 toggleTimeUpdater(!isPlaying);
         }
     }
@@ -207,12 +320,11 @@ public class Player extends Service
 
     public boolean previous()
     {
-        if(player.getCurrentPosition() > 3000)
+        if (player.getCurrentPosition() > 3000)
         {
             player.seekTo(0);
             return false;
-        }
-        else
+        } else
         {
             change(false, true);
             return true;
@@ -233,11 +345,12 @@ public class Player extends Service
 
     private void change(boolean next, boolean fromUser)
     {
+        ArrayList<Song> songs = data.songs();
         Song song = null;
         if (next)
         {
             if (fromUser)
-                song = getSongByID(queue.update(next));
+                song = Song.getSongByID(queue.update(next), songs);
             else
             {
                 if (data.repeatState() == Data.RepeatState.ONE)
@@ -248,18 +361,18 @@ public class Player extends Service
                     {
                         long nextID = queue.update(next);
                         if (nextID != queue.getQueueList().get(0))
-                            song = getSongByID(nextID);
+                            song = Song.getSongByID(nextID, songs);
                         else
                         {
                             data.updateCurrentQueueIndex(queue.getQueueList().size() - 1);
                             stop();
                         }
                     } else if (data.repeatState() == Data.RepeatState.ALL)
-                        song = getSongByID(queue.update(next));
+                        song = Song.getSongByID(queue.update(next), songs);
                 }
             }
         } else
-            song = getSongByID(queue.update(next));
+            song = Song.getSongByID(queue.update(next), songs);
 
         if (song != null)
             startSong(song, false);
@@ -285,19 +398,10 @@ public class Player extends Service
 
     public void toggleTimeUpdater(boolean toggle)
     {
-        if(toggle)
+        if (toggle)
             timeUpdater.resume();
         else
             timeUpdater.pause();
-    }
-
-    private Song getSongByID(long id)
-    {
-        Song song = null;
-        for(Song s : data.songs())
-            if(s.getId() == id)
-                song = s;
-        return song;
     }
 
     private void onFinish()

@@ -13,7 +13,7 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.music.app.MainActivity;
 import com.music.app.R;
-import com.music.app.database.SongDatabaseHelper;
+import com.music.app.database.DatabaseHelper;
 import com.music.app.interfaces.AudioScannerListener;
 import com.music.app.interfaces.AudioScannerTaskListener;
 import com.music.app.objects.Data;
@@ -303,7 +303,7 @@ public class AudioScanner implements AudioScannerTaskListener
     @Override
     public void storeMedia()
     {
-        SongDatabaseHelper databaseHelper = new SongDatabaseHelper(context);
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
         for (Song song : songs)
             databaseHelper.add(song);
         data.updateStored(true);
@@ -395,12 +395,12 @@ public class AudioScanner implements AudioScannerTaskListener
 
 //    private class BackgroundQuery extends AsyncTask<Void, Void, Void>
 //    {
-//        SongDatabaseHelper sd;
+//        DatabaseHelper sd;
 //
 //        @Override
 //        protected Void doInBackground(Void... params)
 //        {
-//            sd = new SongDatabaseHelper(context);
+//            sd = new DatabaseHelper(context);
 //            songs = sd.getSongs();
 //            return null;
 //        }

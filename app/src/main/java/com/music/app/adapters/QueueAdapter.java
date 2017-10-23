@@ -63,7 +63,7 @@ public class QueueAdapter extends BaseAdapter implements
     {
         player.queue().newSongFromQueue(data.currentQueueIndex(), position);
         data.updateCurrentQueueIndex(position);
-        player.startSong(getSongByID(queue.get(position)), false);
+        player.startSong(Song.getSongByID(queue.get(position), data.songs()), false);
         notifyDataSetChanged();
     }
 
@@ -77,7 +77,7 @@ public class QueueAdapter extends BaseAdapter implements
     @Override
     public Object getItem(int position)
     {
-        return getSongByID(queue.get(position));
+        return Song.getSongByID(queue.get(position), data.songs());
     }
 
     @Override
@@ -90,14 +90,5 @@ public class QueueAdapter extends BaseAdapter implements
     public int getCount()
     {
         return queue.size();
-    }
-
-    private Song getSongByID(long id)
-    {
-        Song song = null;
-        for(Song s : data.songs())
-            if(s.getId() == id)
-                song = s;
-        return song;
     }
 }

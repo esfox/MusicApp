@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:ignore="HardcodedText">
+
+    <item
+        android:id="@+id/action_equalizer"
+        android:title="Equalizer"
+        android:icon="@drawable/equalizer_36dp"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_play_queue"
+        android:title="Play Queue"
+        android:icon="@drawable/all_songs_36dp"
+        android:orderInCategory="200"
+        app:showAsAction="always"/>
+</menu>

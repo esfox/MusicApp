@@ -3,7 +3,7 @@ package com.music.app.utils.asynctasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.music.app.database.SongDatabaseHelper;
+import com.music.app.database.DatabaseHelper;
 import com.music.app.interfaces.AudioScannerTaskListener;
 
 import java.lang.ref.WeakReference;
@@ -11,12 +11,12 @@ import java.lang.ref.WeakReference;
 public class MediaQuery extends AsyncTask<Void, Void, Void>
 {
     private AudioScannerTaskListener listener;
-    private SongDatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
 
     public MediaQuery(WeakReference<Context> context, AudioScannerTaskListener listener)
     {
         this.listener = listener;
-        databaseHelper = new SongDatabaseHelper(context.get());
+        databaseHelper = new DatabaseHelper(context.get());
     }
 
     @Override

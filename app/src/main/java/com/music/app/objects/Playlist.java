@@ -1,21 +1,18 @@
 package com.music.app.objects;
 
+import android.content.Context;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class Playlist
 {
-    private Song[] tempSongs;
-
-    public void setTempSongs(Song[] tempSongs)
+    public void setTempSongs(long[] ids)
     {
-        this.tempSongs = tempSongs;
+        arrayToList(ids);
     }
 
-    public Song[] getTempSongs()
-    {
-        return tempSongs;
-    }
-
+    private long id;
     private String name = "Untitled Playlist";
     private ArrayList<Long> songIDs;
 
@@ -30,25 +27,42 @@ public class Playlist
         this.name = name;
     }
 
-    public Playlist(String name, ArrayList<Long> songIDs)
+    public Playlist(long id, String name)
     {
         initialize();
+        this.id = id;
         this.name = name;
-        this.songIDs = songIDs;
+    }
+
+    public Playlist(long id, String name, List<Long> songIDs)
+    {
+        initialize();
+        this.id = id;
+        this.name = name;
+        this.songIDs.addAll(songIDs);
     }
 
     private void initialize()
     {
+        songIDs = new ArrayList<>();
     }
 
-    public ArrayList<Long> getSongsIDs()
+    public long[] getSongs()
     {
-        return songIDs;
+        if(!songIDs.isEmpty())
+        {
+            long[] ids = new long[songIDs.size()];
+            for (int i = 0; i < ids.length; i++)
+                ids[i] = songIDs.get(i);
+
+            return ids;
+        }
+        else return new long[0];
     }
 
-    public void rename(String name)
+    public long getID()
     {
-        this.name = name;
+        return id;
     }
 
     public String getName()
@@ -56,28 +70,46 @@ public class Playlist
         return name;
     }
 
-    public void add(Long songID)
+    public void rename(String name)
+    {
+        this.name = name;
+    }
+
+    public void add(long songID, Context context)
     {
         songIDs.add(songID);
+//        save(context);
     }
 
     public void remove(Song song)
     {
-        songIDs.remove(songIDs.indexOf(song));
-    }
-
-    public void addMany(ArrayList<Long> songIDs)
-    {
-        this.songIDs.addAll(songIDs);
-    }
-
-    public void removeMany(ArrayList<Long> songIDs)
-    {
-        this.songIDs.removeAll(songIDs);
+        songIDs.remove(songIDs.indexOf(song.getID()));
     }
 
     public void delete()
     {
         songIDs = new ArrayList<>();
     }
+
+    private void arrayToList(long[] ids)
+    {
+        for(long id : ids) songIDs.add(id);
+    }
+
+    public static final String playlistTrackCountKey = "trackCount";
+
+//    private void save(Context context)
+//    {
+//        SharedPreferences.Editor editor = context.getSharedPreferences
+//                (name, Context.MODE_PRIVATE).edit();
+//
+//        for(int i = 0; i < songIDs.size(); i++)
+//        {
+//            Log.d("id", String.valueOf(songIDs.get(i)));
+//            editor.putLong(String.valueOf(i), songIDs.get(i));
+//        }
+//
+//        editor.putInt(playlistTrackCountKey, songIDs.size());
+//        editor.apply();
+//    }
 }

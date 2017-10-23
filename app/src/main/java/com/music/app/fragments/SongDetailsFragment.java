@@ -32,8 +32,11 @@ public class SongDetailsFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        Glide.with(getContext()).load(new File(song.getCoverPath()))
-                .into(((ImageView) getView().findViewById(R.id.album_cover)));
+        try
+        {
+            Glide.with(getContext()).load(new File(song.getCoverPath()))
+                    .into(((ImageView) getView().findViewById(R.id.album_cover)));
+        } catch (Exception ignored) {}
         ((TextView) getView().findViewById(R.id.queue_item_title)).setText(song.getTitle());
         ((TextView) getView().findViewById(R.id.queue_item_artist)).setText(song.getArtist());
         ((TextView) getView().findViewById(R.id.album_artist)).setText(song.getAlbumArtist());

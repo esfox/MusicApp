@@ -1,6 +1,9 @@
 package com.music.app.objects;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
+
+import java.util.ArrayList;
 
 public class Song
 {
@@ -20,7 +23,7 @@ public class Song
 
     public Song() {}
 
-    public Long getId() { return id; }
+    public Long getID() { return id; }
     public String getPath() { return path; }
     public String getFilename() { return filename; }
     public String getTitle() { return title; }
@@ -47,4 +50,16 @@ public class Song
     public void setAlbumID(Long albumID) { this.albumID = albumID; }
     public void setCover(Drawable cover) { this.cover = cover; }
     public void setCoverPath(String coverPath) { this.coverPath = coverPath; }
+
+    public static Song getSongByID(long id, ArrayList<Song> songs)
+    {
+        Song song = null;
+        for(Song s : songs)
+            if(s.getID() == id)
+            {
+                song = s;
+                break;
+            }
+        return song;
+    }
 }

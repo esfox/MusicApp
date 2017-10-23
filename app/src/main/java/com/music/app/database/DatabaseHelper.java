@@ -10,11 +10,11 @@ import com.music.app.objects.Song;
 
 import java.util.ArrayList;
 
-public class SongDatabaseHelper extends SQLiteOpenHelper
+public class DatabaseHelper extends SQLiteOpenHelper
 {
     private static final int DATABASE_VERSION = 1;
 
-    public SongDatabaseHelper(Context pContext)
+    public DatabaseHelper(Context pContext)
     {
         super(pContext, DB.DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -29,14 +29,14 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
         this.getWritableDatabase()
                 .update(DB.SONG_TABLE, getContentValues(song),
                         DB.SONG_ID + " = ?",
-                        new String[] {String.valueOf(song.getId())});
+                        new String[] {String.valueOf(song.getID())});
     }
 
     public void delete(Song song)
     {
         this.getWritableDatabase()
                 .delete(DB.SONG_TABLE, DB.SONG_ID + " = ?",
-                        new String[] {String.valueOf(song.getId())});
+                        new String[] {String.valueOf(song.getID())});
     }
 
     public Song getCurrentSong(long id)
@@ -112,7 +112,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper
     private ContentValues getContentValues(final Song song)
     {
         final ContentValues values = new ContentValues();
-        values.put(DB.SONG_ID, song.getId());
+        values.put(DB.SONG_ID, song.getID());
         values.put(DB.SONG_PATH, song.getPath());
         values.put(DB.SONG_FILENAME, song.getFilename());
         values.put(DB.SONG_TITLE, song.getTitle());

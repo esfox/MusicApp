@@ -1,5 +1,7 @@
 package com.music.app.interfaces;
 
+import android.view.View;
+
 import com.music.app.adapters.viewholders.SongListViewHolder;
 
 public interface ListItem
@@ -16,6 +18,7 @@ public interface ListItem
     interface PlaylistsListItemListener
     {
         void onGotoPlaylist(int index);
+        void onOptions(int index, View view);
     }
 
     interface PlaylistItemListener

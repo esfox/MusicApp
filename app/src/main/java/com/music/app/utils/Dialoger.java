@@ -9,7 +9,7 @@ import com.music.app.R;
 
 public class Dialoger
 {
-    public static void createDialog
+    public static void createListDialog
         (
             Context context,
             String title,
@@ -44,12 +44,6 @@ public class Dialoger
 
     public static AlertDialog.Builder getDialogBuilder(Context context)
     {
-        AlertDialog.Builder dialog;
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            dialog = new AlertDialog.Builder(context, R.style.AppTheme_AlertDialog);
-        else
-            dialog = new AlertDialog.Builder(context);
-
-        return dialog;
+        return new AlertDialog.Builder(context, R.style.AppTheme_AlertDialog);
     }
 }
